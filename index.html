@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Tutorial</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <input class="view-toggle" type="radio" name="sidebar-view" id="show-tutorials" checked>
+  <input class="view-toggle" type="radio" name="sidebar-view" id="show-challenges">
+
+  <div class="page">
+    <aside class="sidebar" aria-label="Python tutorial navigation">
+      <a class="brand" href="#top" aria-label="Python Tutorial home">
+        <span class="brand-mark">Py</span>
+        <span>
+          <strong>Python Tutorial</strong>
+          <small>Learn by doing</small>
+        </span>
+      </a>
+
+      <div class="picker" aria-label="Choose navigation list">
+        <p class="picker-label">Show sidebar</p>
+        <div class="picker-menu">
+          <label class="picker-option tutorials-option" for="show-tutorials">Tutorials</label>
+          <label class="picker-option challenges-option" for="show-challenges">Challenges</label>
+        </div>
+      </div>
+
+      <nav class="nav-list tutorials-list" aria-label="Tutorial links">
+        <h2>Tutorials</h2>
+        <a href="#getting-started">Getting Started</a>
+        <a href="#variables">Variables and Input</a>
+        <a href="#if-statements">If Statements</a>
+        <a href="#loops">Loops</a>
+        <a href="#lists">Lists</a>
+        <a href="#functions">Functions</a>
+      </nav>
+
+      <nav class="nav-list challenges-list" aria-label="Challenge links">
+        <h2>Challenges</h2>
+        <a href="#number-game">Number Guessing Game</a>
+        <a href="#quiz-builder">Quiz Builder</a>
+        <a href="#grade-tracker">Grade Tracker</a>
+        <a href="#mini-project">Mini Project</a>
+      </nav>
+    </aside>
+
+    <main class="content" id="top">
+      <section class="intro">
+        <p class="eyebrow">Beginner Python course</p>
+        <h1>Learn Python one clear step at a time.</h1>
+
+        <p>
+          This tutorial website is a simple starting point for learning Python.
+          Use the sidebar to switch between guided tutorial topics and practical
+          coding challenges.
+        </p>
+
+        <p>
+          The tutorials introduce the core ideas: input, variables, decisions,
+          loops, lists, and functions. Each topic is designed to be short enough
+          to follow during class and useful enough to practise straight away.
+        </p>
+
+        <p>
+          When you are ready to test yourself, switch the sidebar to challenges
+          and try building a complete program from a brief.
+        </p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
