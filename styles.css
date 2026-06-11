@@ -242,6 +242,13 @@ h1 {
   font-size: 1.05rem;
 }
 
+.markdown-body a {
+  color: var(--blue);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .markdown-body ul {
   margin: 0 0 22px;
   padding-left: 24px;

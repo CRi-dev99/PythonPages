@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lesson 8: for loops</title>
+  <title>Setup: install Python</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -30,7 +30,7 @@
 
       <nav class="nav-list tutorials-list" aria-label="Tutorial links">
         <h2>Tutorials</h2>
-        <a href="setup-python.html">Setup: install Python</a>
+        <a href="setup-python.html" class="active" aria-current="page">Setup: install Python</a>
         <a href="print().html">Lesson 1: print()</a>
         <a href="variables.html">Lesson 2: variables</a>
         <a href="input().html">Lesson 3: input()</a>
@@ -38,7 +38,7 @@
         <a href="if-elif-else.html">Lesson 5: if/elif/else</a>
         <a href="string-manipulation.html">Lesson 6: string manipulation</a>
         <a href="list-manipulation.html">Lesson 7: list manipulation</a>
-        <a href="for-loops.html" class="active" aria-current="page">Lesson 8: for loops</a>
+        <a href="for-loops.html">Lesson 8: for loops</a>
         <a href="while-loops.html">Lesson 9: while loops</a>
         <a href="nested-if-statements.html">Lesson 10: nested if statements</a>
         <a href="dictionaries.html">Lesson 11: dictionaries</a>
@@ -82,56 +82,71 @@
         <h2>Tools</h2>
         <a href="reviewer.html">Code Reviewer</a>
         <a href="runner.html">Code Runner</a>
-      </nav>    </aside>
+      </nav>
+    </aside>
 
     <main class="content" id="top">
       <section class="intro lesson-content">
-        <p class="eyebrow">Lesson 8</p>
-        <h1>for loops</h1>
+        <p class="eyebrow">Setup</p>
+        <h1>Install Python</h1>
         <div class="markdown-body">
-<h2>For loops</h2>
-<p>A for loop repeats code for each item in a sequence.</p>
-<hr>
-<h3>Looping through a list</h3>
-<h4>Example:</h4>
-<pre><code>names = [&quot;Paddy&quot;, &quot;Sarah&quot;, &quot;John&quot;]
+          <h2>Download Python</h2>
+          <p>Go to the official Python downloads page and choose the latest stable version for your computer.</p>
+          <p><a href="https://www.python.org/downloads/">Open the official Python downloads page</a></p>
 
-for name in names:
-    print(name)</code></pre>
-<p>will display:</p>
-<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy
-&gt;&gt;&gt; Sarah
-&gt;&gt;&gt; John</code></pre>
-<hr>
-<h3>Using range()</h3>
-<p>The range() function is useful when you want to repeat code a certain number of times.</p>
-<h4>Example:</h4>
-<pre><code>for number in range(5):
-    print(number)</code></pre>
-<p>will display:</p>
-<pre class="terminal-output"><code>&gt;&gt;&gt; 0
-&gt;&gt;&gt; 1
-&gt;&gt;&gt; 2
-&gt;&gt;&gt; 3
-&gt;&gt;&gt; 4</code></pre>
-<h2>Try it yourself</h2>
-<ul>
-  <li>Print your name five times using a for loop</li>
-  <li>Print the numbers from 0 to 9</li>
-  <li>Make a list of subjects and print each one</li>
-  <li>Try changing range(5) to range(1, 6). What happens?</li>
-</ul>
+          <h2>Windows setup</h2>
+          <ul>
+            <li>Download the Windows installer from python.org.</li>
+            <li>Open the installer.</li>
+            <li>Tick <code>Add python.exe to PATH</code> before installing.</li>
+            <li>Click <code>Install Now</code>.</li>
+            <li>If you see <code>Disable path length limit</code> at the end, click it.</li>
+          </ul>
+          <p>The Python documentation also explains Windows installation and the Python install manager.</p>
+          <p><a href="https://docs.python.org/3/using/windows.html">Open the official Python on Windows documentation</a></p>
+
+          <h2>Check it worked</h2>
+          <p>Open PowerShell or Command Prompt and type:</p>
+          <pre><code>python --version</code></pre>
+          <p>If that does not work on Windows, try:</p>
+          <pre><code>py --version</code></pre>
+          <p>On macOS, you may need:</p>
+          <pre><code>python3 --version</code></pre>
+
+          <h2>Run a first program</h2>
+          <p>Create a file called <code>hello.py</code> and type:</p>
+          <pre><code>print("Hello, Python")</code></pre>
+          <p>Then run it from the same folder:</p>
+          <pre><code>python hello.py</code></pre>
+          <p>On macOS, use:</p>
+          <pre><code>python3 hello.py</code></pre>
+          <p>You should see:</p>
+          <pre class="terminal-output"><code>&gt;&gt;&gt; Hello, Python</code></pre>
+
+          <h2>Set up VS Code</h2>
+          <ul>
+            <li>Install Visual Studio Code.</li>
+            <li>Open the Extensions tab.</li>
+            <li>Install the extension called <code>Python</code> by Microsoft.</li>
+            <li>Open your Python folder in VS Code.</li>
+            <li>Open a <code>.py</code> file and choose a Python interpreter if VS Code asks.</li>
+          </ul>
+          <p>The VS Code Python docs explain that you need both Python itself and the Python extension.</p>
+          <p><a href="https://code.visualstudio.com/docs/languages/python">Open the official VS Code Python documentation</a></p>
+
+          <h2>Common problems</h2>
+          <ul>
+            <li>If <code>python</code> is not recognised, close and reopen your terminal.</li>
+            <li>If it still is not recognised on Windows, reinstall Python and tick <code>Add python.exe to PATH</code>.</li>
+            <li>If VS Code cannot find Python, use <code>Python: Select Interpreter</code> from the Command Palette.</li>
+          </ul>
         </div>
         <div class="page-actions">
           <a class="home-link" href="index.html">Back to home</a>
-          <a class="next-button" href="challenge8.html">Go to Challenge 8</a>
+          <a class="next-button" href="print().html">Start Lesson 1</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
-
-
-
-
