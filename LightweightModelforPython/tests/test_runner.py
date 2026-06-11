@@ -1,5 +1,7 @@
 import unittest
+from unittest.mock import patch
 
+from python_tutor import runner
 from python_tutor.runner import RunnerError, send_input, start_run, stop_run, validate_code
 
 
@@ -15,6 +17,14 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(started["prompt"], "Name: ")
 
         finished = send_input(str(started["session_id"]), "Paddy")
+        self.assertEqual(finished["status"], "finished")
+        self.assertIn("Hello Paddy", finished["output"])
+
+    def test_waiting_for_input_does_not_count_as_runtime(self) -> None:
+        started = start_run('name = input("Name: ")\nprint("Hello", name)')
+        session = runner.SESSIONS[str(started["session_id"])]
+        with patch("python_tutor.runner.time.monotonic", return_value=session.run_started_at + 60):
+            finished = send_input(str(started["session_id"]), "Paddy")
         self.assertEqual(finished["status"], "finished")
         self.assertIn("Hello Paddy", finished["output"])
 

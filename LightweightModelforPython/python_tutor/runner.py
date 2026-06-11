@@ -36,6 +36,7 @@ class RunnerSession:
     id: str
     process: subprocess.Popen[str]
     started_at: float
+    run_started_at: float
     events: "queue.Queue[tuple[str, str]]" = field(default_factory=queue.Queue)
     output: str = ""
     prompt_count: int = 0
@@ -63,7 +64,8 @@ def start_run(code: str) -> dict[str, object]:
         errors="replace",
         env=env,
     )
-    session = RunnerSession(id=session_id, process=process, started_at=time.monotonic())
+    now = time.monotonic()
+    session = RunnerSession(id=session_id, process=process, started_at=now, run_started_at=now)
     SESSIONS[session_id] = session
     _start_reader(session)
     response = _collect(session, wait=True)
@@ -77,6 +79,7 @@ def send_input(session_id: str, stdin: str) -> dict[str, object]:
         return _final_response(session, "finished")
 
     session.waiting_for_input = False
+    session.run_started_at = time.monotonic()
     try:
         session.process.stdin.write(stdin.rstrip("\n") + "\n")
         session.process.stdin.flush()
@@ -98,7 +101,7 @@ def cleanup_sessions() -> None:
     expired = [
         session_id
         for session_id, session in SESSIONS.items()
-        if now - session.started_at > MAX_RUNTIME_SECONDS * 2
+        if now - session.started_at > MAX_RUNTIME_SECONDS * 12
     ]
     for session_id in expired:
         session = SESSIONS.pop(session_id, None)
@@ -156,7 +159,7 @@ def _collect(session: RunnerSession, *, wait: bool) -> dict[str, object]:
     prompt = ""
 
     while True:
-        if time.monotonic() - session.started_at > MAX_RUNTIME_SECONDS:
+        if not session.waiting_for_input and time.monotonic() - session.run_started_at > MAX_RUNTIME_SECONDS:
             _kill(session)
             SESSIONS.pop(session.id, None)
             return _final_response(session, "timed_out")
@@ -181,6 +184,7 @@ def _collect(session: RunnerSession, *, wait: bool) -> dict[str, object]:
                 SESSIONS.pop(session.id, None)
                 return _final_response(session, "error", error="Too many input prompts.")
             session.waiting_for_input = True
+            session.run_started_at = time.monotonic()
             prompt = value
             return _final_response(session, "waiting_for_input", prompt=prompt)
         elif event == "process_end":
