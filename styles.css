@@ -144,6 +144,12 @@ a {
   display: none;
 }
 
+.tools-list {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
 #show-challenges:checked ~ .page .tutorials-list {
   display: none;
 }
@@ -317,6 +323,128 @@ h1 {
   outline-offset: 2px;
 }
 
+.reviewer-content {
+  padding-block: 48px;
+}
+
+.reviewer-shell {
+  width: min(100%, 1080px);
+}
+
+.reviewer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  gap: 16px;
+  margin-top: 26px;
+}
+
+.reviewer-panel,
+.review-results {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.reviewer-panel {
+  padding: 18px;
+}
+
+.reviewer-panel label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.reviewer-panel textarea {
+  width: 100%;
+  min-height: 300px;
+  resize: vertical;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--ink);
+  background: #ffffff;
+  font: 0.98rem/1.55 Consolas, "Courier New", monospace;
+}
+
+.reviewer-panel #questionInput {
+  min-height: 170px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.reviewer-button {
+  width: 100%;
+  margin-top: 14px;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.reviewer-button:disabled {
+  cursor: wait;
+  opacity: 0.75;
+}
+
+.review-status {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 0.98rem;
+}
+
+.review-results {
+  display: grid;
+  margin-top: 16px;
+  padding: 4px 18px 18px;
+}
+
+.review-results article {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.review-results article:last-child {
+  border-bottom: 0;
+}
+
+.review-results h2 {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-size: 1.08rem;
+}
+
+.review-results p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.diagnostics {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.diagnostics li {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--blue);
+  border-radius: 7px;
+  color: var(--muted);
+  background: #ffffff;
+}
+
+.diagnostics li.error {
+  border-left-color: #b42318;
+}
+
+.diagnostics li.warning {
+  border-left-color: #9a5b00;
+}
+
 @media (max-width: 780px) {
   .page {
     display: block;
@@ -330,5 +458,13 @@ h1 {
   .content {
     min-height: auto;
     padding: 42px 24px;
+  }
+
+  .reviewer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reviewer-panel textarea {
+    min-height: 230px;
   }
 }

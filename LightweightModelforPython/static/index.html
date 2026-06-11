@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Python Tutor Reviewer</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace" aria-label="Python code reviewer">
+        <header class="topbar">
+          <div>
+            <h1>Python Tutor Reviewer</h1>
+            <p>Friendly feedback for beginner Python code</p>
+          </div>
+          <button id="reviewButton" class="primary-button" type="button">Review</button>
+        </header>
+
+        <div class="editor-grid">
+          <section class="panel code-panel">
+            <label for="codeInput">Python code</label>
+            <textarea id="codeInput" spellcheck="false">numbers = [1, 2, 3]
+total = 0
+
+for i in range(len(numbers) + 1):
+    total = total + numbers[i]
+
+print(total)</textarea>
+            <div class="panel-footer">
+              <span class="hint-text">Reviews inspect the code statically without running the script.</span>
+            </div>
+          </section>
+
+          <section class="panel chat-panel">
+            <label for="questionInput">Learner question</label>
+            <textarea id="questionInput">I am trying to add all the numbers. What did I do wrong?</textarea>
+            <div id="status" class="status" role="status">Ready</div>
+          </section>
+        </div>
+      </section>
+
+      <section class="results" aria-label="Review results">
+        <article class="result-section">
+          <h2>What went wrong</h2>
+          <p id="what_went_wrong">Submit code to see feedback.</p>
+        </article>
+        <article class="result-section">
+          <h2>Why it happens</h2>
+          <p id="why_it_happens"></p>
+        </article>
+        <article class="result-section">
+          <h2>Hint</h2>
+          <p id="hint"></p>
+        </article>
+        <article class="result-section">
+          <h2>Improvement</h2>
+          <p id="improvement"></p>
+        </article>
+        <article class="result-section">
+          <h2>Try this next</h2>
+          <p id="try_this_next"></p>
+        </article>
+
+        <div class="diagnostics-wrap">
+          <div class="section-heading">
+            <h2>Diagnostics</h2>
+            <button id="saveExample" class="secondary-button" type="button" disabled>Save example</button>
+          </div>
+          <ul id="diagnostics" class="diagnostics"></ul>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
