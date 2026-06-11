@@ -140,6 +140,20 @@ a {
   background: var(--nav-soft);
 }
 
+.nav-list a.active,
+.nav-list a[aria-current="page"] {
+  color: #111827;
+  background: var(--yellow);
+  font-weight: 800;
+}
+
+.nav-list a.active:hover,
+.nav-list a.active:focus,
+.nav-list a[aria-current="page"]:hover,
+.nav-list a[aria-current="page"]:focus {
+  background: var(--yellow);
+}
+
 .challenges-list {
   display: none;
 }
