@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 7: list manipulation</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,56 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 7</p>
+        <h1>list manipulation</h1>
+        <div class="markdown-body">
+<h2>List manipulation</h2>
+<p>A list stores multiple values in one variable.</p>
+<p>Lists use square brackets.</p>
+<h4>Example:</h4>
+<pre><code>names = [&quot;Paddy&quot;, &quot;Sarah&quot;, &quot;John&quot;]
+print(names)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; [&#x27;Paddy&#x27;, &#x27;Sarah&#x27;, &#x27;John&#x27;]</code></pre>
+<hr>
+<h3>Indexing lists</h3>
+<p>You can get one item from a list using its index.</p>
+<p>Python starts counting from 0.</p>
+<h4>Example:</h4>
+<pre><code>names = [&quot;Paddy&quot;, &quot;Sarah&quot;, &quot;John&quot;]
+print(names[0])</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy</code></pre>
+<hr>
+<h3>Changing a list</h3>
+<p>You can add, remove and change items in a list.</p>
+<h4>Example:</h4>
+<pre><code>numbers = [1, 2, 3]
+
+numbers.append(4)
+numbers.remove(2)
+numbers[0] = 10
+
+print(numbers)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; [10, 3, 4]</code></pre>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Make a list of three favourite foods</li>
+  <li>Print the first item in the list</li>
+  <li>Add another item to the list</li>
+  <li>Remove one item from the list</li>
+  <li>Change one item in the list</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge7.html">Go to Challenge 7</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

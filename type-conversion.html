@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 4: type conversion</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,60 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 4</p>
+        <h1>type conversion</h1>
+        <div class="markdown-body">
+<h2>Variable conversion and types</h2>
+<p>Every value in Python has a type.</p>
+<p>The main types you have seen so far are string, integer, float and boolean.</p>
+<hr>
+<h3>Checking a type</h3>
+<p>You can use the type() function to check the type of a value.</p>
+<h4>Example:</h4>
+<pre><code>age = 16
+print(type(age))</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; &lt;class &#x27;int&#x27;&gt;</code></pre>
+<hr>
+<h3>Type casting</h3>
+<p>Type casting means changing a value from one type into another type.</p>
+<ul>
+  <li>int() changes a value into an integer</li>
+  <li>float() changes a value into a float</li>
+  <li>str() changes a value into a string</li>
+  <li>bool() changes a value into a boolean</li>
+</ul>
+<h4>Example:</h4>
+<pre><code>age = input(&quot;Enter your age: &quot;)
+age = int(age)
+print(age + 1)</code></pre>
+<p>If the user types 16, it will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 17</code></pre>
+<hr>
+<h3>Strings and numbers</h3>
+<p>The string &quot;2&quot; and the integer 2 are different.</p>
+<h4>Example:</h4>
+<pre><code>print(&quot;2&quot; + &quot;2&quot;)
+print(2 + 2)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 22
+&gt;&gt;&gt; 4</code></pre>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Ask the user for two numbers and add them together</li>
+  <li>Print the type of a value before and after casting it</li>
+  <li>Try to cast &quot;hello&quot; into an integer. What happens?</li>
+  <li>Try to cast 5.9 into an integer. What happens?</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge4.html">Go to Challenge 4</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

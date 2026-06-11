@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 9: while loops</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,49 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 9</p>
+        <h1>while loops</h1>
+        <div class="markdown-body">
+<h2>While loops</h2>
+<p>A while loop repeats code while a condition is true.</p>
+<hr>
+<h3>Example:</h3>
+<pre><code>counter = 1
+
+while counter &lt;= 5:
+    print(counter)
+    counter = counter + 1</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 1
+&gt;&gt;&gt; 2
+&gt;&gt;&gt; 3
+&gt;&gt;&gt; 4
+&gt;&gt;&gt; 5</code></pre>
+<hr>
+<h3>Infinite loops</h3>
+<p>If the condition never becomes false, the loop will keep going.</p>
+<h4>Example:</h4>
+<pre><code>counter = 1
+
+while counter &lt;= 5:
+    print(counter)</code></pre>
+<p>This loop does not change counter, so it will not stop by itself.</p>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Print the numbers from 1 to 10 using a while loop</li>
+  <li>Ask the user to enter a password until they enter the correct one</li>
+  <li>Make a countdown from 5 to 1</li>
+  <li>Try making an infinite loop, then stop the program</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge9.html">Go to Challenge 9</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

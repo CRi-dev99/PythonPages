@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 8: for loops</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,50 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 8</p>
+        <h1>for loops</h1>
+        <div class="markdown-body">
+<h2>For loops</h2>
+<p>A for loop repeats code for each item in a sequence.</p>
+<hr>
+<h3>Looping through a list</h3>
+<h4>Example:</h4>
+<pre><code>names = [&quot;Paddy&quot;, &quot;Sarah&quot;, &quot;John&quot;]
+
+for name in names:
+    print(name)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy
+&gt;&gt;&gt; Sarah
+&gt;&gt;&gt; John</code></pre>
+<hr>
+<h3>Using range()</h3>
+<p>The range() function is useful when you want to repeat code a certain number of times.</p>
+<h4>Example:</h4>
+<pre><code>for number in range(5):
+    print(number)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 0
+&gt;&gt;&gt; 1
+&gt;&gt;&gt; 2
+&gt;&gt;&gt; 3
+&gt;&gt;&gt; 4</code></pre>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Print your name five times using a for loop</li>
+  <li>Print the numbers from 0 to 9</li>
+  <li>Make a list of subjects and print each one</li>
+  <li>Try changing range(5) to range(1, 6). What happens?</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge8.html">Go to Challenge 8</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

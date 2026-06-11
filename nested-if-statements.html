@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 10: nested if statements</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,46 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 10</p>
+        <h1>nested if statements</h1>
+        <div class="markdown-body">
+<h2>Nested ifs</h2>
+<p>A nested if is an if statement inside another if statement.</p>
+<p>This is useful when you only want to check something after another condition is true.</p>
+<hr>
+<h3>Example:</h3>
+<pre><code>age = 18
+has_ticket = True
+
+if age &gt;= 18:
+    if has_ticket == True:
+        print(&quot;You can enter&quot;)
+    else:
+        print(&quot;You need a ticket&quot;)
+else:
+    print(&quot;You are too young&quot;)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; You can enter</code></pre>
+<hr>
+<h3>Indentation</h3>
+<p>Nested ifs need careful indentation.</p>
+<p>The spaces at the start of the line show Python which code belongs inside each if statement.</p>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Check if someone is old enough to drive, then check if they have a licence</li>
+  <li>Check if a username is correct, then check if the password is correct</li>
+  <li>Change the example so has_ticket is False</li>
+  <li>Try changing the indentation. What happens?</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge10.html">Go to Challenge 10</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 13: functions</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,59 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 13</p>
+        <h1>functions</h1>
+        <div class="markdown-body">
+<h2>Functions</h2>
+<p>A function is a reusable block of code.</p>
+<p>You can write the code once, then call it whenever you need it.</p>
+<hr>
+<h3>Creating a function</h3>
+<p>You create a function using def.</p>
+<h4>Example:</h4>
+<pre><code>def say_hello():
+    print(&quot;Hello&quot;)
+
+say_hello()</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Hello</code></pre>
+<hr>
+<h3>Parameters</h3>
+<p>Parameters let you send values into a function.</p>
+<h4>Example:</h4>
+<pre><code>def greet(name):
+    print(&quot;Hello &quot; + name)
+
+greet(&quot;Paddy&quot;)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Hello Paddy</code></pre>
+<hr>
+<h3>Return</h3>
+<p>Return sends a value back from a function.</p>
+<h4>Example:</h4>
+<pre><code>def add(number1, number2):
+    return number1 + number2
+
+result = add(3, 4)
+print(result)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 7</code></pre>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Make a function that prints your name</li>
+  <li>Make a function that takes a name and greets the person</li>
+  <li>Make a function that adds two numbers and returns the answer</li>
+  <li>Call the same function more than once</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge13.html">Go to Challenge 13</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

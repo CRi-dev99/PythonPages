@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 12: try except</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,45 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 12</p>
+        <h1>try except</h1>
+        <div class="markdown-body">
+<h2>Try except</h2>
+<p>Try except is used to handle errors.</p>
+<p>It stops your program from crashing when something goes wrong.</p>
+<hr>
+<h3>Example:</h3>
+<pre><code>number = input(&quot;Enter a number: &quot;)
+
+try:
+    number = int(number)
+    print(number + 10)
+except:
+    print(&quot;That was not a number&quot;)</code></pre>
+<p>If the user types 5, it will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 15</code></pre>
+<p>If the user types hello, it will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; That was not a number</code></pre>
+<hr>
+<h3>Why use it?</h3>
+<p>User input can be unpredictable.</p>
+<p>Try except lets your program react to bad input instead of stopping.</p>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Ask the user for their age and use try except when converting it to an integer</li>
+  <li>Make a calculator that handles bad number input</li>
+  <li>Try dividing by zero inside a try block</li>
+  <li>Change the except message to something clearer</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge12.html">Go to Challenge 12</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

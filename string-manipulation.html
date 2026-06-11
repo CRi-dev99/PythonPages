@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 6: string manipulation</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,59 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 6</p>
+        <h1>string manipulation</h1>
+        <div class="markdown-body">
+<h2>String manipulation</h2>
+<p>String manipulation means changing or using text in different ways.</p>
+<hr>
+<h3>Joining strings</h3>
+<p>You can join strings together using the + symbol.</p>
+<h4>Example:</h4>
+<pre><code>first_name = &quot;Paddy&quot;
+second_name = &quot;Murphy&quot;
+
+print(first_name + &quot; &quot; + second_name)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy Murphy</code></pre>
+<hr>
+<h3>String methods</h3>
+<p>Python has useful methods for strings.</p>
+<h4>Example:</h4>
+<pre><code>message = &quot;hello&quot;
+
+print(message.upper())
+print(message.capitalize())</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; HELLO
+&gt;&gt;&gt; Hello</code></pre>
+<hr>
+<h3>Indexing strings</h3>
+<p>You can get one character from a string using its index.</p>
+<p>Python starts counting from 0.</p>
+<h4>Example:</h4>
+<pre><code>word = &quot;Python&quot;
+print(word[0])
+print(word[1])</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; P
+&gt;&gt;&gt; y</code></pre>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Ask the user for their first name and second name, then print their full name</li>
+  <li>Print a word in uppercase</li>
+  <li>Print the first letter of your name</li>
+  <li>Try to print a letter using an index that is too big. What happens?</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge6.html">Go to Challenge 6</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

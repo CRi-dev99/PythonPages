@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 21: advanced data algorithms</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,69 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 21</p>
+        <h1>advanced data algorithms</h1>
+        <div class="markdown-body">
+<h2>Advanced data algorithms</h2>
+<p>An algorithm is a set of steps used to solve a problem.</p>
+<p>Advanced data algorithms often work with lists, dictionaries and other data structures.</p>
+<hr>
+<h3>Searching a list</h3>
+<p>Searching means finding an item in a list.</p>
+<h4>Example:</h4>
+<pre><code>names = [&quot;Paddy&quot;, &quot;Sarah&quot;, &quot;John&quot;]
+target = &quot;Sarah&quot;
+
+for name in names:
+    if name == target:
+        print(&quot;Found&quot;)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Found</code></pre>
+<hr>
+<h3>Finding the largest number</h3>
+<h4>Example:</h4>
+<pre><code>numbers = [4, 9, 2, 7]
+largest = numbers[0]
+
+for number in numbers:
+    if number &gt; largest:
+        largest = number
+
+print(largest)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 9</code></pre>
+<hr>
+<h3>Counting items</h3>
+<p>Dictionaries can be used to count how many times values appear.</p>
+<h4>Example:</h4>
+<pre><code>words = [&quot;red&quot;, &quot;blue&quot;, &quot;red&quot;, &quot;green&quot;, &quot;blue&quot;, &quot;red&quot;]
+counts = {}
+
+for word in words:
+    if word in counts:
+        counts[word] = counts[word] + 1
+    else:
+        counts[word] = 1
+
+print(counts)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; {&#x27;red&#x27;: 3, &#x27;blue&#x27;: 2, &#x27;green&#x27;: 1}</code></pre>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Search a list for a name entered by the user</li>
+  <li>Find the smallest number in a list</li>
+  <li>Count how many times each letter appears in a word</li>
+  <li>Sort a list using sorted() and compare it to your own searching code</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge21.html">Go to Challenge 21</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

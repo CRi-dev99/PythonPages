@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 16: match case</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,47 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 16</p>
+        <h1>match case</h1>
+        <div class="markdown-body">
+<h2>Match case</h2>
+<p>Match case is another way to make decisions in Python.</p>
+<p>It is useful when you are checking one value against different options.</p>
+<hr>
+<h3>Example:</h3>
+<pre><code>day = &quot;Monday&quot;
+
+match day:
+    case &quot;Monday&quot;:
+        print(&quot;Start of the week&quot;)
+    case &quot;Friday&quot;:
+        print(&quot;Almost the weekend&quot;)
+    case &quot;Saturday&quot; | &quot;Sunday&quot;:
+        print(&quot;Weekend&quot;)
+    case _:
+        print(&quot;Normal day&quot;)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Start of the week</code></pre>
+<hr>
+<h3>Default case</h3>
+<p>The case _ part is used when none of the other cases match.</p>
+<p>It works like else.</p>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Ask the user for a day of the week and print a message</li>
+  <li>Make a menu where the user chooses option 1, 2 or 3</li>
+  <li>Add a default case for an invalid choice</li>
+  <li>Rewrite a match case program using if, elif and else</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge16.html">Go to Challenge 16</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

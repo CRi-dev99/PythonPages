@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 11: dictionaries</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,55 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 11</p>
+        <h1>dictionaries</h1>
+        <div class="markdown-body">
+<h2>Dictionaries</h2>
+<p>A dictionary stores data using keys and values.</p>
+<p>Lists use positions. Dictionaries use names.</p>
+<hr>
+<h3>Example:</h3>
+<pre><code>student = {
+    &quot;name&quot;: &quot;Paddy&quot;,
+    &quot;age&quot;: 16,
+    &quot;year&quot;: 5
+}
+
+print(student[&quot;name&quot;])</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy</code></pre>
+<hr>
+<h3>Changing a dictionary</h3>
+<p>You can add or change values using their key.</p>
+<h4>Example:</h4>
+<pre><code>student = {
+    &quot;name&quot;: &quot;Paddy&quot;,
+    &quot;age&quot;: 16
+}
+
+student[&quot;age&quot;] = 17
+student[&quot;subject&quot;] = &quot;Computer Science&quot;
+
+print(student)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; {&#x27;name&#x27;: &#x27;Paddy&#x27;, &#x27;age&#x27;: 17, &#x27;subject&#x27;: &#x27;Computer Science&#x27;}</code></pre>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Make a dictionary for yourself with name, age and favourite subject</li>
+  <li>Print one value from the dictionary</li>
+  <li>Change one value in the dictionary</li>
+  <li>Add a new key and value to the dictionary</li>
+  <li>Try to print a key that does not exist. What happens?</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge11.html">Go to Challenge 11</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

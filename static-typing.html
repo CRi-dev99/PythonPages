@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 17: static typing</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,51 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 17</p>
+        <h1>static typing</h1>
+        <div class="markdown-body">
+<h2>Static typing</h2>
+<p>Python is dynamically typed.</p>
+<p>This means you usually do not have to write the type of a variable.</p>
+<p>Static typing uses type hints to show what type a value should be.</p>
+<hr>
+<h3>Variable type hints</h3>
+<h4>Example:</h4>
+<pre><code>name: str = &quot;Paddy&quot;
+age: int = 16
+height: float = 1.75
+is_student: bool = True</code></pre>
+<p>Type hints do not change how the program runs, but they make the code easier to understand.</p>
+<hr>
+<h3>Function type hints</h3>
+<h4>Example:</h4>
+<pre><code>def add(number1: int, number2: int) -&gt; int:
+    return number1 + number2
+
+print(add(3, 4))</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 7</code></pre>
+<hr>
+<h3>Important</h3>
+<p>Python will still run this:</p>
+<pre><code>age: int = &quot;sixteen&quot;</code></pre>
+<p>The type hint is a helpful note, not a strict rule by itself.</p>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Add type hints to variables for your name, age and favourite subject</li>
+  <li>Add type hints to a function that multiplies two numbers</li>
+  <li>Try putting the wrong type into a hinted variable</li>
+  <li>Explain why type hints can help another programmer</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge17.html">Go to Challenge 17</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

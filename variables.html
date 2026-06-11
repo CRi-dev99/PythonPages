@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 2: variables</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,64 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 2</p>
+        <h1>variables</h1>
+        <div class="markdown-body">
+<h2>Variables</h2>
+<p>A variable is a name that stores a value</p>
+<p>The value could be anything, a number, a string or a boolean</p>
+<p>You create a variable by writing the variable name, then an equals sign, then the value.</p>
+<h3>Example:</h3>
+<pre><code>name = &quot;Paddy&quot;
+age = 16
+is_student = True
+
+print(name)
+print(age)
+print(is_student)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy
+&gt;&gt;&gt; 16
+&gt;&gt;&gt; True</code></pre>
+<hr>
+<h3>What is a string?</h3>
+<p>A string is a piece of text in Python.</p>
+<p>You create a string by putting text inside quotes.</p>
+<p>This text can be any text, not just letters.</p>
+<h4>Example:</h4>
+<pre><code>&quot;Name&quot;, &quot;9&quot;, &quot;True&quot;, &quot;6.3&quot;</code></pre>
+<hr>
+<h3>What is a boolean?</h3>
+<p>A boolean value is a value that is either true or false, like a light switch. This is used when checking an on/off value in a program, eg. is a door opened or not.</p>
+<h4>Example:</h4>
+<pre><code>True, False</code></pre>
+<p>By the way, the capitalisation is important.</p>
+<hr>
+<h3>What is an integer?</h3>
+<p>Integers in Python are whole numbers without a decimal point. The difference between integers and strings is that integers are not enclosed within quotation marks.</p>
+<h4>Example:</h4>
+<pre><code>9, 5</code></pre>
+<hr>
+<h3>What is a float?</h3>
+<p>A float value is a value that is a decimal number</p>
+<h4>Example:</h4>
+<pre><code>9.0, 5.5565</code></pre>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Make a variable for your name and print it</li>
+  <li>Make a variable for your age and print it</li>
+  <li>Change the value of a variable after you create it</li>
+  <li>Make three variables: one string, one integer and one boolean</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge2.html">Go to Challenge 2</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

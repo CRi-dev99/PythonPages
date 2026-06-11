@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 18: classes</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,58 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 18</p>
+        <h1>classes</h1>
+        <div class="markdown-body">
+<h2>Classes</h2>
+<p>A class is a blueprint for creating objects.</p>
+<p>An object can store data and have functions that belong to it.</p>
+<hr>
+<h3>Creating a class</h3>
+<h4>Example:</h4>
+<pre><code>class Student:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+student1 = Student(&quot;Paddy&quot;, 16)
+
+print(student1.name)
+print(student1.age)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy
+&gt;&gt;&gt; 16</code></pre>
+<hr>
+<h3>Methods</h3>
+<p>A method is a function inside a class.</p>
+<h4>Example:</h4>
+<pre><code>class Student:
+    def __init__(self, name):
+        self.name = name
+
+    def say_hello(self):
+        print(&quot;Hello, my name is &quot; + self.name)
+
+student1 = Student(&quot;Paddy&quot;)
+student1.say_hello()</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Hello, my name is Paddy</code></pre>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Create a class called Dog with a name and age</li>
+  <li>Create two objects from the same class</li>
+  <li>Add a method that prints a sentence about the object</li>
+  <li>Try printing an attribute that does not exist. What happens?</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge18.html">Go to Challenge 18</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

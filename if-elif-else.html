@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 5: if/elif/else</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,64 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 5</p>
+        <h1>if/elif/else</h1>
+        <div class="markdown-body">
+<h2>If, elif and else statements</h2>
+<p>If statements let your program make decisions.</p>
+<p>They run code only if a condition is true.</p>
+<hr>
+<h3>If</h3>
+<h4>Example:</h4>
+<pre><code>age = 18
+
+if age &gt;= 18:
+    print(&quot;You are an adult&quot;)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; You are an adult</code></pre>
+<hr>
+<h3>Else</h3>
+<p>The else part runs when the if condition is false.</p>
+<h4>Example:</h4>
+<pre><code>age = 15
+
+if age &gt;= 18:
+    print(&quot;You are an adult&quot;)
+else:
+    print(&quot;You are not an adult&quot;)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; You are not an adult</code></pre>
+<hr>
+<h3>Elif</h3>
+<p>Elif means else if.</p>
+<p>It lets you check another condition.</p>
+<h4>Example:</h4>
+<pre><code>mark = 65
+
+if mark &gt;= 80:
+    print(&quot;Distinction&quot;)
+elif mark &gt;= 50:
+    print(&quot;Pass&quot;)
+else:
+    print(&quot;Fail&quot;)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Pass</code></pre>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Ask the user for their age and check if they are old enough to drive</li>
+  <li>Make a program that checks if a number is positive, negative or zero</li>
+  <li>Make a program that checks if a password is correct</li>
+  <li>Try forgetting the colon after an if statement. What happens?</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge5.html">Go to Challenge 5</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

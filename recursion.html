@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 20: recursion</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,61 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 20</p>
+        <h1>recursion</h1>
+        <div class="markdown-body">
+<h2>Recursion</h2>
+<p>Recursion is when a function calls itself.</p>
+<p>It is useful for problems that can be broken into smaller versions of the same problem.</p>
+<hr>
+<h3>Example:</h3>
+<pre><code>def countdown(number):
+    print(number)
+
+    if number &gt; 1:
+        countdown(number - 1)
+
+countdown(5)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 5
+&gt;&gt;&gt; 4
+&gt;&gt;&gt; 3
+&gt;&gt;&gt; 2
+&gt;&gt;&gt; 1</code></pre>
+<hr>
+<h3>Base case</h3>
+<p>A recursive function needs a base case.</p>
+<p>The base case is the condition that stops the recursion.</p>
+<p>Without a base case, the function will call itself forever.</p>
+<hr>
+<h3>Factorial example</h3>
+<p>Factorial means multiplying a number by every whole number below it.</p>
+<h4>Example:</h4>
+<pre><code>def factorial(number):
+    if number == 1:
+        return 1
+    else:
+        return number * factorial(number - 1)
+
+print(factorial(5))</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 120</code></pre>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Make a recursive function that counts down from 10</li>
+  <li>Change the countdown so it stops at 0</li>
+  <li>Find the base case in the factorial example</li>
+  <li>Try removing the base case. What happens?</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge20.html">Go to Challenge 20</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

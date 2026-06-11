@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 3: input()</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,44 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 3</p>
+        <h1>input()</h1>
+        <div class="markdown-body">
+<h2>Input()</h2>
+<p>The input() function is used to take in user input.</p>
+<p>User input is any data a user enters into a program.</p>
+<hr>
+<h3>Input() usage</h3>
+<p>Anything inside the brackets will be displayed before the user types their answer.</p>
+<pre><code>name = input(&quot;Enter your name: &quot;)
+print(name)</code></pre>
+<p>If the user types Paddy, it will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Enter your name: Paddy
+&gt;&gt;&gt; Paddy</code></pre>
+<hr>
+<h3>Important</h3>
+<p>The input() function always gives you a string, even if the user types a number.</p>
+<h4>Example:</h4>
+<pre><code>age = input(&quot;Enter your age: &quot;)
+print(type(age))</code></pre>
+<p>If the user types 16, it will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; str</code></pre>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Ask the user for their name and print it</li>
+  <li>Ask the user for their favourite colour and print it</li>
+  <li>Ask the user for their age and print the type of the answer</li>
+  <li>Try putting nothing inside the input brackets. What happens?</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge3.html">Go to Challenge 3</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

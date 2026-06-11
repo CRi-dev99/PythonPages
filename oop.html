@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 19: OOP</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,69 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 19</p>
+        <h1>OOP</h1>
+        <div class="markdown-body">
+<h2>OOP</h2>
+<p>OOP means Object-Oriented Programming.</p>
+<p>It is a way of organising code using classes and objects.</p>
+<hr>
+<h3>Why use OOP?</h3>
+<p>OOP helps you keep related data and functions together.</p>
+<p>For example, a Player object might store its name, health and score.</p>
+<hr>
+<h3>Example:</h3>
+<pre><code>class Player:
+    def __init__(self, name):
+        self.name = name
+        self.health = 100
+        self.score = 0
+
+    def take_damage(self, amount):
+        self.health = self.health - amount
+
+    def add_score(self, points):
+        self.score = self.score + points
+
+player1 = Player(&quot;Paddy&quot;)
+player1.take_damage(20)
+player1.add_score(10)
+
+print(player1.health)
+print(player1.score)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 80
+&gt;&gt;&gt; 10</code></pre>
+<hr>
+<h3>Objects are separate</h3>
+<p>Each object has its own data.</p>
+<h4>Example:</h4>
+<pre><code>player1 = Player(&quot;Paddy&quot;)
+player2 = Player(&quot;Sarah&quot;)
+
+player1.add_score(10)
+
+print(player1.score)
+print(player2.score)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 10
+&gt;&gt;&gt; 0</code></pre>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Create a Player class with name, health and score</li>
+  <li>Make methods to change the health and score</li>
+  <li>Create two different players</li>
+  <li>Show that changing one player does not change the other player</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge19.html">Go to Challenge 19</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+

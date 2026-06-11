@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Tutorial</title>
+  <title>Lesson 15: nested loops</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -80,19 +80,54 @@
     </aside>
 
     <main class="content" id="top">
-      <section class="intro">
-        <p class="eyebrow">Beginner Python course</p>
-        <h1>Learn Python one clear step at a time.</h1>
-        <p>
-          This tutorial website is a simple starting point for learning Python.
-          Start with the first lesson and after each lesson, do the corresponding challenge to practice what you just learned.
-        </p>
+      <section class="intro lesson-content">
+        <p class="eyebrow">Lesson 15</p>
+        <h1>nested loops</h1>
+        <div class="markdown-body">
+<h2>Nested loops</h2>
+<p>A nested loop is a loop inside another loop.</p>
+<p>The inner loop runs fully each time the outer loop runs once.</p>
+<hr>
+<h3>Example:</h3>
+<pre><code>for row in range(3):
+    for column in range(3):
+        print(&quot;Row&quot;, row, &quot;Column&quot;, column)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Row 0 Column 0
+&gt;&gt;&gt; Row 0 Column 1
+&gt;&gt;&gt; Row 0 Column 2
+&gt;&gt;&gt; Row 1 Column 0
+&gt;&gt;&gt; Row 1 Column 1
+&gt;&gt;&gt; Row 1 Column 2
+&gt;&gt;&gt; Row 2 Column 0
+&gt;&gt;&gt; Row 2 Column 1
+&gt;&gt;&gt; Row 2 Column 2</code></pre>
+<hr>
+<h3>Grid example</h3>
+<h4>Example:</h4>
+<pre><code>for row in range(3):
+    for column in range(3):
+        print(&quot;*&quot;, end=&quot;&quot;)
+    print()</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; ***
+&gt;&gt;&gt; ***
+&gt;&gt;&gt; ***</code></pre>
+<h2>Try it yourself</h2>
+<ul>
+  <li>Print a 5 by 5 square of stars</li>
+  <li>Print a triangle of stars</li>
+  <li>Use nested loops to print every pair of numbers from 1 to 3</li>
+  <li>Change the size of the grid using a variable</li>
+</ul>
+        </div>
         <div class="page-actions">
-          <a class="next-button" href="print().html">Start Lesson 1</a>
-          <a class="home-link" href="challenge1.html">Open Challenge 1</a>
+          <a class="home-link" href="index.html">Back to home</a>
+          <a class="next-button" href="challenge15.html">Go to Challenge 15</a>
         </div>
       </section>
     </main>
   </div>
 </body>
 </html>
+
