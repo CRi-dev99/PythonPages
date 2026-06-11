@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lesson 19: OOP</title>
+  <title>Code Runner</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -77,78 +77,71 @@
         <a href="challenge20.html">Challenge 20</a>
         <a href="challenge21.html">Challenge 21</a>
       </nav>
+
       <nav class="nav-list tools-list" aria-label="Tool links">
         <h2>Tools</h2>
         <a href="reviewer.html">Code Reviewer</a>
         <a href="runner.html">Code Runner</a>
-      </nav>    </aside>
+      </nav>
+    </aside>
 
-    <main class="content" id="top">
-      <section class="intro lesson-content">
-        <p class="eyebrow">Lesson 19</p>
-        <h1>OOP</h1>
-        <div class="markdown-body">
-<h2>OOP</h2>
-<p>OOP means Object-Oriented Programming.</p>
-<p>It is a way of organising code using classes and objects.</p>
-<hr>
-<h3>Why use OOP?</h3>
-<p>OOP helps you keep related data and functions together.</p>
-<p>For example, a Player object might store its name, health and score.</p>
-<hr>
-<h3>Example:</h3>
-<pre><code>class Player:
-    def __init__(self, name):
-        self.name = name
-        self.health = 100
-        self.score = 0
-
-    def take_damage(self, amount):
-        self.health = self.health - amount
-
-    def add_score(self, points):
-        self.score = self.score + points
-
-player1 = Player(&quot;Paddy&quot;)
-player1.take_damage(20)
-player1.add_score(10)
-
-print(player1.health)
-print(player1.score)</code></pre>
-<p>will display:</p>
-<pre class="terminal-output"><code>&gt;&gt;&gt; 80
-&gt;&gt;&gt; 10</code></pre>
-<hr>
-<h3>Objects are separate</h3>
-<p>Each object has its own data.</p>
-<h4>Example:</h4>
-<pre><code>player1 = Player(&quot;Paddy&quot;)
-player2 = Player(&quot;Sarah&quot;)
-
-player1.add_score(10)
-
-print(player1.score)
-print(player2.score)</code></pre>
-<p>will display:</p>
-<pre class="terminal-output"><code>&gt;&gt;&gt; 10
-&gt;&gt;&gt; 0</code></pre>
-<h2>Try it yourself</h2>
-<ul>
-  <li>Create a Player class with name, health and score</li>
-  <li>Make methods to change the health and score</li>
-  <li>Create two different players</li>
-  <li>Show that changing one player does not change the other player</li>
-</ul>
+    <main class="content runner-content" id="top">
+      <section class="runner-shell" id="runnerShell">
+        <div class="runner-header">
+          <div>
+            <p class="eyebrow">Python tool</p>
+            <h1>Code Runner</h1>
+          </div>
+          <button class="home-link lesson-toggle" id="toggleLesson" type="button" aria-expanded="true">Hide lesson</button>
         </div>
-        <div class="page-actions">
-          <a class="home-link" href="index.html">Back to home</a>
-          <a class="next-button" href="challenge19.html">Go to Challenge 19</a>
+
+        <div class="runner-workspace">
+          <aside class="lesson-pane" aria-label="Selected tutorial or challenge">
+            <div class="lesson-toolbar">
+              <label for="courseType">Show</label>
+              <select id="courseType">
+                <option value="tutorial">Tutorials</option>
+                <option value="challenge">Challenges</option>
+              </select>
+              <label for="courseSelect">Page</label>
+              <select id="courseSelect"></select>
+            </div>
+
+            <div class="lesson-pane-header">
+              <h2 id="lessonTitle">Lesson 1: print()</h2>
+              <a id="fullPageLink" class="home-link" href="print().html">Open full page</a>
+            </div>
+            <div id="lessonBody" class="markdown-body lesson-pane-body"></div>
+          </aside>
+
+          <section class="code-pane" aria-label="Python code runner">
+            <div class="editor-card">
+              <div class="editor-toolbar">
+                <span>Python editor</span>
+                <div class="runner-actions">
+                  <button id="runButton" class="next-button" type="button">Run</button>
+                  <button id="stopButton" class="home-link" type="button" disabled>Stop</button>
+                </div>
+              </div>
+              <div id="editorHost" class="monaco-host" aria-label="Python code editor"></div>
+            </div>
+
+            <div class="terminal-card">
+              <div class="terminal-toolbar">
+                <span>Terminal</span>
+                <span id="runnerStatus">Ready</span>
+              </div>
+              <pre id="terminalOutput" class="terminal-output-panel" aria-live="polite"></pre>
+              <input id="terminalInput" class="terminal-input" type="text" autocomplete="off" disabled>
+            </div>
+          </section>
         </div>
       </section>
     </main>
   </div>
+
+  <script src="course-data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/loader.js"></script>
+  <script src="runner.js"></script>
 </body>
 </html>
-
-
-

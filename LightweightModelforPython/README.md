@@ -51,9 +51,14 @@ Render provides the `PORT` variable automatically. The app also exposes:
 ```text
 GET /api/health
 POST /api/review
+POST /api/run/start
+POST /api/run/input
+POST /api/run/stop
 ```
 
 Public saving to `/api/examples` is disabled unless `PY_TUTOR_ENABLE_EXAMPLES=1` is set.
+
+The `/api/run/*` endpoints power the website Code Runner. They run short beginner Python snippets in a restricted subprocess and support terminal-style `input()` prompts.
 
 ## Local Model Backend
 

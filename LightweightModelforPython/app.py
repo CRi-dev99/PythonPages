@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 
 from python_tutor.adapters import review_payload
 from python_tutor.analysis import analyze_code
+from python_tutor.runner import RunnerError, send_input, start_run, stop_run
 from python_tutor.storage import ReviewExample, append_review_example
 
 
@@ -42,6 +43,12 @@ class TutorHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path == "/api/review":
             return self._handle_review()
+        if parsed.path == "/api/run/start":
+            return self._handle_run_start()
+        if parsed.path == "/api/run/input":
+            return self._handle_run_input()
+        if parsed.path == "/api/run/stop":
+            return self._handle_run_stop()
         if parsed.path == "/api/examples":
             return self._handle_example()
         self._send_json({"error": "Not found"}, status=404)
@@ -61,6 +68,31 @@ class TutorHandler(BaseHTTPRequestHandler):
 
         analysis = analyze_code(code)
         self._send_json(review_payload(code, question, analysis=analysis))
+
+    def _handle_run_start(self) -> None:
+        data = self._read_json()
+        code = str(data.get("code", ""))
+        try:
+            self._send_json(start_run(code))
+        except RunnerError as exc:
+            self._send_json({"status": "error", "output": "", "error": str(exc)}, status=400)
+
+    def _handle_run_input(self) -> None:
+        data = self._read_json()
+        session_id = str(data.get("session_id", ""))
+        stdin = str(data.get("stdin", ""))
+        try:
+            self._send_json(send_input(session_id, stdin))
+        except RunnerError as exc:
+            self._send_json({"status": "error", "output": "", "error": str(exc)}, status=400)
+
+    def _handle_run_stop(self) -> None:
+        data = self._read_json()
+        session_id = str(data.get("session_id", ""))
+        try:
+            self._send_json(stop_run(session_id))
+        except RunnerError as exc:
+            self._send_json({"status": "error", "output": "", "error": str(exc)}, status=400)
 
     def _handle_example(self) -> None:
         if os.getenv("PY_TUTOR_ENABLE_EXAMPLES") != "1":

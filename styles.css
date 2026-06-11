@@ -445,6 +445,228 @@ h1 {
   border-left-color: #9a5b00;
 }
 
+.runner-content {
+  padding: 32px;
+}
+
+.runner-shell {
+  width: min(100%, 1440px);
+}
+
+.runner-header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.runner-header h1 {
+  margin-bottom: 0;
+  font-size: clamp(2rem, 5vw, 3.6rem);
+}
+
+.lesson-toggle {
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.runner-workspace {
+  display: grid;
+  grid-template-columns: minmax(340px, 0.95fr) minmax(420px, 1.25fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.lesson-pane,
+.editor-card,
+.terminal-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.lesson-pane {
+  max-height: calc(100vh - 150px);
+  overflow: auto;
+  padding: 18px;
+}
+
+.lesson-toolbar {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr);
+  gap: 8px 10px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.lesson-toolbar label {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.lesson-toolbar select {
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--ink);
+  background: #ffffff;
+  font: inherit;
+}
+
+.lesson-pane-header {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.lesson-pane-header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.lesson-pane-header .home-link {
+  min-height: 38px;
+  white-space: nowrap;
+}
+
+.lesson-pane-body {
+  max-width: none;
+}
+
+.code-pane {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.editor-card,
+.terminal-card {
+  overflow: hidden;
+}
+
+.editor-toolbar,
+.terminal-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.runner-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.runner-actions button {
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.runner-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.monaco-host {
+  min-height: 440px;
+  height: min(54vh, 560px);
+}
+
+.terminal-card {
+  background: #111827;
+}
+
+.terminal-toolbar {
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+  color: #eef4ff;
+}
+
+.terminal-toolbar #runnerStatus {
+  color: #bbc7d8;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.terminal-output-panel {
+  min-height: 180px;
+  max-height: 260px;
+  margin: 0;
+  overflow: auto;
+  padding: 16px;
+  color: #eef4ff;
+  background: #111827;
+  font: 0.96rem/1.5 Consolas, "Courier New", monospace;
+  white-space: pre-wrap;
+}
+
+.terminal-input {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  color: #eef4ff;
+  background: #1f2937;
+  font: 0.96rem/1.5 Consolas, "Courier New", monospace;
+  padding: 10px 16px;
+}
+
+.terminal-input:disabled {
+  color: #aab7ca;
+}
+
+.terminal-error {
+  color: #ffb4ab;
+}
+
+.terminal-prompt {
+  color: var(--yellow);
+}
+
+.terminal-user-input {
+  color: #9ed7ff;
+}
+
+.lesson-collapsed .runner-workspace {
+  grid-template-columns: 48px minmax(0, 1fr);
+}
+
+.lesson-collapsed .lesson-pane {
+  display: grid;
+  min-height: 420px;
+  padding: 0;
+  overflow: hidden;
+  place-items: center;
+}
+
+.lesson-collapsed .lesson-toolbar,
+.lesson-collapsed .lesson-pane-header,
+.lesson-collapsed .lesson-pane-body {
+  display: none;
+}
+
+.lesson-collapsed .lesson-pane::before {
+  content: "Lesson";
+  color: var(--blue);
+  font-weight: 800;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
 @media (max-width: 780px) {
   .page {
     display: block;
@@ -466,5 +688,51 @@ h1 {
 
   .reviewer-panel textarea {
     min-height: 230px;
+  }
+
+  .runner-content {
+    padding: 32px 18px;
+  }
+
+  .runner-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .runner-workspace,
+  .lesson-collapsed .runner-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .lesson-pane {
+    max-height: none;
+  }
+
+  .lesson-collapsed .lesson-pane {
+    min-height: auto;
+    padding: 12px;
+  }
+
+  .lesson-collapsed .lesson-pane::before {
+    content: "Lesson hidden";
+    writing-mode: horizontal-tb;
+    transform: none;
+  }
+
+  .lesson-toolbar,
+  .lesson-pane-header,
+  .editor-toolbar,
+  .terminal-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .lesson-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .monaco-host {
+    height: 420px;
+    min-height: 360px;
   }
 }
