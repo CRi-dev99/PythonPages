@@ -28,7 +28,10 @@
   }
 
   function addCopyButton(pre) {
-    if (pre.classList.contains("terminal-output-panel")) {
+    if (
+      pre.classList.contains("terminal-output") ||
+      pre.classList.contains("terminal-output-panel")
+    ) {
       return;
     }
 
