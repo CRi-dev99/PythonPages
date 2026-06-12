@@ -115,6 +115,10 @@ a {
   background: rgba(255, 255, 255, 0.08);
 }
 
+.mobile-nav-select {
+  display: none;
+}
+
 #show-tutorials:checked ~ .page .tutorials-option,
 #show-challenges:checked ~ .page .challenges-option {
   color: #111827;
@@ -723,60 +727,23 @@ h1 {
     font-size: 0.78rem;
   }
 
-  .picker {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-
-  .picker-label {
-    margin: 0;
-    white-space: nowrap;
-  }
-
-  .picker-menu {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 4px;
-    padding: 4px;
-  }
-
-  .picker-option {
-    min-height: 34px;
-    padding: 6px 8px;
-    text-align: center;
-  }
-
-  .nav-list {
-    grid-auto-flow: column;
-    grid-auto-columns: max-content;
-    grid-template-columns: none;
-    gap: 6px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 2px;
-    scrollbar-width: thin;
-  }
-
-  .nav-list h2 {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-
-  .nav-list a {
-    padding: 7px 10px;
-    border-radius: 999px;
-    white-space: nowrap;
-  }
-
+  .picker,
+  .nav-list,
   .tools-list {
-    margin-top: 8px;
-    padding-top: 8px;
+    display: none;
+  }
+
+  .mobile-nav-select {
+    display: block;
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 38px 9px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 8px;
+    color: #edf4ff;
+    background-color: var(--nav-soft);
+    font: inherit;
+    font-weight: 700;
   }
 
   .content {
