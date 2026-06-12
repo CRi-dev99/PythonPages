@@ -33,6 +33,7 @@ function initCoursePanel() {
   });
   courseSelect.addEventListener("change", renderSelectedCourse);
   populateCourseSelect();
+  applyInitialCourseSelection();
   renderSelectedCourse();
 }
 
@@ -46,6 +47,19 @@ function populateCourseSelect() {
     option.textContent = entry.title;
     courseSelect.append(option);
   }
+}
+
+function applyInitialCourseSelection() {
+  const params = new URLSearchParams(window.location.search);
+  const requestedPage = params.get("page");
+  if (!requestedPage) return;
+
+  const selected = window.COURSE_DATA.find((entry) => entry.url === requestedPage);
+  if (!selected) return;
+
+  courseType.value = selected.type;
+  populateCourseSelect();
+  courseSelect.value = String(selected.number);
 }
 
 function renderSelectedCourse() {
