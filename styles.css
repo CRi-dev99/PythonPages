@@ -291,6 +291,43 @@ h1 {
   background: #ffffff;
 }
 
+.copy-code-block {
+  position: relative;
+}
+
+.markdown-body .copy-code-block pre {
+  margin-top: 0;
+}
+
+.copy-code-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--ink);
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(24, 34, 51, 0.12);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.copy-code-button:hover,
+.copy-code-button:focus {
+  outline: none;
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.copy-code-block pre {
+  padding-right: 78px;
+}
+
 .markdown-body pre code {
   display: block;
   padding: 0;
