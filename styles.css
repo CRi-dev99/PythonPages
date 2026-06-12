@@ -690,12 +690,93 @@ h1 {
 
 @media (max-width: 780px) {
   .page {
-    display: block;
+    display: grid;
+    grid-template-columns: 1fr;
   }
 
   .sidebar {
-    position: static;
+    position: sticky;
+    top: 0;
+    z-index: 20;
     height: auto;
+    max-height: none;
+    overflow: visible;
+    padding: 12px 14px 10px;
+    box-shadow: 0 8px 18px rgba(17, 24, 39, 0.18);
+  }
+
+  .brand {
+    margin-bottom: 12px;
+  }
+
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+
+  .brand strong {
+    font-size: 0.98rem;
+  }
+
+  .brand small {
+    font-size: 0.78rem;
+  }
+
+  .picker {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .picker-label {
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .picker-menu {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .picker-option {
+    min-height: 34px;
+    padding: 6px 8px;
+    text-align: center;
+  }
+
+  .nav-list {
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    grid-template-columns: none;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 2px;
+    scrollbar-width: thin;
+  }
+
+  .nav-list h2 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .nav-list a {
+    padding: 7px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .tools-list {
+    margin-top: 8px;
+    padding-top: 8px;
   }
 
   .content {
