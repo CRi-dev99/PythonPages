@@ -310,7 +310,6 @@ h1 {
   border-radius: 7px;
   color: var(--ink);
   background: #ffffff;
-  box-shadow: 0 4px 12px rgba(24, 34, 51, 0.12);
   font: inherit;
   font-size: 0.82rem;
   font-weight: 800;
