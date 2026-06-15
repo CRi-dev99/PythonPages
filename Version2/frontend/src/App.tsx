@@ -33,9 +33,12 @@ import { usePyodideRunner } from "./lib/usePyodideRunner";
 import type { RunnerState } from "./lib/usePyodideRunner";
 import type { AnalysisResult, ChatMessage, CourseEntry, ProjectRecord } from "./types";
 
+type AppView = "home" | "tutorials" | "challenges" | "setup" | "ide" | "login" | "signup";
+
 function App() {
   const courseData = useMemo(() => window.COURSE_DATA ?? [], []);
   const initialEntry = useMemo(() => pickInitialCourse(courseData), [courseData]);
+  const [view, setView] = useState<AppView>(() => (requestedCourseEntry(courseData) ? "ide" : "home"));
   const [courseType, setCourseType] = useState<"tutorial" | "challenge">(initialEntry?.type ?? "tutorial");
   const [selectedNumber, setSelectedNumber] = useState(initialEntry?.number ?? 1);
   const [lessonCollapsed, setLessonCollapsed] = useState(false);
@@ -128,6 +131,27 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, currentProject?.title, currentProject?.active_lesson_url]);
 
+  function navigate(nextView: AppView) {
+    setView(nextView);
+    if (nextView !== "ide") {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }
+
+  function openCourseEntry(entry: CourseEntry) {
+    setCourseType(entry.type);
+    setSelectedNumber(entry.number);
+    setLessonCollapsed(false);
+    setView("ide");
+    window.history.replaceState(null, "", `?page=${encodeURIComponent(entry.url)}`);
+  }
+
+  function openAuth(nextMode: "signin" | "signup") {
+    setAuthMode(nextMode);
+    setAuthStatus("");
+    navigate(nextMode === "signin" ? "login" : "signup");
+  }
+
   async function handleAuth(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!supabase) {
@@ -141,6 +165,7 @@ function App() {
         : supabase.auth.signUp({ email: authEmail, password: authPassword });
     const { error } = await action;
     setAuthStatus(error ? error.message : authMode === "signin" ? "Signed in." : "Check your email if confirmation is enabled.");
+    if (!error && authMode === "signin") navigate("ide");
   }
 
   async function signOut() {
@@ -148,6 +173,7 @@ function App() {
     setSession(null);
     setProjects([]);
     setCurrentProjectId("");
+    navigate("home");
   }
 
   function updateCurrentProject(mutator: (project: ProjectRecord) => ProjectRecord) {
@@ -282,279 +308,502 @@ function App() {
   }
 
   return (
-    <div className="ide-page">
-      <aside className="sidebar" aria-label="Python tutorial navigation">
-        <div className="brand-row">
-          <a className="brand" href="./" aria-label="PythonPages IDE home">
-            <span className="brand-mark">Py</span>
-            <span>
-              <strong>PythonPages IDE</strong>
-              <small>Learn by doing</small>
-            </span>
-          </a>
-          <button
-            className="icon-button mobile-only"
-            type="button"
-            title={lessonCollapsed ? "Show lesson pane" : "Hide lesson pane"}
-            onClick={() => setLessonCollapsed((value) => !value)}
-          >
-            {lessonCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+    <div className="app-shell">
+      <header className="site-nav">
+        <button className="brand nav-brand" type="button" onClick={() => navigate("home")} aria-label="PythonPages home">
+          <span className="brand-mark">Py</span>
+          <span>
+            <strong>PythonPages IDE</strong>
+            <small>Learn by doing</small>
+          </span>
+        </button>
+        <nav className="top-nav" aria-label="Main navigation">
+          <button className={view === "tutorials" ? "nav-link active" : "nav-link"} type="button" onClick={() => navigate("tutorials")}>
+            Tutorials
           </button>
-        </div>
-
-        <div className="picker" aria-label="Choose navigation list">
-          <p className="picker-label">Show sidebar</p>
-          <div className="picker-menu">
-            <button className={courseType === "tutorial" ? "picker-option active" : "picker-option"} onClick={() => setCourseType("tutorial")}>
-              Tutorials
-            </button>
-            <button className={courseType === "challenge" ? "picker-option active" : "picker-option"} onClick={() => setCourseType("challenge")}>
-              Challenges
-            </button>
-          </div>
-        </div>
-
-        <select
-          className="mobile-nav-select"
-          value={`${courseType}:${selectedNumber}`}
-          onChange={(event) => {
-            const [type, number] = event.target.value.split(":");
-            setCourseType(type as "tutorial" | "challenge");
-            setSelectedNumber(Number(number));
-          }}
-        >
-          {courseData.map((entry) => (
-            <option key={`${entry.type}-${entry.number}`} value={`${entry.type}:${entry.number}`}>
-              {entry.title}
-            </option>
-          ))}
-        </select>
-
-        <nav className="nav-list" aria-label={`${courseType} links`}>
-          <h2>{courseType === "tutorial" ? "Tutorials" : "Challenges"}</h2>
-          {selectedEntries.map((entry) => (
-            <button
-              key={entry.url}
-              className={entry.number === selectedNumber ? "active" : ""}
-              type="button"
-              onClick={() => setSelectedNumber(entry.number)}
-            >
-              {entry.title}
-            </button>
-          ))}
-        </nav>
-      </aside>
-
-      <main className={lessonCollapsed ? "ide-main lesson-hidden" : "ide-main"}>
-        <section className="lesson-pane" aria-label="Selected tutorial or challenge">
-          <div className="panel-title">
-            <BookOpen size={18} />
-            <h1>{selectedLesson?.title ?? "Python lesson"}</h1>
-            <button className="icon-button" type="button" title="Hide lesson" onClick={() => setLessonCollapsed(true)}>
-              <PanelLeftClose size={17} />
-            </button>
-          </div>
-          <div className="lesson-body markdown-body" dangerouslySetInnerHTML={{ __html: selectedLesson?.html ?? "" }} />
-        </section>
-
-        <section className="workspace" aria-label="Python IDE workspace">
-          <header className="topbar">
-            <div className="project-controls">
-              <FileCode2 size={18} />
-              <select value={currentProjectId} onChange={(event) => setCurrentProjectId(event.target.value)} aria-label="Project">
-                {projects.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.title}
-                  </option>
-                ))}
-              </select>
-              <input
-                className="project-title"
-                value={currentProject?.title ?? ""}
-                aria-label="Project title"
-                onChange={(event) =>
-                  updateCurrentProject((project) => ({
-                    ...project,
-                    title: event.target.value,
-                    updated_at: new Date().toISOString()
-                  }))
-                }
-              />
-            </div>
-            <div className="toolbar">
-              <button type="button" className="icon-text-button" title="New project" onClick={createProject}>
-                <FolderPlus size={17} />
-                New
-              </button>
-              <button type="button" className="icon-text-button" title="Save project" onClick={() => saveCurrentProject(true)}>
-                <Save size={17} />
-                Save
-              </button>
-              <button type="button" className="icon-text-button danger" title="Delete project" onClick={deleteProject}>
-                <Trash2 size={17} />
-                Delete
-              </button>
-            </div>
-          </header>
-
-          <div className="work-grid">
-            <section className="editor-panel">
-              <div className="panel-toolbar">
-                <span>main.py</span>
-                <div className="runner-actions">
-                  <button className="icon-text-button" type="button" onClick={reviewCode} disabled={busy} title="Review code">
-                    <Bug size={17} />
-                    Review
-                  </button>
-                  <button className="primary-button" type="button" onClick={runCode} disabled={busy || !currentFile} title="Run code">
-                    <Play size={17} />
-                    Run
-                  </button>
-                  <button className="icon-text-button" type="button" onClick={runner.stop} title="Stop code">
-                    <Square size={16} />
-                    Stop
-                  </button>
-                </div>
-              </div>
-              <Editor
-                height="100%"
-                defaultLanguage="python"
-                value={code}
-                onChange={updateCode}
-                theme="vs"
-                options={{
-                  minimap: { enabled: false },
-                  fontSize: 15,
-                  tabSize: 4,
-                  insertSpaces: true,
-                  wordWrap: "on",
-                  automaticLayout: true
-                }}
-              />
-            </section>
-
-            <section className="right-stack">
-              <section className="terminal-panel">
-                <div className="panel-toolbar dark">
-                  <span>Terminal</span>
-                  <span>{runner.state.status}</span>
-                </div>
-                <pre className="terminal-output" aria-live="polite">
-                  {terminalText(runner.state)}
-                </pre>
-                <form className="terminal-input-row" onSubmit={sendTerminalInput}>
-                  <input
-                    value={terminalInput}
-                    onChange={(event) => setTerminalInput(event.target.value)}
-                    disabled={runner.state.status !== "waiting"}
-                    placeholder={runner.state.status === "waiting" ? runner.state.prompt || "Type input and press Enter" : "Waiting for input..."}
-                  />
-                </form>
-              </section>
-
-              <section className="diagnostics-panel">
-                <div className="panel-toolbar">
-                  <span>Diagnostics</span>
-                  <span className={`safety-pill ${analysis.safety}`}>{analysis.safety}</span>
-                </div>
-                <ul className="diagnostics-list">
-                  {[...analysis.safety_findings, ...analysis.diagnostics].length === 0 && <li>No diagnostics yet.</li>}
-                  {analysis.safety_findings.map((item, index) => (
-                    <li key={`safety-${index}`} className={item.severity}>
-                      {formatIssue(item.category, item.line, item.message)}
-                    </li>
-                  ))}
-                  {analysis.diagnostics.map((item, index) => (
-                    <li key={`diag-${index}`} className={item.severity}>
-                      {formatIssue(item.category, item.line, item.message)}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            </section>
-          </div>
-        </section>
-
-        <aside className="chat-panel" aria-label="AI debugging chat">
-          <section className="account-panel">
-            <div className="panel-toolbar">
-              <span>
-                <User size={16} /> Account
-              </span>
-              {session && (
-                <button className="icon-button" type="button" title="Sign out" onClick={signOut}>
-                  <LogOut size={16} />
-                </button>
-              )}
-            </div>
-            {session ? (
-              <p className="account-status">
+          <button className={view === "challenges" ? "nav-link active" : "nav-link"} type="button" onClick={() => navigate("challenges")}>
+            Challenges
+          </button>
+          <button className={view === "setup" ? "nav-link active" : "nav-link"} type="button" onClick={() => navigate("setup")}>
+            Set up Python
+          </button>
+          <button className={view === "ide" ? "nav-link active" : "nav-link"} type="button" onClick={() => navigate("ide")}>
+            IDE
+          </button>
+          {session ? (
+            <>
+              <span className="nav-user">
                 <Cloud size={15} /> {session.user.email}
-              </p>
-            ) : (
-              <form className="auth-form" onSubmit={handleAuth}>
-                <input type="email" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} placeholder="Email" />
-                <input
-                  type="password"
-                  value={authPassword}
-                  onChange={(event) => setAuthPassword(event.target.value)}
-                  placeholder="Password"
-                />
-                <button className="primary-button" type="submit">
-                  <LogIn size={16} /> {authMode === "signin" ? "Sign in" : "Create account"}
-                </button>
-                <button className="text-button" type="button" onClick={() => setAuthMode(authMode === "signin" ? "signup" : "signin")}>
-                  {authMode === "signin" ? "Create account" : "Use existing account"}
-                </button>
-                <p className="muted">{authStatus || (isSupabaseConfigured ? "Sign in to save code to Supabase." : "Supabase env vars are not set; local saves are active.")}</p>
-              </form>
-            )}
-          </section>
-
-          <section className="debug-chat">
-            <div className="panel-toolbar">
-              <span>
-                <MessageSquare size={16} /> Debug chat
               </span>
-            </div>
-            <div className="chat-log">
-              {chatMessages.map((message) => (
-                <article key={message.id} className={`chat-message ${message.role}`}>
-                  {message.content}
-                </article>
-              ))}
-            </div>
-            <form className="chat-form" onSubmit={sendChat}>
-              <textarea
-                value={chatDraft}
-                onChange={(event) => setChatDraft(event.target.value)}
-                placeholder="Ask what went wrong, or how to debug the output."
-              />
-              <button className="primary-button" type="submit" disabled={busy || !chatDraft.trim()}>
-                <MessageSquare size={16} /> Ask
+              <button className="nav-link" type="button" onClick={signOut}>
+                <LogOut size={16} /> Sign out
               </button>
-            </form>
-          </section>
-        </aside>
+            </>
+          ) : (
+            <>
+              <button className={view === "login" ? "nav-link active" : "nav-link"} type="button" onClick={() => openAuth("signin")}>
+                Login
+              </button>
+              <button className="nav-cta" type="button" onClick={() => openAuth("signup")}>
+                Sign up
+              </button>
+            </>
+          )}
+        </nav>
+      </header>
 
-        <footer className="statusbar">
-          <span>{saveStatus}</span>
-          <span>{supabase && session ? "Cloud account active" : "Local workspace active"}</span>
-          <span>Allowed packages: numpy, pandas, matplotlib</span>
-        </footer>
-      </main>
+      {view === "home" && (
+        <HomeView
+          onSignIn={() => openAuth("signin")}
+          onSignUp={() => openAuth("signup")}
+          onNavigate={navigate}
+        />
+      )}
+      {view === "tutorials" && <CourseDirectory title="Tutorials" entries={courseData.filter((entry) => entry.type === "tutorial")} onOpen={openCourseEntry} />}
+      {view === "challenges" && (
+        <CourseDirectory title="Challenges" entries={courseData.filter((entry) => entry.type === "challenge")} onOpen={openCourseEntry} />
+      )}
+      {view === "setup" && <SetupView onOpenIde={() => navigate("ide")} onSignUp={() => openAuth("signup")} />}
+      {(view === "login" || view === "signup") && (
+        <AuthView
+          authEmail={authEmail}
+          authMode={authMode}
+          authPassword={authPassword}
+          authStatus={authStatus}
+          onEmailChange={setAuthEmail}
+          onModeChange={openAuth}
+          onPasswordChange={setAuthPassword}
+          onSubmit={handleAuth}
+        />
+      )}
+      {view === "ide" && (
+        <IdeView
+          analysis={analysis}
+          busy={busy}
+          chatDraft={chatDraft}
+          chatMessages={chatMessages}
+          code={code}
+          currentFile={currentFile}
+          currentProject={currentProject}
+          currentProjectId={currentProjectId}
+          lessonCollapsed={lessonCollapsed}
+          projects={projects}
+          runner={runner}
+          saveStatus={saveStatus}
+          selectedLesson={selectedLesson}
+          session={session}
+          terminalInput={terminalInput}
+          onChatDraftChange={setChatDraft}
+          onCreateProject={createProject}
+          onDeleteProject={deleteProject}
+          onProjectChange={setCurrentProjectId}
+          onReview={reviewCode}
+          onRun={runCode}
+          onSave={() => saveCurrentProject(true)}
+          onSendChat={sendChat}
+          onSendTerminalInput={sendTerminalInput}
+          onSetLessonCollapsed={setLessonCollapsed}
+          onTerminalInputChange={setTerminalInput}
+          onUpdateCode={updateCode}
+          onUpdateCurrentProject={updateCurrentProject}
+        />
+      )}
     </div>
   );
 }
 
-function pickInitialCourse(courseData: CourseEntry[]): CourseEntry | undefined {
+function HomeView({
+  onNavigate,
+  onSignIn,
+  onSignUp
+}: {
+  onNavigate: (view: AppView) => void;
+  onSignIn: () => void;
+  onSignUp: () => void;
+}) {
+  return (
+    <main className="landing-view">
+      <section className="landing-hero" aria-labelledby="landing-title">
+        <div>
+          <span className="eyebrow">PythonPages</span>
+          <h1 id="landing-title">Learn Python in a real browser IDE.</h1>
+          <p>If you're new here, sign up. Otherwise, sign in.</p>
+          <div className="landing-actions">
+            <button className="primary-button" type="button" onClick={onSignUp}>
+              Sign up
+            </button>
+            <button className="icon-text-button" type="button" onClick={onSignIn}>
+              Sign in
+            </button>
+          </div>
+        </div>
+        <div className="landing-panel" aria-label="PythonPages overview">
+          <strong>Run, review, and debug Python code in one workspace.</strong>
+          <p>Open lessons, save projects to your account, and use the AI debugger when your output does not make sense.</p>
+          <div className="landing-links">
+            <button type="button" onClick={() => onNavigate("tutorials")}>
+              Tutorials
+            </button>
+            <button type="button" onClick={() => onNavigate("challenges")}>
+              Challenges
+            </button>
+            <button type="button" onClick={() => onNavigate("setup")}>
+              Set up Python
+            </button>
+            <button type="button" onClick={() => onNavigate("ide")}>
+              IDE
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function CourseDirectory({ entries, onOpen, title }: { entries: CourseEntry[]; onOpen: (entry: CourseEntry) => void; title: string }) {
+  return (
+    <main className="directory-view" aria-labelledby={`${title.toLowerCase()}-title`}>
+      <div className="section-heading">
+        <span className="eyebrow">Choose a lesson</span>
+        <h1 id={`${title.toLowerCase()}-title`}>{title}</h1>
+      </div>
+      <div className="course-grid">
+        {entries.map((entry) => (
+          <button className="course-card" key={entry.url} type="button" onClick={() => onOpen(entry)}>
+            <span>{entry.type === "tutorial" ? "Lesson" : "Challenge"} {entry.number}</span>
+            <strong>{entry.title}</strong>
+          </button>
+        ))}
+      </div>
+    </main>
+  );
+}
+
+function SetupView({ onOpenIde, onSignUp }: { onOpenIde: () => void; onSignUp: () => void }) {
+  return (
+    <main className="setup-view" aria-labelledby="setup-title">
+      <section className="setup-panel">
+        <span className="eyebrow">Set up Python</span>
+        <h1 id="setup-title">Start in the browser, install locally when you are ready.</h1>
+        <div className="setup-steps">
+          <article>
+            <strong>No install needed</strong>
+            <p>The PythonPages IDE runs Python in your browser, so you can start lessons immediately.</p>
+          </article>
+          <article>
+            <strong>Optional local setup</strong>
+            <p>Install Python and Thonny if you want a local editor for classwork or offline practice.</p>
+          </article>
+          <article>
+            <strong>Save your work</strong>
+            <p>Create an account to save projects to Supabase and reload them on another device.</p>
+          </article>
+        </div>
+        <div className="landing-actions">
+          <button className="primary-button" type="button" onClick={onOpenIde}>
+            Open IDE
+          </button>
+          <button className="icon-text-button" type="button" onClick={onSignUp}>
+            Sign up
+          </button>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function AuthView({
+  authEmail,
+  authMode,
+  authPassword,
+  authStatus,
+  onEmailChange,
+  onModeChange,
+  onPasswordChange,
+  onSubmit
+}: {
+  authEmail: string;
+  authMode: "signin" | "signup";
+  authPassword: string;
+  authStatus: string;
+  onEmailChange: (value: string) => void;
+  onModeChange: (mode: "signin" | "signup") => void;
+  onPasswordChange: (value: string) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+}) {
+  return (
+    <main className="auth-view" aria-labelledby="auth-title">
+      <section className="auth-card">
+        <div className="section-heading">
+          <span className="eyebrow">Account</span>
+          <h1 id="auth-title">{authMode === "signin" ? "Login" : "Sign up"}</h1>
+          <p>{authMode === "signin" ? "Sign in to load your saved projects." : "Create an account to save code to the cloud."}</p>
+        </div>
+        <form className="auth-form" onSubmit={onSubmit}>
+          <input type="email" value={authEmail} onChange={(event) => onEmailChange(event.target.value)} placeholder="Email" />
+          <input
+            type="password"
+            value={authPassword}
+            onChange={(event) => onPasswordChange(event.target.value)}
+            placeholder="Password"
+          />
+          <button className="primary-button" type="submit">
+            <LogIn size={16} /> {authMode === "signin" ? "Login" : "Sign up"}
+          </button>
+          <button className="text-button" type="button" onClick={() => onModeChange(authMode === "signin" ? "signup" : "signin")}>
+            {authMode === "signin" ? "New here? Sign up" : "Already have an account? Login"}
+          </button>
+          <p className="muted">{authStatus || (isSupabaseConfigured ? "Accounts save your code to Supabase." : "Supabase env vars are not set; local saves are active.")}</p>
+        </form>
+      </section>
+    </main>
+  );
+}
+
+function IdeView({
+  analysis,
+  busy,
+  chatDraft,
+  chatMessages,
+  code,
+  currentFile,
+  currentProject,
+  currentProjectId,
+  lessonCollapsed,
+  projects,
+  runner,
+  saveStatus,
+  selectedLesson,
+  session,
+  terminalInput,
+  onChatDraftChange,
+  onCreateProject,
+  onDeleteProject,
+  onProjectChange,
+  onReview,
+  onRun,
+  onSave,
+  onSendChat,
+  onSendTerminalInput,
+  onSetLessonCollapsed,
+  onTerminalInputChange,
+  onUpdateCode,
+  onUpdateCurrentProject
+}: {
+  analysis: AnalysisResult;
+  busy: boolean;
+  chatDraft: string;
+  chatMessages: ChatMessage[];
+  code: string;
+  currentFile: ProjectRecord["files"][number] | undefined;
+  currentProject: ProjectRecord | undefined;
+  currentProjectId: string;
+  lessonCollapsed: boolean;
+  projects: ProjectRecord[];
+  runner: ReturnType<typeof usePyodideRunner>;
+  saveStatus: string;
+  selectedLesson: CourseEntry | undefined;
+  session: Session | null;
+  terminalInput: string;
+  onChatDraftChange: (value: string) => void;
+  onCreateProject: () => void;
+  onDeleteProject: () => void;
+  onProjectChange: (value: string) => void;
+  onReview: () => void;
+  onRun: () => void;
+  onSave: () => void;
+  onSendChat: (event: FormEvent<HTMLFormElement>) => void;
+  onSendTerminalInput: (event: FormEvent<HTMLFormElement>) => void;
+  onSetLessonCollapsed: (value: boolean) => void;
+  onTerminalInputChange: (value: string) => void;
+  onUpdateCode: (value: string | undefined) => void;
+  onUpdateCurrentProject: (mutator: (project: ProjectRecord) => ProjectRecord) => void;
+}) {
+  return (
+    <main className={lessonCollapsed ? "ide-main lesson-hidden" : "ide-main"}>
+      <section className="lesson-pane" aria-label="Selected tutorial or challenge">
+        <div className="panel-title">
+          {!lessonCollapsed && <BookOpen size={18} />}
+          {!lessonCollapsed && <h1>{selectedLesson?.title ?? "Python lesson"}</h1>}
+          <button
+            className="icon-button"
+            type="button"
+            title={lessonCollapsed ? "Show lesson" : "Hide lesson"}
+            onClick={() => onSetLessonCollapsed(!lessonCollapsed)}
+          >
+            {lessonCollapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
+          </button>
+        </div>
+        <div className="lesson-body markdown-body" dangerouslySetInnerHTML={{ __html: selectedLesson?.html ?? "" }} />
+      </section>
+
+      <section className="workspace" aria-label="Python IDE workspace">
+        <header className="topbar">
+          <div className="project-controls">
+            <FileCode2 size={18} />
+            <select value={currentProjectId} onChange={(event) => onProjectChange(event.target.value)} aria-label="Project">
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.title}
+                </option>
+              ))}
+            </select>
+            <input
+              className="project-title"
+              value={currentProject?.title ?? ""}
+              aria-label="Project title"
+              onChange={(event) =>
+                onUpdateCurrentProject((project) => ({
+                  ...project,
+                  title: event.target.value,
+                  updated_at: new Date().toISOString()
+                }))
+              }
+            />
+          </div>
+          <div className="toolbar">
+            <button type="button" className="icon-text-button" title="New project" onClick={onCreateProject}>
+              <FolderPlus size={17} />
+              New
+            </button>
+            <button type="button" className="icon-text-button" title="Save project" onClick={onSave}>
+              <Save size={17} />
+              Save
+            </button>
+            <button type="button" className="icon-text-button danger" title="Delete project" onClick={onDeleteProject}>
+              <Trash2 size={17} />
+              Delete
+            </button>
+          </div>
+        </header>
+
+        <div className="work-grid">
+          <section className="editor-panel">
+            <div className="panel-toolbar">
+              <span>main.py</span>
+              <div className="runner-actions">
+                <button className="icon-text-button" type="button" onClick={onReview} disabled={busy} title="Review code">
+                  <Bug size={17} />
+                  Review
+                </button>
+                <button className="primary-button" type="button" onClick={onRun} disabled={busy || !currentFile} title="Run code">
+                  <Play size={17} />
+                  Run
+                </button>
+                <button className="icon-text-button" type="button" onClick={runner.stop} title="Stop code">
+                  <Square size={16} />
+                  Stop
+                </button>
+              </div>
+            </div>
+            <Editor
+              height="100%"
+              defaultLanguage="python"
+              value={code}
+              onChange={onUpdateCode}
+              theme="vs"
+              options={{
+                minimap: { enabled: false },
+                fontSize: 15,
+                tabSize: 4,
+                insertSpaces: true,
+                wordWrap: "on",
+                automaticLayout: true
+              }}
+            />
+          </section>
+
+          <section className="right-stack">
+            <section className="terminal-panel">
+              <div className="panel-toolbar dark">
+                <span>Terminal</span>
+                <span>{runner.state.status}</span>
+              </div>
+              <pre className="terminal-output" aria-live="polite">
+                {terminalText(runner.state)}
+              </pre>
+              <form className="terminal-input-row" onSubmit={onSendTerminalInput}>
+                <input
+                  value={terminalInput}
+                  onChange={(event) => onTerminalInputChange(event.target.value)}
+                  disabled={runner.state.status !== "waiting"}
+                  placeholder={runner.state.status === "waiting" ? runner.state.prompt || "Type input and press Enter" : "Waiting for input..."}
+                />
+              </form>
+            </section>
+
+            <section className="diagnostics-panel">
+              <div className="panel-toolbar">
+                <span>Diagnostics</span>
+                <span className={`safety-pill ${analysis.safety}`}>{analysis.safety}</span>
+              </div>
+              <ul className="diagnostics-list">
+                {[...analysis.safety_findings, ...analysis.diagnostics].length === 0 && <li>No diagnostics yet.</li>}
+                {analysis.safety_findings.map((item, index) => (
+                  <li key={`safety-${index}`} className={item.severity}>
+                    {formatIssue(item.category, item.line, item.message)}
+                  </li>
+                ))}
+                {analysis.diagnostics.map((item, index) => (
+                  <li key={`diag-${index}`} className={item.severity}>
+                    {formatIssue(item.category, item.line, item.message)}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </section>
+        </div>
+      </section>
+
+      <aside className="chat-panel" aria-label="AI debugging chat">
+        <section className="debug-chat">
+          <div className="panel-toolbar">
+            <span>
+              <MessageSquare size={16} /> Debug chat
+            </span>
+            {session && (
+              <span className="account-status">
+                <User size={15} /> Cloud account
+              </span>
+            )}
+          </div>
+          <div className="chat-log">
+            {chatMessages.map((message) => (
+              <article key={message.id} className={`chat-message ${message.role}`}>
+                {message.content}
+              </article>
+            ))}
+          </div>
+          <form className="chat-form" onSubmit={onSendChat}>
+            <textarea
+              value={chatDraft}
+              onChange={(event) => onChatDraftChange(event.target.value)}
+              placeholder="Ask what went wrong, or how to debug the output."
+            />
+            <button className="primary-button" type="submit" disabled={busy || !chatDraft.trim()}>
+              <MessageSquare size={16} /> Ask
+            </button>
+          </form>
+        </section>
+      </aside>
+
+      <footer className="statusbar">
+        <span>{saveStatus}</span>
+        <span>{supabase && session ? "Cloud account active" : "Local workspace active"}</span>
+        <span>Allowed packages: numpy, pandas, matplotlib</span>
+      </footer>
+    </main>
+  );
+}
+
+function requestedCourseEntry(courseData: CourseEntry[]): CourseEntry | undefined {
   const params = new URLSearchParams(window.location.search);
   const requestedPage = params.get("page");
-  if (requestedPage) {
-    const entry = courseData.find((item) => item.url === requestedPage);
-    if (entry) return entry;
-  }
-  return courseData.find((entry) => entry.type === "tutorial" && entry.number === 1) ?? courseData[0];
+  return requestedPage ? courseData.find((item) => item.url === requestedPage) : undefined;
+}
+
+function pickInitialCourse(courseData: CourseEntry[]): CourseEntry | undefined {
+  return requestedCourseEntry(courseData) ?? courseData.find((entry) => entry.type === "tutorial" && entry.number === 1) ?? courseData[0];
 }
 
 function formatIssue(category: string, line: number | null | undefined, message: string) {
