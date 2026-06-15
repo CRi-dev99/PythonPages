@@ -96,8 +96,10 @@ function App() {
         return;
       }
       if (!supabase) return;
-      setProjects([]);
-      setCurrentProjectId("");
+      const localProjects = loadLocalProjects();
+      setProjects(localProjects);
+      setCurrentProjectId(localProjects[0]?.id ?? "");
+      setSaveStatus("Local workspace active");
     }
     load();
     return () => {
@@ -403,7 +405,7 @@ function App() {
                     <Bug size={17} />
                     Review
                   </button>
-                  <button className="primary-button" type="button" onClick={runCode} disabled={busy} title="Run code">
+                  <button className="primary-button" type="button" onClick={runCode} disabled={busy || !currentFile} title="Run code">
                     <Play size={17} />
                     Run
                   </button>
@@ -559,4 +561,3 @@ function formatIssue(category: string, line: number | null | undefined, message:
 }
 
 export default App;
-

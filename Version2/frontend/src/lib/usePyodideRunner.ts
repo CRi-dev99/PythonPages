@@ -30,7 +30,6 @@ export function usePyodideRunner() {
     if (workerRef.current) return workerRef.current;
     const worker = makeWorker();
     workerRef.current = worker;
-    setState((current) => ({ ...current, status: "loading" }));
     worker.onmessage = (event: MessageEvent<WorkerMessage>) => {
       const message = event.data;
       if (message.type === "ready") {
@@ -60,17 +59,15 @@ export function usePyodideRunner() {
     worker.onerror = (event) => {
       setState((current) => ({ ...current, status: "error", output: `${current.output}\n${event.message}`.trim(), ready: true }));
     };
-    worker.postMessage({ type: "init" });
     return worker;
   }, []);
 
   useEffect(() => {
-    ensureWorker();
     return () => {
       workerRef.current?.terminate();
       workerRef.current = null;
     };
-  }, [ensureWorker]);
+  }, []);
 
   const run = useCallback(
     (code: string) => {
@@ -90,9 +87,7 @@ export function usePyodideRunner() {
     workerRef.current?.terminate();
     workerRef.current = null;
     setState((current) => ({ ...current, status: "stopped", prompt: "", ready: false }));
-    ensureWorker();
-  }, [ensureWorker]);
+  }, []);
 
   return { state, run, sendInput, stop };
 }
-

@@ -10,6 +10,7 @@ type PyodideApi = {
 };
 
 let pyodide: PyodideApi | null = null;
+let pyodidePromise: Promise<PyodideApi> | null = null;
 let currentCode = "";
 let queuedInputs: string[] = [];
 let outputBuffer = "";
@@ -46,14 +47,19 @@ self.onmessage = async (event: MessageEvent) => {
 
 async function ensurePyodide(): Promise<PyodideApi> {
   if (pyodide) return pyodide;
-  postMessage({ type: "status", message: "Loading Python runtime..." });
-  // @ts-ignore Vite leaves this dynamic browser import alone.
-  const module = await import(/* @vite-ignore */ PYODIDE_URL);
-  const loaded = (await module.loadPyodide({ indexURL: PYODIDE_INDEX_URL })) as PyodideApi;
-  loaded.setStdout({ batched: (text: string) => (outputBuffer += `${text}\n`) });
-  loaded.setStderr({ batched: (text: string) => (stderrBuffer += `${text}\n`) });
-  pyodide = loaded;
-  return loaded;
+  if (!pyodidePromise) {
+    pyodidePromise = (async () => {
+      postMessage({ type: "status", message: "Loading Python runtime..." });
+      // @ts-ignore Vite leaves this dynamic browser import alone.
+      const module = await import(/* @vite-ignore */ PYODIDE_URL);
+      const loaded = (await module.loadPyodide({ indexURL: PYODIDE_INDEX_URL })) as PyodideApi;
+      loaded.setStdout({ batched: (text: string) => (outputBuffer += `${text}\n`) });
+      loaded.setStderr({ batched: (text: string) => (stderrBuffer += `${text}\n`) });
+      pyodide = loaded;
+      return loaded;
+    })();
+  }
+  return pyodidePromise;
 }
 
 async function execute(token: number): Promise<void> {
