@@ -50,7 +50,7 @@ jobs:
         run: touch Version2/frontend/dist/.nojekyll
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@v4
         with:
           path: Version2/frontend/dist
 
