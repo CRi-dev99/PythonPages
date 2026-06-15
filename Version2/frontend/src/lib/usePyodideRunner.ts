@@ -41,7 +41,7 @@ export function usePyodideRunner() {
       if (message.type === "output") {
         setState((current) => ({
           ...current,
-          output: message.output || current.output,
+          output: message.output,
           status:
             message.status === "waiting_for_input"
               ? "waiting"

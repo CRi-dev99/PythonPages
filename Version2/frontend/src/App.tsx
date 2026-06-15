@@ -30,6 +30,7 @@ import {
   saveLocalProjects
 } from "./lib/storage";
 import { usePyodideRunner } from "./lib/usePyodideRunner";
+import type { RunnerState } from "./lib/usePyodideRunner";
 import type { AnalysisResult, ChatMessage, CourseEntry, ProjectRecord } from "./types";
 
 function App() {
@@ -439,7 +440,7 @@ function App() {
                   <span>{runner.state.status}</span>
                 </div>
                 <pre className="terminal-output" aria-live="polite">
-                  {runner.state.output || "Run your code to see output here."}
+                  {terminalText(runner.state)}
                 </pre>
                 <form className="terminal-input-row" onSubmit={sendTerminalInput}>
                   <input
@@ -558,6 +559,16 @@ function pickInitialCourse(courseData: CourseEntry[]): CourseEntry | undefined {
 
 function formatIssue(category: string, line: number | null | undefined, message: string) {
   return `${category}${line ? ` line ${line}` : ""}: ${message}`;
+}
+
+function terminalText(state: RunnerState) {
+  if (state.output) return state.output;
+  if (state.status === "loading") return "Loading Python runtime...";
+  if (state.status === "running") return "Running Python...";
+  if (state.status === "waiting") return state.prompt ? `Waiting for input: ${state.prompt}` : "Waiting for input...";
+  if (state.status === "finished") return "Finished with no output.";
+  if (state.status === "stopped") return "Stopped.";
+  return "Run your code to see output here.";
 }
 
 export default App;
