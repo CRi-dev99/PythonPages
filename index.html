@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PythonPages</title>
+    <script>
+        (function () {
+            var liveUrl = "https://cri-dev99.github.io/PythonPages/";
+            var current = new URL(window.location.href);
+            var target = new URL(liveUrl);
+            var currentPath = current.pathname.replace(/index\.html$/, "");
+
+            if (current.origin !== target.origin || currentPath !== target.pathname) {
+                window.location.replace(liveUrl);
+            }
+        })();
+    </script>
     <style>
         :root {
             color: #0f172a;
@@ -46,7 +58,7 @@
     <main>
         <h1>PythonPages</h1>
         <p>
-            The live Version2 IDE is built from <code>Version2/frontend</code> and deployed to GitHub Pages by GitHub Actions.
+            Redirecting to the live Version2 IDE.
         </p>
         <p>
             Open the live app at <a href="https://cri-dev99.github.io/PythonPages/">https://cri-dev99.github.io/PythonPages/</a>.
