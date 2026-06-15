@@ -13,5 +13,6 @@ __pycache__/
 node_modules/
 .vite/
 tsconfig.tsbuildinfo
+Version2/frontend/dist/
 playwright-report/
 test-results/

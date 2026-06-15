@@ -26,10 +26,25 @@ Open:
 http://127.0.0.1:5173
 ```
 
+## GitHub Pages Deployment
+
+This repo uses GitHub Actions to build and deploy `Version2/frontend` automatically.
+
+In GitHub, open **Settings -> Pages** and set **Build and deployment -> Source** to **GitHub Actions**.
+
+Then add these repository variables under **Settings -> Secrets and variables -> Actions -> Variables**:
+
+```text
+VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+VITE_API_BASE_URL=https://YOUR_BACKEND_HOST
+```
+
+After that, every push to `master` that changes `Version2/frontend` will rebuild and publish the site. You do not need to commit `Version2/frontend/dist`.
+
 ## Production Notes
 
 - Put OpenAI and Supabase JWT secrets only in the backend environment.
 - Put Supabase URL/anon key and a hosted backend API URL in frontend build env vars.
 - Apply `supabase/schema.sql` in Supabase before enabling real cloud saves.
-- `Version2/frontend/dist` is the static build currently targeted by the root `index.html` redirect.
-
+- GitHub Pages serves the workflow-built `dist` artifact, not the source TypeScript files.
