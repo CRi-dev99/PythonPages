@@ -1,0 +1,116 @@
+import type { ProjectRecord } from "../types";
+import { supabase } from "./supabase";
+import type { Session } from "@supabase/supabase-js";
+
+const LOCAL_KEY = "pythonpages:v2:projects";
+
+export const starterCode = 'name = input("What is your name? ")\nprint("Hello", name)\n';
+
+export function createLocalProject(title = "My Python project"): ProjectRecord {
+  return {
+    id: crypto.randomUUID(),
+    title,
+    active_lesson_url: "print().html",
+    updated_at: new Date().toISOString(),
+    files: [{ path: "main.py", language: "python", content: starterCode }]
+  };
+}
+
+export function loadLocalProjects(): ProjectRecord[] {
+  const raw = localStorage.getItem(LOCAL_KEY);
+  if (!raw) {
+    const first = createLocalProject();
+    saveLocalProjects([first]);
+    return [first];
+  }
+  try {
+    const parsed = JSON.parse(raw) as ProjectRecord[];
+    return parsed.length ? parsed : [createLocalProject()];
+  } catch {
+    return [createLocalProject()];
+  }
+}
+
+export function saveLocalProjects(projects: ProjectRecord[]): void {
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(projects));
+}
+
+export async function loadCloudProjects(session: Session): Promise<ProjectRecord[]> {
+  if (!supabase) return loadLocalProjects();
+  const { data: projects, error } = await supabase
+    .from("projects")
+    .select("id,user_id,title,active_lesson_url,updated_at")
+    .order("updated_at", { ascending: false });
+  if (error) throw error;
+
+  const ids = (projects ?? []).map((project) => project.id);
+  const { data: files, error: fileError } = ids.length
+    ? await supabase.from("project_files").select("id,project_id,user_id,path,language,content").in("project_id", ids)
+    : { data: [], error: null };
+  if (fileError) throw fileError;
+
+  if (!projects?.length) {
+    return [await createCloudProject(session, "My Python project")];
+  }
+
+  return projects.map((project) => ({
+    ...project,
+    files: (files ?? []).filter((file) => file.project_id === project.id)
+  })) as ProjectRecord[];
+}
+
+export async function createCloudProject(session: Session, title: string): Promise<ProjectRecord> {
+  if (!supabase) return createLocalProject(title);
+  const { data: project, error } = await supabase
+    .from("projects")
+    .insert({ user_id: session.user.id, title, active_lesson_url: "print().html" })
+    .select("id,user_id,title,active_lesson_url,updated_at")
+    .single();
+  if (error) throw error;
+
+  const { data: file, error: fileError } = await supabase
+    .from("project_files")
+    .insert({
+      project_id: project.id,
+      user_id: session.user.id,
+      path: "main.py",
+      language: "python",
+      content: starterCode
+    })
+    .select("id,project_id,user_id,path,language,content")
+    .single();
+  if (fileError) throw fileError;
+  return { ...project, files: [file] } as ProjectRecord;
+}
+
+export async function saveCloudProject(project: ProjectRecord, session: Session): Promise<void> {
+  if (!supabase) return;
+  await supabase
+    .from("projects")
+    .update({
+      title: project.title,
+      active_lesson_url: project.active_lesson_url,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", project.id);
+
+  const file = project.files[0];
+  await supabase.from("project_files").upsert(
+    {
+      id: file.id,
+      project_id: project.id,
+      user_id: session.user.id,
+      path: file.path,
+      language: file.language,
+      content: file.content,
+      updated_at: new Date().toISOString()
+    },
+    { onConflict: "project_id,path" }
+  );
+}
+
+export async function deleteCloudProject(projectId: string): Promise<void> {
+  if (!supabase) return;
+  await supabase.from("projects").delete().eq("id", projectId);
+}
+
