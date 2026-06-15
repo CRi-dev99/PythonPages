@@ -114,6 +114,7 @@ __py_ide_blocked_imports = {
     "requests", "socket", "subprocess", "urllib"
 }
 __py_ide_original_import = builtins.__import__
+__py_ide_original_input = builtins.input
 
 class __PyIdeNeedInput(BaseException):
     pass
@@ -134,18 +135,21 @@ def __py_ide_input(prompt=""):
     print(str(prompt) + value)
     return value
 
-builtins.__import__ = __py_ide_import
-builtins.input = __py_ide_input
-
 try:
-    exec(compile(${JSON.stringify(code)}, "student_code.py", "exec"), globals(), globals())
-except __PyIdeNeedInput as exc:
-    __py_ide_result["status"] = "waiting_for_input"
-    __py_ide_result["prompt"] = str(exc)
-except BaseException:
-    __py_ide_result["status"] = "error"
-    __py_ide_result["error"] = traceback.format_exc()
-    print(__py_ide_result["error"])
+    builtins.__import__ = __py_ide_import
+    builtins.input = __py_ide_input
+    try:
+        exec(compile(${JSON.stringify(code)}, "student_code.py", "exec"), globals(), globals())
+    except __PyIdeNeedInput as exc:
+        __py_ide_result["status"] = "waiting_for_input"
+        __py_ide_result["prompt"] = str(exc)
+    except BaseException:
+        __py_ide_result["status"] = "error"
+        __py_ide_result["error"] = traceback.format_exc()
+        print(__py_ide_result["error"])
+finally:
+    builtins.__import__ = __py_ide_original_import
+    builtins.input = __py_ide_original_input
 
 json.dumps(__py_ide_result)
 `;
