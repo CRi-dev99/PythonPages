@@ -1,0 +1,17 @@
+# Local environment secrets
+.env
+.env.*
+*.env
+!.env.example
+!*.env.example
+
+# Python cache/test output
+__pycache__/
+.pytest_cache/
+
+# Node dependencies/build noise
+node_modules/
+.vite/
+tsconfig.tsbuildinfo
+playwright-report/
+test-results/
