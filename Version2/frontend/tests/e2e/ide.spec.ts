@@ -34,6 +34,17 @@ test("opens challenges and selects a challenge in the IDE", async ({ page }) => 
   await expect(page.getByLabel("Python IDE workspace")).toBeVisible();
 });
 
+test("lesson pane next button moves from lesson 1 to challenge 1 to lesson 2", async ({ page }) => {
+  await page.goto("/");
+  await mainNav(page).getByRole("button", { name: "IDE" }).click();
+  await page.getByRole("button", { name: "Go to Challenge 1" }).click();
+  await expect(page.getByRole("heading", { name: "Challenge 1", level: 1 })).toBeVisible();
+  await page.getByRole("button", { name: "Go to Lesson 2: variables" }).click();
+  await expect(page.getByRole("heading", { name: "Lesson 2: variables", level: 1 })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Go to Challenge 2" })).toBeVisible();
+  await expect.poll(() => page.url()).toContain("page=");
+});
+
 test("opens setup and auth views", async ({ page }) => {
   await page.goto("/");
   await mainNav(page).getByRole("button", { name: "Set up Python" }).click();

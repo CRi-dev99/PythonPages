@@ -1,6 +1,7 @@
 import Editor from "@monaco-editor/react";
 import type { Session } from "@supabase/supabase-js";
 import {
+  ArrowRight,
   BookOpen,
   Bug,
   Cloud,
@@ -84,6 +85,7 @@ function App() {
 
   const selectedEntries = courseData.filter((entry) => entry.type === courseType);
   const selectedLesson = selectedEntries.find((entry) => entry.number === selectedNumber) ?? selectedEntries[0];
+  const nextCourseEntry = selectedLesson ? getNextCourseEntry(courseData, selectedLesson) : undefined;
   const currentProject = projects.find((project) => project.id === currentProjectId) ?? projects[0];
   const currentFile = currentProject?.files[0];
   const code = currentFile?.content ?? "";
@@ -446,6 +448,7 @@ function App() {
           projects={projects}
           runner={runner}
           saveStatus={saveStatus}
+          nextCourseEntry={nextCourseEntry}
           selectedLesson={selectedLesson}
           session={session}
           terminalInput={terminalInput}
@@ -458,6 +461,7 @@ function App() {
           onSave={() => saveCurrentProject(true)}
           onSendChat={sendChat}
           onSendTerminalInput={sendTerminalInput}
+          onOpenCourseEntry={openCourseEntry}
           onSetLessonCollapsed={setLessonCollapsed}
           onTerminalInputChange={setTerminalInput}
           onUpdateCode={updateCode}
@@ -626,6 +630,7 @@ function IdeView({
   currentProject,
   currentProjectId,
   lessonCollapsed,
+  nextCourseEntry,
   projects,
   runner,
   saveStatus,
@@ -641,6 +646,7 @@ function IdeView({
   onSave,
   onSendChat,
   onSendTerminalInput,
+  onOpenCourseEntry,
   onSetLessonCollapsed,
   onTerminalInputChange,
   onUpdateCode,
@@ -655,6 +661,7 @@ function IdeView({
   currentProject: ProjectRecord | undefined;
   currentProjectId: string;
   lessonCollapsed: boolean;
+  nextCourseEntry: CourseEntry | undefined;
   projects: ProjectRecord[];
   runner: ReturnType<typeof usePyodideRunner>;
   saveStatus: string;
@@ -670,6 +677,7 @@ function IdeView({
   onSave: () => void;
   onSendChat: (event: FormEvent<HTMLFormElement>) => void;
   onSendTerminalInput: (event: FormEvent<HTMLFormElement>) => void;
+  onOpenCourseEntry: (entry: CourseEntry) => void;
   onSetLessonCollapsed: (value: boolean) => void;
   onTerminalInputChange: (value: string) => void;
   onUpdateCode: (value: string | undefined) => void;
@@ -742,6 +750,13 @@ function IdeView({
           </button>
         </div>
         <div className="lesson-body markdown-body" dangerouslySetInnerHTML={{ __html: selectedLesson?.html ?? "" }} />
+        {nextCourseEntry && (
+          <div className="lesson-actions">
+            <button className="primary-button" type="button" onClick={() => onOpenCourseEntry(nextCourseEntry)}>
+              Go to {nextCourseEntry.title} <ArrowRight size={17} />
+            </button>
+          </div>
+        )}
       </section>
 
       {!lessonCollapsed && (
@@ -999,6 +1014,12 @@ function loadIdeLayout(): IdeLayout {
   } catch {
     return DEFAULT_IDE_LAYOUT;
   }
+}
+
+function getNextCourseEntry(courseData: CourseEntry[], current: CourseEntry): CourseEntry | undefined {
+  const nextType = current.type === "tutorial" ? "challenge" : "tutorial";
+  const nextNumber = current.type === "tutorial" ? current.number : current.number + 1;
+  return courseData.find((entry) => entry.type === nextType && entry.number === nextNumber);
 }
 
 function saveIdeLayout(layout: IdeLayout) {
