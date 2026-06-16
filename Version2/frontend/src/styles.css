@@ -153,9 +153,9 @@ button {
 
 .landing-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
-  gap: 24px;
-  align-items: stretch;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
 }
 
 .landing-hero h1,
@@ -167,6 +167,12 @@ button {
   font-size: clamp(2rem, 4vw, 4rem);
   line-height: 1.02;
   letter-spacing: 0;
+}
+
+.landing-hero h1 {
+  max-width: 1080px;
+  font-size: clamp(3.6rem, 7.4vw, 7rem);
+  line-height: 0.95;
 }
 
 .landing-hero p,
@@ -191,9 +197,16 @@ button {
 .landing-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
   margin-top: 22px;
+}
+
+.landing-actions .primary-button,
+.landing-actions .icon-text-button {
+  min-height: 52px;
+  padding: 12px 18px;
+  font-size: 1.08rem;
 }
 
 .landing-panel,
@@ -207,12 +220,13 @@ button {
 .landing-panel {
   display: grid;
   align-content: center;
-  gap: 10px;
-  padding: 26px;
+  width: min(920px, 100%);
+  gap: 12px;
+  padding: 30px;
 }
 
 .landing-panel strong {
-  font-size: 1.4rem;
+  font-size: 1.65rem;
   line-height: 1.25;
 }
 
@@ -225,8 +239,9 @@ button {
 }
 
 .landing-links button {
-  min-height: 38px;
-  padding: 8px 10px;
+  min-height: 48px;
+  padding: 11px 15px;
+  font-size: 1.05rem;
   font-weight: 800;
 }
 
