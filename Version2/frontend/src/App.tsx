@@ -11,13 +11,15 @@ import {
   MessageSquare,
   PanelLeftClose,
   PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
   Play,
   Save,
   Square,
   Trash2,
   User
 } from "lucide-react";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import { analyzeCode, askDebugger, emptyAnalysis } from "./lib/api";
 import { getAccessToken, getAuthRedirectUrl, isSupabaseConfigured, supabase } from "./lib/supabase";
 import {
@@ -34,6 +36,23 @@ import type { RunnerState } from "./lib/usePyodideRunner";
 import type { AnalysisResult, ChatMessage, CourseEntry, ProjectRecord } from "./types";
 
 type AppView = "home" | "tutorials" | "challenges" | "setup" | "ide" | "login" | "signup";
+type ResizeKey = "lessonWidth" | "chatWidth" | "outputHeight" | "diagnosticsWidth";
+
+type IdeLayout = Record<ResizeKey, number>;
+
+const IDE_LAYOUT_KEY = "pythonpages-ide-layout";
+const DEFAULT_IDE_LAYOUT: IdeLayout = {
+  lessonWidth: 320,
+  chatWidth: 360,
+  outputHeight: 240,
+  diagnosticsWidth: 320
+};
+const IDE_LAYOUT_LIMITS: Record<ResizeKey, { min: number; max: number }> = {
+  lessonWidth: { min: 260, max: 460 },
+  chatWidth: { min: 300, max: 460 },
+  outputHeight: { min: 220, max: 520 },
+  diagnosticsWidth: { min: 260, max: 420 }
+};
 
 function App() {
   const courseData = useMemo(() => window.COURSE_DATA ?? [], []);
@@ -656,8 +675,59 @@ function IdeView({
   onUpdateCode: (value: string | undefined) => void;
   onUpdateCurrentProject: (mutator: (project: ProjectRecord) => ProjectRecord) => void;
 }) {
+  const [chatCollapsed, setChatCollapsed] = useState(true);
+  const [diagnosticsCollapsed, setDiagnosticsCollapsed] = useState(false);
+  const [layout, setLayout] = useState<IdeLayout>(loadIdeLayout);
+  const diagnostics = [...analysis.safety_findings, ...analysis.diagnostics];
+  const mainClass = [
+    "ide-main",
+    lessonCollapsed ? "lesson-hidden" : "",
+    chatCollapsed ? "chat-hidden" : "",
+    diagnosticsCollapsed ? "diagnostics-hidden" : ""
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const layoutStyle = {
+    "--lesson-width": `${lessonCollapsed ? 48 : layout.lessonWidth}px`,
+    "--lesson-resizer-width": lessonCollapsed ? "0px" : "8px",
+    "--chat-width": `${chatCollapsed ? 52 : layout.chatWidth}px`,
+    "--chat-resizer-width": chatCollapsed ? "0px" : "8px",
+    "--output-height": `${layout.outputHeight}px`,
+    "--diagnostics-width": `${diagnosticsCollapsed ? 52 : layout.diagnosticsWidth}px`,
+    "--diagnostics-resizer-width": diagnosticsCollapsed ? "0px" : "8px"
+  } as CSSProperties;
+
+  useEffect(() => {
+    saveIdeLayout(layout);
+  }, [layout]);
+
+  function startResize(key: ResizeKey, event: ReactPointerEvent<HTMLDivElement>) {
+    if (window.matchMedia("(max-width: 860px)").matches) return;
+    event.preventDefault();
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startValue = layout[key];
+
+    document.body.classList.add("is-resizing");
+    const move = (pointerEvent: PointerEvent) => {
+      const nextValue = startValue + resizeMovement(key, startX, startY, pointerEvent.clientX, pointerEvent.clientY);
+      const limits = resizeLimits(key);
+      setLayout((current) => ({
+        ...current,
+        [key]: clamp(Math.round(nextValue), limits.min, limits.max)
+      }));
+    };
+    const stop = () => {
+      document.body.classList.remove("is-resizing");
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", stop);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", stop);
+  }
+
   return (
-    <main className={lessonCollapsed ? "ide-main lesson-hidden" : "ide-main"}>
+    <main className={mainClass} style={layoutStyle}>
       <section className="lesson-pane" aria-label="Selected tutorial or challenge">
         <div className="panel-title">
           {!lessonCollapsed && <BookOpen size={18} />}
@@ -673,6 +743,16 @@ function IdeView({
         </div>
         <div className="lesson-body markdown-body" dangerouslySetInnerHTML={{ __html: selectedLesson?.html ?? "" }} />
       </section>
+
+      {!lessonCollapsed && (
+        <div
+          aria-label="Resize lesson panel"
+          className="resize-handle vertical lesson-resize-handle"
+          data-testid="lesson-resize-handle"
+          onPointerDown={(event) => startResize("lessonWidth", event)}
+          role="separator"
+        />
+      )}
 
       <section className="workspace" aria-label="Python IDE workspace">
         <header className="topbar">
@@ -750,7 +830,15 @@ function IdeView({
             />
           </section>
 
-          <section className="right-stack">
+          <div
+            aria-label="Resize terminal and diagnostics"
+            className="resize-handle horizontal output-resize-handle"
+            data-testid="output-resize-handle"
+            onPointerDown={(event) => startResize("outputHeight", event)}
+            role="separator"
+          />
+
+          <section className="output-dock" aria-label="Run output and diagnostics">
             <section className="terminal-panel">
               <div className="panel-toolbar dark">
                 <span>Terminal</span>
@@ -769,59 +857,122 @@ function IdeView({
               </form>
             </section>
 
-            <section className="diagnostics-panel">
-              <div className="panel-toolbar">
-                <span>Diagnostics</span>
-                <span className={`safety-pill ${analysis.safety}`}>{analysis.safety}</span>
-              </div>
-              <ul className="diagnostics-list">
-                {[...analysis.safety_findings, ...analysis.diagnostics].length === 0 && <li>No diagnostics yet.</li>}
-                {analysis.safety_findings.map((item, index) => (
-                  <li key={`safety-${index}`} className={item.severity}>
-                    {formatIssue(item.category, item.line, item.message)}
-                  </li>
-                ))}
-                {analysis.diagnostics.map((item, index) => (
-                  <li key={`diag-${index}`} className={item.severity}>
-                    {formatIssue(item.category, item.line, item.message)}
-                  </li>
-                ))}
-              </ul>
+            {!diagnosticsCollapsed && (
+              <div
+                aria-label="Resize diagnostics panel"
+                className="resize-handle vertical diagnostics-resize-handle"
+                data-testid="diagnostics-resize-handle"
+                onPointerDown={(event) => startResize("diagnosticsWidth", event)}
+                role="separator"
+              />
+            )}
+
+            <section className={diagnosticsCollapsed ? "diagnostics-panel collapsed" : "diagnostics-panel"} aria-label="Diagnostics">
+              {diagnosticsCollapsed ? (
+                <button
+                  aria-label="Show diagnostics"
+                  className="panel-rail diagnostics-rail"
+                  onClick={() => setDiagnosticsCollapsed(false)}
+                  title="Show diagnostics"
+                  type="button"
+                >
+                  <PanelRightOpen size={17} />
+                  <span>Diagnostics</span>
+                </button>
+              ) : (
+                <>
+                  <div className="panel-toolbar">
+                    <span>Diagnostics</span>
+                    <div className="panel-toolbar-actions">
+                      <span className={`safety-pill ${analysis.safety}`}>{analysis.safety}</span>
+                      <button
+                        className="icon-button"
+                        type="button"
+                        title="Collapse diagnostics"
+                        onClick={() => setDiagnosticsCollapsed(true)}
+                      >
+                        <PanelRightClose size={17} />
+                      </button>
+                    </div>
+                  </div>
+                  <ul className="diagnostics-list">
+                    {diagnostics.length === 0 && <li>No diagnostics yet.</li>}
+                    {analysis.safety_findings.map((item, index) => (
+                      <li key={`safety-${index}`} className={item.severity}>
+                        {formatIssue(item.category, item.line, item.message)}
+                      </li>
+                    ))}
+                    {analysis.diagnostics.map((item, index) => (
+                      <li key={`diag-${index}`} className={item.severity}>
+                        {formatIssue(item.category, item.line, item.message)}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </section>
           </section>
         </div>
       </section>
 
-      <aside className="chat-panel" aria-label="AI debugging chat">
-        <section className="debug-chat">
-          <div className="panel-toolbar">
-            <span>
-              <MessageSquare size={16} /> Debug chat
-            </span>
-            {session && (
-              <span className="account-status">
-                <User size={15} /> Cloud account
+      {!chatCollapsed && (
+        <div
+          aria-label="Resize debug chat"
+          className="resize-handle vertical chat-resize-handle"
+          data-testid="chat-resize-handle"
+          onPointerDown={(event) => startResize("chatWidth", event)}
+          role="separator"
+        />
+      )}
+
+      <aside className={chatCollapsed ? "chat-panel collapsed" : "chat-panel"} aria-label="AI debugging chat">
+        {chatCollapsed ? (
+          <button
+            aria-label="Open debug chat"
+            className="panel-rail chat-rail"
+            onClick={() => setChatCollapsed(false)}
+            title="Open debug chat"
+            type="button"
+          >
+            <MessageSquare size={17} />
+            <span>Debug chat</span>
+          </button>
+        ) : (
+          <section className="debug-chat">
+            <div className="panel-toolbar">
+              <span>
+                <MessageSquare size={16} /> Debug chat
               </span>
-            )}
-          </div>
-          <div className="chat-log">
-            {chatMessages.map((message) => (
-              <article key={message.id} className={`chat-message ${message.role}`}>
-                {message.content}
-              </article>
-            ))}
-          </div>
-          <form className="chat-form" onSubmit={onSendChat}>
-            <textarea
-              value={chatDraft}
-              onChange={(event) => onChatDraftChange(event.target.value)}
-              placeholder="Ask what went wrong, or how to debug the output."
-            />
-            <button className="primary-button" type="submit" disabled={busy || !chatDraft.trim()}>
-              <MessageSquare size={16} /> Ask
-            </button>
-          </form>
-        </section>
+              <div className="panel-toolbar-actions">
+                {session && (
+                  <span className="account-status">
+                    <User size={15} /> Cloud account
+                  </span>
+                )}
+                <button className="icon-button" type="button" title="Collapse debug chat" onClick={() => setChatCollapsed(true)}>
+                  <PanelRightClose size={17} />
+                </button>
+              </div>
+            </div>
+            <div className="chat-log">
+              {chatMessages.map((message) => (
+                <article key={message.id} className={`chat-message ${message.role}`}>
+                  {message.content}
+                </article>
+              ))}
+            </div>
+            <form className="chat-form" onSubmit={onSendChat}>
+              <textarea
+                value={chatDraft}
+                onChange={(event) => onChatDraftChange(event.target.value)}
+                placeholder="Ask what went wrong, or how to debug the output."
+              />
+              <button className="primary-button" type="submit" disabled={busy || !chatDraft.trim()}>
+                <MessageSquare size={16} /> Ask
+              </button>
+            </form>
+          </section>
+        )}
       </aside>
 
       <footer className="statusbar">
@@ -831,6 +982,54 @@ function IdeView({
       </footer>
     </main>
   );
+}
+
+function loadIdeLayout(): IdeLayout {
+  if (typeof window === "undefined") return DEFAULT_IDE_LAYOUT;
+  try {
+    const stored = window.localStorage.getItem(IDE_LAYOUT_KEY);
+    if (!stored) return DEFAULT_IDE_LAYOUT;
+    const parsed = JSON.parse(stored) as Partial<IdeLayout>;
+    return {
+      lessonWidth: clampNumber(parsed.lessonWidth, "lessonWidth"),
+      chatWidth: clampNumber(parsed.chatWidth, "chatWidth"),
+      outputHeight: clampNumber(parsed.outputHeight, "outputHeight"),
+      diagnosticsWidth: clampNumber(parsed.diagnosticsWidth, "diagnosticsWidth")
+    };
+  } catch {
+    return DEFAULT_IDE_LAYOUT;
+  }
+}
+
+function saveIdeLayout(layout: IdeLayout) {
+  try {
+    window.localStorage.setItem(IDE_LAYOUT_KEY, JSON.stringify(layout));
+  } catch {
+    // Local storage can be unavailable in private browsing or strict browser modes.
+  }
+}
+
+function clampNumber(value: number | undefined, key: ResizeKey) {
+  const limits = resizeLimits(key);
+  return clamp(typeof value === "number" ? value : DEFAULT_IDE_LAYOUT[key], limits.min, limits.max);
+}
+
+function resizeMovement(key: ResizeKey, startX: number, startY: number, currentX: number, currentY: number) {
+  if (key === "lessonWidth") return currentX - startX;
+  if (key === "outputHeight") return startY - currentY;
+  return startX - currentX;
+}
+
+function resizeLimits(key: ResizeKey) {
+  if (key !== "outputHeight" || typeof window === "undefined") return IDE_LAYOUT_LIMITS[key];
+  return {
+    min: IDE_LAYOUT_LIMITS.outputHeight.min,
+    max: Math.max(IDE_LAYOUT_LIMITS.outputHeight.min, Math.round(window.innerHeight * 0.45))
+  };
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
 }
 
 function requestedCourseEntry(courseData: CourseEntry[]): CourseEntry | undefined {

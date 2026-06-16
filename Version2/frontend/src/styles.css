@@ -320,11 +320,10 @@ button {
 
 .lesson-pane,
 .workspace,
-.chat-panel,
-.debug-chat,
 .editor-panel,
 .terminal-panel,
-.diagnostics-panel {
+.diagnostics-panel,
+.debug-chat {
   min-width: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -333,20 +332,41 @@ button {
 
 .ide-main {
   display: grid;
-  grid-template-columns: minmax(260px, 0.72fr) minmax(520px, 1.55fr) minmax(300px, 0.78fr);
+  grid-template-columns:
+    var(--lesson-width, 320px)
+    var(--lesson-resizer-width, 8px)
+    minmax(0, 1fr)
+    var(--chat-resizer-width, 0px)
+    var(--chat-width, 52px);
   grid-template-rows: minmax(0, 1fr) auto;
-  gap: 18px;
   height: calc(100vh - 74px);
   padding: 18px;
 }
 
-.ide-main.lesson-hidden {
-  grid-template-columns: 48px minmax(520px, 1.55fr) minmax(300px, 0.78fr);
-}
-
 .lesson-pane {
+  grid-column: 1;
   overflow: auto;
   padding: 16px;
+}
+
+.workspace {
+  grid-column: 3;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.chat-panel {
+  grid-column: 5;
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+}
+
+.chat-panel.collapsed {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
 }
 
 .lesson-hidden .lesson-pane {
@@ -375,6 +395,55 @@ button {
   text-transform: uppercase;
 }
 
+.resize-handle {
+  display: grid;
+  place-items: center;
+  touch-action: none;
+}
+
+.resize-handle::before {
+  content: "";
+  border-radius: 999px;
+  background: transparent;
+}
+
+.resize-handle:hover::before,
+.resize-handle:focus-visible::before {
+  background: #b9c9ef;
+}
+
+.resize-handle.vertical {
+  width: 8px;
+  cursor: col-resize;
+}
+
+.resize-handle.vertical::before {
+  width: 3px;
+  height: 48px;
+}
+
+.resize-handle.horizontal {
+  height: 8px;
+  cursor: row-resize;
+}
+
+.resize-handle.horizontal::before {
+  width: 48px;
+  height: 3px;
+}
+
+.lesson-resize-handle {
+  grid-column: 2;
+}
+
+.chat-resize-handle {
+  grid-column: 4;
+}
+
+body.is-resizing {
+  user-select: none;
+}
+
 .panel-title,
 .topbar,
 .panel-toolbar,
@@ -395,12 +464,6 @@ button {
   line-height: 1.2;
 }
 
-.workspace {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  overflow: hidden;
-}
-
 .topbar {
   justify-content: space-between;
   min-height: 58px;
@@ -410,7 +473,8 @@ button {
 
 .project-controls,
 .toolbar,
-.runner-actions {
+.runner-actions,
+.panel-toolbar-actions {
   display: flex;
   gap: 8px;
   align-items: center;
@@ -424,6 +488,10 @@ button {
 .toolbar,
 .runner-actions {
   flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.panel-toolbar-actions {
   justify-content: flex-end;
 }
 
@@ -450,8 +518,7 @@ button {
 
 .work-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(330px, 0.8fr);
-  gap: 14px;
+  grid-template-rows: minmax(0, 1fr) 8px var(--output-height, 240px);
   min-height: 0;
   padding: 14px;
 }
@@ -459,7 +526,42 @@ button {
 .editor-panel {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
   overflow: hidden;
+}
+
+.output-resize-handle {
+  grid-row: 2;
+}
+
+.output-dock {
+  display: grid;
+  grid-row: 3;
+  grid-template-columns: minmax(0, 1fr) var(--diagnostics-resizer-width, 8px) var(--diagnostics-width, 320px);
+  min-height: 0;
+}
+
+.terminal-panel {
+  display: grid;
+  grid-column: 1;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  background: var(--nav);
+}
+
+.diagnostics-resize-handle {
+  grid-column: 2;
+}
+
+.diagnostics-panel {
+  display: grid;
+  grid-column: 3;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.diagnostics-panel.collapsed {
+  display: block;
 }
 
 .panel-toolbar {
@@ -481,29 +583,6 @@ button {
 .panel-toolbar.dark {
   border-bottom-color: rgba(255, 255, 255, 0.12);
   color: #eef4ff;
-  background: var(--nav);
-}
-
-.right-stack,
-.chat-panel {
-  display: grid;
-  gap: 14px;
-  min-height: 0;
-}
-
-.right-stack {
-  grid-template-rows: minmax(230px, 0.95fr) minmax(180px, 0.75fr);
-}
-
-.chat-panel {
-  border: 0;
-  background: transparent;
-}
-
-.terminal-panel {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  overflow: hidden;
   background: var(--nav);
 }
 
@@ -534,15 +613,11 @@ button {
   color: #aab7ca;
 }
 
-.diagnostics-panel,
-.debug-chat {
-  overflow: hidden;
-}
-
 .diagnostics-list {
   display: grid;
+  align-content: start;
   gap: 8px;
-  max-height: 240px;
+  min-height: 0;
   margin: 0;
   overflow: auto;
   padding: 12px;
@@ -591,6 +666,31 @@ button {
   background: var(--green);
 }
 
+.panel-rail {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  color: var(--blue);
+  background: #ffffff;
+  font-weight: 800;
+}
+
+.panel-rail span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.panel-rail:hover {
+  background: #e8f0ff;
+}
+
 .account-status,
 .muted {
   margin: 12px;
@@ -618,7 +718,9 @@ button {
 
 .debug-chat {
   display: grid;
+  height: 100%;
   grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
 }
 
 .chat-log {
@@ -754,19 +856,6 @@ button {
   font-family: Consolas, "Courier New", monospace;
 }
 
-@media (max-width: 1180px) {
-  .ide-main,
-  .ide-main.lesson-hidden {
-    grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.4fr);
-    height: auto;
-    min-height: calc(100vh - 74px);
-  }
-
-  .chat-panel {
-    grid-column: 1 / -1;
-  }
-}
-
 @media (max-width: 860px) {
   .site-nav {
     align-items: stretch;
@@ -792,15 +881,65 @@ button {
   }
 
   .landing-hero,
-  .setup-steps,
+  .setup-steps {
+    grid-template-columns: 1fr;
+  }
+
   .ide-main,
   .ide-main.lesson-hidden,
-  .work-grid {
+  .ide-main.chat-hidden,
+  .ide-main.diagnostics-hidden {
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 14px;
+    height: auto;
+    min-height: calc(100vh - 74px);
+  }
+
+  .lesson-pane,
+  .workspace,
+  .chat-panel,
+  .statusbar {
+    grid-column: 1;
   }
 
   .lesson-hidden .lesson-pane {
     display: none;
+  }
+
+  .resize-handle {
+    display: none;
+  }
+
+  .work-grid {
+    grid-template-rows: minmax(520px, auto) auto;
+    gap: 14px;
+  }
+
+  .output-dock {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .terminal-panel,
+  .diagnostics-panel {
+    grid-column: 1;
+    min-height: 220px;
+  }
+
+  .diagnostics-panel.collapsed,
+  .chat-panel.collapsed {
+    min-height: 54px;
+  }
+
+  .panel-rail {
+    min-height: 54px;
+    flex-direction: row;
+  }
+
+  .panel-rail span {
+    writing-mode: horizontal-tb;
+    transform: none;
   }
 
   .topbar,

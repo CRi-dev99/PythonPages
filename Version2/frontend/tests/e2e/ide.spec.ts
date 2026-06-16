@@ -92,3 +92,96 @@ test("can create a local project from the IDE", async ({ page }) => {
   await page.getByTitle("New project").click();
   await expect(page.getByLabel("Project", { exact: true })).toContainText("Python project");
 });
+
+test("IDE keeps the editor central with collapsible and resizable tools", async ({ page }) => {
+  await page.route("**/api/analyze", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        syntax_ok: true,
+        diagnostics: [],
+        safety: "allow",
+        safety_findings: [],
+        allowed_imports: [],
+        blocked_imports: [],
+        allowed_packages: ["matplotlib", "numpy", "pandas"]
+      })
+    });
+  });
+  await page.route("**/api/chat", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        reply: "Try checking your print statement.",
+        backend: "test",
+        model: "mock"
+      })
+    });
+  });
+
+  await page.goto("/");
+  await mainNav(page).getByRole("button", { name: "IDE" }).click();
+
+  await expect(page.getByRole("button", { name: "Open debug chat" })).toBeVisible();
+  await expect(page.locator(".debug-chat")).toHaveCount(0);
+  await expect(page.getByTestId("output-resize-handle")).toBeVisible();
+  await expect(page.getByTestId("diagnostics-resize-handle")).toBeVisible();
+
+  const editorBox = await page.locator(".editor-panel").boundingBox();
+  const terminalBox = await page.locator(".terminal-panel").boundingBox();
+  const diagnosticsBox = await page.locator(".diagnostics-panel").boundingBox();
+  expect(editorBox).not.toBeNull();
+  expect(terminalBox).not.toBeNull();
+  expect(diagnosticsBox).not.toBeNull();
+  expect(terminalBox!.y).toBeGreaterThan(editorBox!.y + editorBox!.height - 4);
+  expect(diagnosticsBox!.x).toBeGreaterThan(terminalBox!.x + terminalBox!.width - 4);
+  expect(editorBox!.width).toBeGreaterThan(terminalBox!.width);
+
+  await page.getByTitle("Collapse diagnostics").click();
+  await expect(page.getByRole("button", { name: "Show diagnostics" })).toBeVisible();
+  await page.getByRole("button", { name: "Show diagnostics" }).click();
+  await expect(page.getByTitle("Collapse diagnostics")).toBeVisible();
+
+  await page.getByRole("button", { name: "Open debug chat" }).click();
+  await expect(page.locator(".debug-chat")).toBeVisible();
+  await expect(page.getByTestId("chat-resize-handle")).toBeVisible();
+  await page.locator(".chat-form textarea").fill("Why did it break?");
+  await page.locator(".chat-form button").click();
+  await expect(page.locator(".chat-message.assistant").last()).toContainText("Try checking your print statement.");
+  await page.getByTitle("Collapse debug chat").click();
+  await expect(page.getByRole("button", { name: "Open debug chat" })).toBeVisible();
+
+  const lessonBefore = await page.locator(".lesson-pane").boundingBox();
+  const lessonHandle = await page.getByTestId("lesson-resize-handle").boundingBox();
+  expect(lessonBefore).not.toBeNull();
+  expect(lessonHandle).not.toBeNull();
+  await page.mouse.move(lessonHandle!.x + lessonHandle!.width / 2, lessonHandle!.y + lessonHandle!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(lessonHandle!.x + 70, lessonHandle!.y + lessonHandle!.height / 2);
+  await page.mouse.up();
+  await expect.poll(async () => (await page.locator(".lesson-pane").boundingBox())?.width ?? 0).toBeGreaterThan(lessonBefore!.width + 30);
+});
+
+test("IDE stacks panels cleanly on a narrow screen", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 850 });
+  await page.goto("/");
+  await mainNav(page).getByRole("button", { name: "IDE" }).click();
+
+  await expect(page.locator(".editor-panel")).toBeVisible();
+  await expect(page.locator(".terminal-panel")).toBeVisible();
+  await expect(page.locator(".diagnostics-panel")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Open debug chat" })).toBeVisible();
+  await expect(page.getByTestId("lesson-resize-handle")).toBeHidden();
+  await expect(page.getByTestId("output-resize-handle")).toBeHidden();
+
+  const editorBox = await page.locator(".editor-panel").boundingBox();
+  const terminalBox = await page.locator(".terminal-panel").boundingBox();
+  const diagnosticsBox = await page.locator(".diagnostics-panel").boundingBox();
+  expect(editorBox).not.toBeNull();
+  expect(terminalBox).not.toBeNull();
+  expect(diagnosticsBox).not.toBeNull();
+  expect(terminalBox!.y).toBeGreaterThan(editorBox!.y + editorBox!.height - 4);
+  expect(diagnosticsBox!.y).toBeGreaterThan(terminalBox!.y + terminalBox!.height - 4);
+});
