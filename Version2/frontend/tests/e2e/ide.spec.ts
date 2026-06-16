@@ -48,6 +48,44 @@ test("opens setup and auth views", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Sign up" }).last()).toBeVisible();
 });
 
+test("sign up sends a clean auth redirect URL", async ({ page }) => {
+  await page.route("**/auth/v1/signup**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        user: { id: "test-user", aud: "authenticated", role: "authenticated", email: "student@example.com", identities: [] },
+        session: null
+      })
+    });
+  });
+  await page.goto("/");
+  await mainNav(page).getByRole("button", { name: "Sign up" }).click();
+  await page.getByPlaceholder("Email").fill("student@example.com");
+  await page.getByPlaceholder("Password").fill("long-enough-password");
+  const requestPromise = page.waitForRequest("**/auth/v1/signup**", { timeout: 5_000 }).catch(() => null);
+  await page.getByRole("button", { name: "Sign up" }).last().click();
+  const request = await requestPromise;
+  if (!request) {
+    await expect(page.getByText(/Supabase env vars are not set/)).toBeVisible();
+    test.skip(true, "Supabase env vars are not configured.");
+    return;
+  }
+
+  const redirectTo = new URL(request.url()).searchParams.get("redirect_to");
+  expect(redirectTo).toBe("http://127.0.0.1:5173/");
+  expect(redirectTo).not.toContain("localhost");
+  await expect(page.getByText("Check your email to confirm your account.")).toBeVisible();
+});
+
+test("auth callback errors show login instead of a blank page", async ({ page }) => {
+  await page.goto("/#error=access_denied&error_description=Email%20link%20expired");
+  await expect(mainNav(page).getByRole("button", { name: "Login" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Login" })).toBeVisible();
+  await expect(page.getByText("Email link expired")).toBeVisible();
+  await expect.poll(() => page.url()).not.toContain("error_description");
+});
+
 test("can create a local project from the IDE", async ({ page }) => {
   await page.goto("/");
   await mainNav(page).getByRole("button", { name: "IDE" }).click();

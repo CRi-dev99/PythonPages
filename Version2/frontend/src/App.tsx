@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { analyzeCode, askDebugger, emptyAnalysis } from "./lib/api";
-import { getAccessToken, isSupabaseConfigured, supabase } from "./lib/supabase";
+import { getAccessToken, getAuthRedirectUrl, isSupabaseConfigured, supabase } from "./lib/supabase";
 import {
   createCloudProject,
   createLocalProject,
@@ -70,6 +70,14 @@ function App() {
   const code = currentFile?.content ?? "";
 
   useEffect(() => {
+    const authCallback = readAuthCallback();
+    if (authCallback.errorMessage) {
+      setAuthMode("signin");
+      setAuthStatus(authCallback.errorMessage);
+      setView("login");
+      cleanAuthCallbackUrl();
+    }
+
     if (!supabase) {
       const localProjects = loadLocalProjects();
       setProjects(localProjects);
@@ -77,8 +85,27 @@ function App() {
       return;
     }
 
-    supabase.auth.getSession().then(({ data }) => setSession(data.session));
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => setSession(nextSession));
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      if (!authCallback.hasCallback || authCallback.errorMessage) return;
+      if (data.session) {
+        setAuthStatus("Account confirmed. You are signed in.");
+        setView("ide");
+      } else {
+        setAuthMode("signin");
+        setAuthStatus("Email confirmed. Please log in to continue.");
+        setView("login");
+      }
+      cleanAuthCallbackUrl();
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+      if (authCallback.hasCallback && !authCallback.errorMessage && nextSession) {
+        setAuthStatus("Account confirmed. You are signed in.");
+        setView("ide");
+        cleanAuthCallbackUrl();
+      }
+    });
     return () => listener.subscription.unsubscribe();
   }, []);
 
@@ -162,9 +189,19 @@ function App() {
     const action =
       authMode === "signin"
         ? supabase.auth.signInWithPassword({ email: authEmail, password: authPassword })
-        : supabase.auth.signUp({ email: authEmail, password: authPassword });
+        : supabase.auth.signUp({
+            email: authEmail,
+            password: authPassword,
+            options: { emailRedirectTo: getAuthRedirectUrl() }
+          });
     const { error } = await action;
-    setAuthStatus(error ? error.message : authMode === "signin" ? "Signed in." : "Check your email if confirmation is enabled.");
+    setAuthStatus(
+      error
+        ? error.message
+        : authMode === "signin"
+          ? "Signed in."
+          : "Check your email to confirm your account. The link should bring you back to PythonPages."
+    );
     if (!error && authMode === "signin") navigate("ide");
   }
 
@@ -800,6 +837,24 @@ function requestedCourseEntry(courseData: CourseEntry[]): CourseEntry | undefine
   const params = new URLSearchParams(window.location.search);
   const requestedPage = params.get("page");
   return requestedPage ? courseData.find((item) => item.url === requestedPage) : undefined;
+}
+
+function readAuthCallback() {
+  const query = new URLSearchParams(window.location.search);
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const errorMessage = hash.get("error_description") || query.get("error_description") || hash.get("error") || query.get("error") || "";
+  const hasCallback =
+    Boolean(errorMessage) ||
+    hash.has("access_token") ||
+    hash.has("refresh_token") ||
+    hash.has("type") ||
+    query.has("code") ||
+    query.has("token_hash");
+  return { hasCallback, errorMessage };
+}
+
+function cleanAuthCallbackUrl() {
+  window.history.replaceState(null, "", window.location.pathname);
 }
 
 function pickInitialCourse(courseData: CourseEntry[]): CourseEntry | undefined {

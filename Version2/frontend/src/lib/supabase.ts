@@ -8,10 +8,18 @@ export const supabase: SupabaseClient | null = isSupabaseConfigured
   ? createClient(supabaseUrl as string, supabaseAnonKey as string)
   : null;
 
+export function getAuthRedirectUrl(): string {
+  if (typeof window === "undefined") return "https://cri-dev99.github.io/PythonPages/";
+  if (window.location.hostname === "cri-dev99.github.io") return "https://cri-dev99.github.io/PythonPages/";
+  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    return "http://127.0.0.1:5173/";
+  }
+  return `${window.location.origin}${window.location.pathname.replace(/[^/]*$/, "")}`;
+}
+
 export async function getAccessToken(session: Session | null): Promise<string | null> {
   if (session?.access_token) return session.access_token;
   if (!supabase) return null;
   const { data } = await supabase.auth.getSession();
   return data.session?.access_token ?? null;
 }
-
