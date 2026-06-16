@@ -44,7 +44,8 @@ After that, every push to `master` that changes `Version2/frontend` will rebuild
 
 ## Production Notes
 
-- Put OpenAI and Supabase JWT secrets only in the backend environment.
+- Put OpenAI keys only in the backend environment.
+- Put `SUPABASE_URL` in the backend environment; add `SUPABASE_JWT_SECRET` there only if your Supabase project uses legacy `HS256` tokens.
 - Put Supabase URL/anon key and a hosted backend API URL in frontend build env vars.
 - Apply `supabase/schema.sql` in Supabase before enabling real cloud saves.
 - GitHub Pages serves the workflow-built `dist` artifact, not the source TypeScript files.
