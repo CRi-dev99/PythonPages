@@ -294,3 +294,859 @@ window.COURSE_DATA = [
     "html": "<h3>Challenge 1</h3>\n<p>Search a list of names for a name entered by the user.</p>\n<h3>Challenge 2</h3>\n<p>Find the largest and smallest numbers in a list without using max() or min().</p>\n<h3>Challenge 3</h3>\n<p>Count how many times each word appears in a list.</p>\n<h3>Challenge 4</h3>\n<p>Ask the user for five numbers, store them in a list and find the average.</p>\n<h3>Challenge 5</h3>\n<p>Create a high score program that stores player names and scores in a dictionary, then prints the player with the highest score.</p>"
   }
 ];
+
+(() => {
+  const tutorialHtml = {
+    1: `<h2>Print statements</h2>
+<p><strong>Definition:</strong> The <code>print()</code> function displays text, numbers, or other values in the terminal.</p>
+<p>Printing is useful because it lets a program communicate with the user and lets you check what your code is doing while you build it.</p>
+<h3>Syntax</h3>
+<pre><code>print(value)</code></pre>
+<p>The value goes inside the brackets. Text must go inside quotation marks. Numbers can be printed without quotation marks.</p>
+<h3>Example</h3>
+<pre><code>print("Hello, World!")
+print(42)
+print("Answer =", 6 + 4)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Hello, World!
+&gt;&gt;&gt; 42
+&gt;&gt;&gt; Answer = 10</code></pre>
+<h3>Important notes</h3>
+<ul>
+  <li>Python is case-sensitive, so <code>print</code> works but <code>Print</code> does not.</li>
+  <li>Forgetting quotation marks around text causes an error because Python thinks the word is a variable name.</li>
+  <li>A comment starts with <code>#</code>. Python ignores comments when it runs the code.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Print your name.</li>
+  <li>Print your age as a number.</li>
+  <li>Print a short menu on three separate lines.</li>
+  <li>Add a comment above one print statement explaining what it does.</li>
+</ul>`,
+    2: `<h2>Variables</h2>
+<p><strong>Definition:</strong> A variable is a name that stores a value so the program can use it later.</p>
+<p>Variables are useful because they let you remember information, change it, and reuse it without typing the same value again and again.</p>
+<h3>Syntax</h3>
+<pre><code>variable_name = value</code></pre>
+<p>The equals sign is the assignment operator. It puts the value on the right into the variable name on the left.</p>
+<h3>Example</h3>
+<pre><code>name = "Paddy"
+age = 16
+is_student = True
+
+print(name)
+print(age)
+print(is_student)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy
+&gt;&gt;&gt; 16
+&gt;&gt;&gt; True</code></pre>
+<h3>Main data types</h3>
+<ul>
+  <li><strong>String:</strong> text inside quotes, such as <code>"hello"</code>.</li>
+  <li><strong>Integer:</strong> a whole number, such as <code>16</code>.</li>
+  <li><strong>Float:</strong> a decimal number, such as <code>16.5</code>.</li>
+  <li><strong>Boolean:</strong> either <code>True</code> or <code>False</code>.</li>
+</ul>
+<h3>Checking a type</h3>
+<pre><code>score = 10
+print(type(score))</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; &lt;class 'int'&gt;</code></pre>
+<h3>Important notes</h3>
+<ul>
+  <li>Variable names are case-sensitive. <code>age</code> and <code>Age</code> are different names.</li>
+  <li>Use clear names such as <code>first_name</code> instead of unclear names such as <code>x</code>.</li>
+  <li>A variable can be given a new value later in the program.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Create variables for your name, age, and favourite subject.</li>
+  <li>Print each variable.</li>
+  <li>Change one variable and print it again.</li>
+  <li>Use <code>type()</code> to check the type of three different variables.</li>
+</ul>`,
+    3: `<h2>Input()</h2>
+<p><strong>Definition:</strong> The <code>input()</code> function pauses the program and lets the user type a value.</p>
+<p>Input is useful because it lets a program react to the person using it instead of always doing the same thing.</p>
+<h3>Syntax</h3>
+<pre><code>answer = input("Prompt text: ")</code></pre>
+<p>The text inside the brackets is the prompt. The value the user types is stored in the variable.</p>
+<h3>Example</h3>
+<pre><code>name = input("Enter your name: ")
+print("Hello", name)</code></pre>
+<p>If the user types Paddy, it will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Enter your name: Paddy
+&gt;&gt;&gt; Hello Paddy</code></pre>
+<h3>Input is always a string</h3>
+<p><code>input()</code> always gives back a string, even if the user types digits.</p>
+<pre><code>age = input("Enter your age: ")
+print(type(age))</code></pre>
+<p>If the user types 16, it will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; &lt;class 'str'&gt;</code></pre>
+<h3>Important notes</h3>
+<ul>
+  <li>Use a clear prompt so the user knows what to type.</li>
+  <li>Convert the input if you want to do maths with it.</li>
+  <li>Store the input in a variable if you need to use it later.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Ask for the user's name and greet them.</li>
+  <li>Ask for a favourite colour and print a sentence using it.</li>
+  <li>Ask for two pieces of information and print them together.</li>
+  <li>Ask for an age and print the type before converting it.</li>
+</ul>`,
+    4: `<h2>Type conversion</h2>
+<p><strong>Definition:</strong> Type conversion, or casting, changes a value from one data type into another.</p>
+<p>Casting is useful when a value arrives as text but your program needs a number, or when you want to combine numbers with strings in output.</p>
+<h3>Common conversion functions</h3>
+<ul>
+  <li><code>int()</code> converts to an integer.</li>
+  <li><code>float()</code> converts to a decimal number.</li>
+  <li><code>str()</code> converts to a string.</li>
+  <li><code>bool()</code> converts to a boolean.</li>
+</ul>
+<h3>Example</h3>
+<pre><code>age_text = input("Enter your age: ")
+age = int(age_text)
+print(age + 1)</code></pre>
+<p>If the user types 16, it will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 17</code></pre>
+<h3>Strings and numbers behave differently</h3>
+<pre><code>print("2" + "2")
+print(2 + 2)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 22
+&gt;&gt;&gt; 4</code></pre>
+<h3>Arithmetic operators</h3>
+<ul>
+  <li><code>+</code> addition</li>
+  <li><code>-</code> subtraction</li>
+  <li><code>*</code> multiplication</li>
+  <li><code>/</code> division</li>
+  <li><code>//</code> whole-number division</li>
+  <li><code>%</code> remainder</li>
+</ul>
+<h3>Important notes</h3>
+<ul>
+  <li><code>int("hello")</code> causes an error because hello is not a number.</li>
+  <li><code>int(5.9)</code> becomes <code>5</code>; it does not round up.</li>
+  <li>Convert input before doing arithmetic with it.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Ask for two numbers, convert them, and print their total.</li>
+  <li>Print the type of a value before and after converting it.</li>
+  <li>Create a simple area calculator for a rectangle.</li>
+  <li>Try converting invalid input and read the error message.</li>
+</ul>`,
+    5: `<h2>If, elif and else statements</h2>
+<p><strong>Definition:</strong> A conditional statement lets a program choose which code to run based on whether a condition is true or false.</p>
+<p>Conditionals are useful because programs often need to make decisions, such as checking a password, choosing a message, or testing a score.</p>
+<h3>Boolean expressions</h3>
+<p>A Boolean expression is a question that evaluates to <code>True</code> or <code>False</code>.</p>
+<pre><code>print(10 &gt; 5)
+print(10 == 5)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; True
+&gt;&gt;&gt; False</code></pre>
+<h3>Comparison operators</h3>
+<ul>
+  <li><code>==</code> equal to</li>
+  <li><code>!=</code> not equal to</li>
+  <li><code>&gt;</code> greater than</li>
+  <li><code>&lt;</code> less than</li>
+  <li><code>&gt;=</code> greater than or equal to</li>
+  <li><code>&lt;=</code> less than or equal to</li>
+</ul>
+<h3>Example</h3>
+<pre><code>mark = 65
+
+if mark &gt;= 80:
+    print("Distinction")
+elif mark &gt;= 50:
+    print("Pass")
+else:
+    print("Fail")</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Pass</code></pre>
+<h3>Rules</h3>
+<ul>
+  <li>Use a colon after <code>if</code>, <code>elif</code>, and <code>else</code>.</li>
+  <li>Indent the code that belongs inside each branch.</li>
+  <li>Use <code>==</code> to compare values. A single <code>=</code> is for assignment.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Ask for an age and check if the user is old enough to drive.</li>
+  <li>Check whether a number is positive, negative, or zero.</li>
+  <li>Create a simple password check.</li>
+  <li>Predict the output before running each test.</li>
+</ul>`,
+    6: `<h2>String manipulation</h2>
+<p><strong>Definition:</strong> String manipulation means creating, joining, measuring, changing, and reading parts of text.</p>
+<p>Strings are useful because programs often work with names, messages, passwords, menu choices, and other text entered by users.</p>
+<h3>Joining strings</h3>
+<pre><code>first_name = "Paddy"
+second_name = "Murphy"
+print(first_name + " " + second_name)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy Murphy</code></pre>
+<h3>F-strings</h3>
+<p>An f-string lets you place variables inside a string using braces.</p>
+<pre><code>name = "Paddy"
+age = 16
+print(f"{name} is {age} years old")</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy is 16 years old</code></pre>
+<h3>Length, indexing and slicing</h3>
+<p><code>len()</code> counts characters. Indexing gets one character. Slicing gets part of a string.</p>
+<pre><code>word = "Python"
+print(len(word))
+print(word[0])
+print(word[1:4])</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 6
+&gt;&gt;&gt; P
+&gt;&gt;&gt; yth</code></pre>
+<h3>Useful string methods</h3>
+<pre><code>message = "hello"
+print(message.upper())
+print(message.capitalize())</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; HELLO
+&gt;&gt;&gt; Hello</code></pre>
+<h3>Important notes</h3>
+<ul>
+  <li>String indexes start at 0.</li>
+  <li>An index that is too large causes an error.</li>
+  <li>Methods such as <code>.upper()</code> return a changed copy of the string.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Ask for a first name and second name, then print a full name.</li>
+  <li>Use an f-string to print a sentence with two variables.</li>
+  <li>Print the first and last letter of a word.</li>
+  <li>Ask for a sentence and print how many characters it contains.</li>
+</ul>`,
+    7: `<h2>List manipulation</h2>
+<p><strong>Definition:</strong> A list is an ordered collection that stores multiple values in one variable.</p>
+<p>Lists are useful when one variable is not enough, such as storing several scores, names, menu options, or items in a shopping list.</p>
+<h3>List syntax</h3>
+<pre><code>names = ["Paddy", "Sarah", "John"]
+scores = [8, 10, 6]
+mixed = ["Python", 3, True]</code></pre>
+<p>Lists use square brackets. Items are separated by commas.</p>
+<h3>Indexing and length</h3>
+<p>Lists are ordered, and their indexes start at 0.</p>
+<pre><code>names = ["Paddy", "Sarah", "John"]
+print(names[0])
+print(names[2])
+print(len(names))</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy
+&gt;&gt;&gt; John
+&gt;&gt;&gt; 3</code></pre>
+<h3>Changing a list</h3>
+<pre><code>numbers = [1, 2, 3]
+numbers.append(4)
+numbers.remove(2)
+numbers[0] = 10
+print(numbers)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; [10, 3, 4]</code></pre>
+<h3>Checking and looping</h3>
+<pre><code>subjects = ["English", "Maths", "Computer Science"]
+
+if "Maths" in subjects:
+    print("Maths is in the list")
+
+for subject in subjects:
+    print(subject)</code></pre>
+<h3>Important notes</h3>
+<ul>
+  <li><code>append()</code> adds an item to the end of a list.</li>
+  <li><code>remove()</code> removes the first matching item and errors if the item is not there.</li>
+  <li>Use <code>in</code> to check whether an item exists before removing or using it.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Create a list of five favourite foods.</li>
+  <li>Print the first item, last item, and length of the list.</li>
+  <li>Add, remove, and change one item.</li>
+  <li>Loop through the list and print each item in a sentence.</li>
+</ul>`,
+    8: `<h2>For loops</h2>
+<p><strong>Definition:</strong> A <code>for</code> loop repeats code once for each item in a sequence.</p>
+<p>For loops are useful when you know the group of items you want to work through, such as a list of names or a range of numbers.</p>
+<h3>Looping through a list</h3>
+<pre><code>names = ["Paddy", "Sarah", "John"]
+
+for name in names:
+    print(name)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy
+&gt;&gt;&gt; Sarah
+&gt;&gt;&gt; John</code></pre>
+<h3>Using range()</h3>
+<p><code>range()</code> creates a sequence of numbers for the loop to use.</p>
+<pre><code>for number in range(5):
+    print(number)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 0
+&gt;&gt;&gt; 1
+&gt;&gt;&gt; 2
+&gt;&gt;&gt; 3
+&gt;&gt;&gt; 4</code></pre>
+<h3>Counting from a different start</h3>
+<pre><code>for number in range(1, 6):
+    print(number)</code></pre>
+<p>This prints 1 to 5. The stop value is not included.</p>
+<h3>Important notes</h3>
+<ul>
+  <li>The loop variable, such as <code>name</code>, changes each time the loop repeats.</li>
+  <li>The indented code is the code that repeats.</li>
+  <li><code>range(5)</code> starts at 0 and stops before 5.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Print your name five times using <code>range()</code>.</li>
+  <li>Print the numbers 1 to 10.</li>
+  <li>Create a list of subjects and print each one.</li>
+  <li>Make a times table for a number chosen by the user.</li>
+</ul>`,
+    9: `<h2>While loops</h2>
+<p><strong>Definition:</strong> A <code>while</code> loop repeats code while a condition is true.</p>
+<p>While loops are useful when you do not know exactly how many times the code should repeat, such as asking until a password is correct.</p>
+<h3>Example</h3>
+<pre><code>counter = 1
+
+while counter &lt;= 5:
+    print(counter)
+    counter = counter + 1</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 1
+&gt;&gt;&gt; 2
+&gt;&gt;&gt; 3
+&gt;&gt;&gt; 4
+&gt;&gt;&gt; 5</code></pre>
+<h3>Password loop</h3>
+<pre><code>password = ""
+
+while password != "python":
+    password = input("Enter the password: ")
+
+print("Access granted")</code></pre>
+<h3>Using break</h3>
+<p><code>break</code> stops a loop immediately. It is often used in menu or play-again loops.</p>
+<pre><code>while True:
+    choice = input("Type q to quit: ")
+    if choice == "q":
+        break
+    print("You typed", choice)</code></pre>
+<h3>Important notes</h3>
+<ul>
+  <li>A while loop must have a condition that can eventually become false, or it may never stop.</li>
+  <li>Update a counter inside the loop when counting.</li>
+  <li>Use <code>break</code> carefully so it is clear why the loop stops.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Count from 1 to 10 using a while loop.</li>
+  <li>Make a countdown from 5 to 1.</li>
+  <li>Ask the user to keep entering a password until it is correct.</li>
+  <li>Create a small menu that repeats until the user chooses quit.</li>
+</ul>`,
+    10: `<h2>Nested if statements</h2>
+<p><strong>Definition:</strong> A nested <code>if</code> statement is an <code>if</code> statement inside another <code>if</code> statement.</p>
+<p>Nested decisions are useful when one question only matters after another condition is already true.</p>
+<h3>Example</h3>
+<pre><code>age = 18
+has_ticket = True
+
+if age &gt;= 18:
+    if has_ticket:
+        print("You can enter")
+    else:
+        print("You need a ticket")
+else:
+    print("You are too young")</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; You can enter</code></pre>
+<h3>Reading nested logic</h3>
+<p>The inner <code>if</code> only runs if the outer <code>if</code> condition is true. In the example, the ticket is checked only after the age check passes.</p>
+<h3>Important notes</h3>
+<ul>
+  <li>Indentation shows which branch each line belongs to.</li>
+  <li>Nested code can become hard to read if there are too many levels.</li>
+  <li>Sometimes <code>and</code> can make a simple nested condition shorter.</li>
+</ul>
+<h3>Nested if compared with and</h3>
+<pre><code>if age &gt;= 18 and has_ticket:
+    print("You can enter")</code></pre>
+<p>This is shorter, but nested <code>if</code> statements are useful when each step needs its own message.</p>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Check if someone is old enough to drive, then check if they have a licence.</li>
+  <li>Ask for a username, then ask for a password only if the username is correct.</li>
+  <li>Create a weather program that asks if it is raining, then asks if it is windy.</li>
+  <li>Change indentation in a copy of the example and observe the error or changed behaviour.</li>
+</ul>`,
+    11: `<h2>Dictionaries</h2>
+<p><strong>Definition:</strong> A dictionary stores data as key-value pairs.</p>
+<p>Dictionaries are useful when each value needs a label, such as a student's name, age, and year group.</p>
+<h3>Syntax</h3>
+<pre><code>student = {
+    "name": "Paddy",
+    "age": 16,
+    "year": 5
+}</code></pre>
+<p>The key is on the left of the colon. The value is on the right.</p>
+<h3>Reading values</h3>
+<pre><code>student = {
+    "name": "Paddy",
+    "age": 16,
+    "year": 5
+}
+
+print(student["name"])</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy</code></pre>
+<h3>Changing and adding values</h3>
+<pre><code>student["age"] = 17
+student["subject"] = "Computer Science"
+print(student)</code></pre>
+<p>This changes the age and adds a new key called <code>subject</code>.</p>
+<h3>Important notes</h3>
+<ul>
+  <li>Keys must be unique. If you reuse a key, the old value is replaced.</li>
+  <li>Looking up a key that does not exist causes a <code>KeyError</code>.</li>
+  <li>Use clear key names so the dictionary is easy to understand.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Create a dictionary about yourself with name, age, and favourite subject.</li>
+  <li>Print one value using its key.</li>
+  <li>Change one value and add one new key-value pair.</li>
+  <li>Use <code>in</code> to check whether a key exists before printing it.</li>
+</ul>`,
+    12: `<h2>Try except</h2>
+<p><strong>Definition:</strong> <code>try except</code> is used to handle errors so a program can respond instead of crashing.</p>
+<p>Error handling is useful because user input can be unpredictable. A user might type text when your program expects a number.</p>
+<h3>Syntax</h3>
+<pre><code>try:
+    code_that_might_fail()
+except:
+    code_to_run_if_it_fails()</code></pre>
+<h3>Example</h3>
+<pre><code>number = input("Enter a number: ")
+
+try:
+    number = int(number)
+    print(number + 10)
+except:
+    print("That was not a number")</code></pre>
+<p>If the user types 5, it will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 15</code></pre>
+<p>If the user types hello, it will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; That was not a number</code></pre>
+<h3>Handling a specific error</h3>
+<pre><code>try:
+    age = int(input("Age: "))
+except ValueError:
+    print("Please type digits only")</code></pre>
+<p>Using a specific exception makes it clearer which problem you are handling.</p>
+<h3>Important notes</h3>
+<ul>
+  <li>Only put code that might fail inside the <code>try</code> block.</li>
+  <li>A broad <code>except</code> catches every error, which can hide mistakes while debugging.</li>
+  <li>Use helpful error messages that tell the user what to fix.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Ask for an age and handle invalid number input.</li>
+  <li>Make a division program that handles bad inputs.</li>
+  <li>Add a separate message for division by zero.</li>
+  <li>Improve an older calculator so it does not crash on invalid numbers.</li>
+</ul>`,
+    13: `<h2>Functions</h2>
+<p><strong>Definition:</strong> A function is a named, reusable block of code.</p>
+<p>Functions are useful because they reduce repetition, organise programs, and make code easier to test and understand.</p>
+<h3>Creating and calling a function</h3>
+<pre><code>def say_hello():
+    print("Hello")
+
+say_hello()</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Hello</code></pre>
+<h3>Parameters</h3>
+<p>A parameter is a variable that receives a value when the function is called.</p>
+<pre><code>def greet(name):
+    print("Hello", name)
+
+greet("Paddy")</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Hello Paddy</code></pre>
+<h3>Return values</h3>
+<p><code>return</code> sends a value back to the place where the function was called.</p>
+<pre><code>def add(number1, number2):
+    return number1 + number2
+
+result = add(3, 4)
+print(result)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 7</code></pre>
+<h3>Important notes</h3>
+<ul>
+  <li>Define a function with <code>def</code>, a name, brackets, and a colon.</li>
+  <li>The function body must be indented.</li>
+  <li><code>print</code> displays a value; <code>return</code> gives a value back to the program.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Create a function that prints your name.</li>
+  <li>Create a function that takes a name and greets the person.</li>
+  <li>Create a function that returns the total of two numbers.</li>
+  <li>Call the same function more than once with different values.</li>
+</ul>`,
+    14: `<h2>Ternary expressions</h2>
+<p><strong>Definition:</strong> A ternary expression is a one-line expression that chooses between two values.</p>
+<p>Ternary expressions are useful for short decisions, such as choosing a label or message. They should only be used when they stay easy to read.</p>
+<h3>Normal if else</h3>
+<pre><code>age = 18
+
+if age &gt;= 18:
+    message = "Adult"
+else:
+    message = "Not adult"
+
+print(message)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Adult</code></pre>
+<h3>Ternary syntax</h3>
+<pre><code>value_if_true if condition else value_if_false</code></pre>
+<h3>Same example as a ternary expression</h3>
+<pre><code>age = 18
+message = "Adult" if age &gt;= 18 else "Not adult"
+print(message)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Adult</code></pre>
+<h3>Important notes</h3>
+<ul>
+  <li>A ternary expression chooses a value; it is not a full replacement for every <code>if</code> statement.</li>
+  <li>If the condition or results are complicated, use a normal <code>if else</code> block.</li>
+  <li>Readability is more important than making code shorter.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Use a ternary expression to choose "Even" or "Odd".</li>
+  <li>Use a ternary expression to choose "Pass" or "Fail".</li>
+  <li>Rewrite a simple <code>if else</code> from an earlier lesson as a ternary expression.</li>
+  <li>Find one example where a normal <code>if else</code> is clearer.</li>
+</ul>`,
+    15: `<h2>Nested loops</h2>
+<p><strong>Definition:</strong> A nested loop is a loop inside another loop.</p>
+<p>Nested loops are useful for grid-like problems, such as rows and columns, tables, coordinates, or repeated combinations.</p>
+<h3>How nested loops run</h3>
+<p>The inner loop runs completely each time the outer loop runs once.</p>
+<pre><code>for row in range(3):
+    for column in range(3):
+        print("Row", row, "Column", column)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Row 0 Column 0
+&gt;&gt;&gt; Row 0 Column 1
+&gt;&gt;&gt; Row 0 Column 2
+&gt;&gt;&gt; Row 1 Column 0
+&gt;&gt;&gt; Row 1 Column 1
+&gt;&gt;&gt; Row 1 Column 2
+&gt;&gt;&gt; Row 2 Column 0
+&gt;&gt;&gt; Row 2 Column 1
+&gt;&gt;&gt; Row 2 Column 2</code></pre>
+<h3>Grid example</h3>
+<pre><code>for row in range(3):
+    for column in range(3):
+        print("*", end="")
+    print()</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; ***
+&gt;&gt;&gt; ***
+&gt;&gt;&gt; ***</code></pre>
+<h3>Important notes</h3>
+<ul>
+  <li>Use different variable names for the outer and inner loops.</li>
+  <li>Indent the inner loop inside the outer loop.</li>
+  <li><code>print()</code> with no text can move to a new line after a row.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Print a 5 by 5 square of stars.</li>
+  <li>Print a triangle of stars.</li>
+  <li>Print every pair of numbers from 1 to 3.</li>
+  <li>Create a multiplication grid from 1 to 10.</li>
+</ul>`,
+    16: `<h2>Match case</h2>
+<p><strong>Definition:</strong> <code>match case</code> checks one value against several possible patterns and runs the matching branch.</p>
+<p>It is useful for menus, commands, and choices where one variable can have several clear options.</p>
+<h3>Syntax</h3>
+<pre><code>match value:
+    case pattern:
+        code_to_run
+    case _:
+        default_code</code></pre>
+<p>The underscore case is the default case. It runs when nothing else matches.</p>
+<h3>Example</h3>
+<pre><code>day = "Monday"
+
+match day:
+    case "Monday":
+        print("Start of the week")
+    case "Friday":
+        print("Almost the weekend")
+    case "Saturday" | "Sunday":
+        print("Weekend")
+    case _:
+        print("Normal day")</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Start of the week</code></pre>
+<h3>Important notes</h3>
+<ul>
+  <li><code>match</code> checks one main value.</li>
+  <li>Each <code>case</code> needs a colon and an indented block.</li>
+  <li>Use <code>|</code> to match more than one possible value in the same case.</li>
+  <li>Use <code>if/elif/else</code> when the conditions are ranges, such as scores or ages.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Ask for a day of the week and print a message.</li>
+  <li>Create a menu with options 1, 2, and 3.</li>
+  <li>Add a default case for invalid input.</li>
+  <li>Rewrite a match case program using <code>if/elif/else</code>.</li>
+</ul>`,
+    17: `<h2>Static typing</h2>
+<p><strong>Definition:</strong> Static typing means knowing the expected type of a value before the program runs. Python normally uses dynamic typing, but it supports type hints.</p>
+<p>Type hints are useful because they make code easier to read, help editors give better advice, and help programmers find mistakes earlier.</p>
+<h3>Variable type hints</h3>
+<pre><code>name: str = "Paddy"
+age: int = 16
+height: float = 1.75
+is_student: bool = True</code></pre>
+<p>The type hint goes after the variable name and a colon.</p>
+<h3>Function type hints</h3>
+<pre><code>def add(number1: int, number2: int) -&gt; int:
+    return number1 + number2
+
+print(add(3, 4))</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 7</code></pre>
+<h3>Important notes</h3>
+<ul>
+  <li>Type hints do not usually stop Python from running by themselves.</li>
+  <li><code>age: int = "sixteen"</code> can still run, but the hint says the value should be an integer.</li>
+  <li>The arrow <code>-&gt;</code> shows the type a function should return.</li>
+  <li>Type hints are most helpful when functions have parameters and return values.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Add type hints to variables for your name, age, and favourite subject.</li>
+  <li>Add type hints to a function that multiplies two integers.</li>
+  <li>Create a function that takes a string and returns a greeting string.</li>
+  <li>Try putting the wrong type into a hinted variable and explain what happens.</li>
+</ul>`,
+    18: `<h2>Classes</h2>
+<p><strong>Definition:</strong> A class is a blueprint for creating objects.</p>
+<p>Classes are useful when you want to group related data and functions together, such as a student with a name and age, or a car with speed and methods.</p>
+<h3>Objects and attributes</h3>
+<p>An object is one thing created from a class. An attribute is data stored inside that object.</p>
+<pre><code>class Student:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+student1 = Student("Paddy", 16)
+
+print(student1.name)
+print(student1.age)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy
+&gt;&gt;&gt; 16</code></pre>
+<h3>Methods</h3>
+<p>A method is a function that belongs to a class.</p>
+<pre><code>class Student:
+    def __init__(self, name):
+        self.name = name
+
+    def say_hello(self):
+        print("Hello, my name is " + self.name)
+
+student1 = Student("Paddy")
+student1.say_hello()</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Hello, my name is Paddy</code></pre>
+<h3>Important notes</h3>
+<ul>
+  <li><code>__init__</code> runs when a new object is created.</li>
+  <li><code>self</code> means the current object.</li>
+  <li>Attributes are accessed with dot notation, such as <code>student1.name</code>.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Create a class called <code>Dog</code> with a name and age.</li>
+  <li>Create two objects from the same class.</li>
+  <li>Add a method that prints a sentence about the object.</li>
+  <li>Try printing an attribute that does not exist and read the error.</li>
+</ul>`,
+    19: `<h2>OOP</h2>
+<p><strong>Definition:</strong> OOP means Object-Oriented Programming. It is a way of organising code using classes and objects.</p>
+<p>OOP is useful because it keeps related data and behaviour together. This makes larger programs easier to organise.</p>
+<h3>State and behaviour</h3>
+<p>An object's data is its state. The functions it can run are its behaviour.</p>
+<pre><code>class Player:
+    def __init__(self, name):
+        self.name = name
+        self.health = 100
+        self.score = 0
+
+    def take_damage(self, amount):
+        self.health = self.health - amount
+
+    def add_score(self, points):
+        self.score = self.score + points
+
+player1 = Player("Paddy")
+player1.take_damage(20)
+player1.add_score(10)
+
+print(player1.health)
+print(player1.score)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 80
+&gt;&gt;&gt; 10</code></pre>
+<h3>Objects are separate</h3>
+<pre><code>player1 = Player("Paddy")
+player2 = Player("Sarah")
+
+player1.add_score(10)
+
+print(player1.score)
+print(player2.score)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 10
+&gt;&gt;&gt; 0</code></pre>
+<h3>Important notes</h3>
+<ul>
+  <li>A class describes what objects should have and do.</li>
+  <li>Each object has its own copy of the attributes.</li>
+  <li>Methods are used to change or use an object's data safely.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Create a <code>Player</code> class with name, health, and score.</li>
+  <li>Add methods to change health and score.</li>
+  <li>Create two different players.</li>
+  <li>Show that changing one player does not change the other player.</li>
+</ul>`,
+    20: `<h2>Recursion</h2>
+<p><strong>Definition:</strong> Recursion is when a function calls itself.</p>
+<p>Recursion is useful for problems that can be broken into smaller versions of the same problem, such as countdowns, factorials, and some searching tasks.</p>
+<h3>The two required parts</h3>
+<ul>
+  <li><strong>Base case:</strong> the condition that stops the recursion.</li>
+  <li><strong>Recursive case:</strong> the part where the function calls itself with a smaller or simpler value.</li>
+</ul>
+<h3>Countdown example</h3>
+<pre><code>def countdown(number):
+    print(number)
+
+    if number &gt; 1:
+        countdown(number - 1)
+
+countdown(5)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 5
+&gt;&gt;&gt; 4
+&gt;&gt;&gt; 3
+&gt;&gt;&gt; 2
+&gt;&gt;&gt; 1</code></pre>
+<h3>Factorial example</h3>
+<p>Factorial means multiplying a number by every whole number below it down to 1.</p>
+<pre><code>def factorial(number):
+    if number == 1:
+        return 1
+    return number * factorial(number - 1)
+
+print(factorial(5))</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 120</code></pre>
+<h3>Important notes</h3>
+<ul>
+  <li>Without a base case, recursion may continue until Python stops with an error.</li>
+  <li>Each recursive call should move closer to the base case.</li>
+  <li>Some problems are clearer with loops; recursion is not always the best choice.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Make a recursive function that counts down from 10.</li>
+  <li>Change the countdown so it stops at 0.</li>
+  <li>Create a recursive function that adds all numbers from 1 to a chosen number.</li>
+  <li>Identify the base case and recursive case in each function.</li>
+</ul>`,
+    21: `<h2>Advanced data algorithms</h2>
+<p><strong>Definition:</strong> An algorithm is a clear set of steps used to solve a problem.</p>
+<p>Data algorithms are useful because programs often need to search, count, compare, sort, or summarise information stored in lists and dictionaries.</p>
+<h3>Searching a list</h3>
+<p>Searching means checking data to find a target value.</p>
+<pre><code>names = ["Paddy", "Sarah", "John"]
+target = "Sarah"
+
+for name in names:
+    if name == target:
+        print("Found")</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Found</code></pre>
+<h3>Finding the largest number</h3>
+<pre><code>numbers = [4, 9, 2, 7]
+largest = numbers[0]
+
+for number in numbers:
+    if number &gt; largest:
+        largest = number
+
+print(largest)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; 9</code></pre>
+<h3>Counting with a dictionary</h3>
+<pre><code>words = ["red", "blue", "red", "green", "blue", "red"]
+counts = {}
+
+for word in words:
+    if word in counts:
+        counts[word] = counts[word] + 1
+    else:
+        counts[word] = 1
+
+print(counts)</code></pre>
+<p>will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; {'red': 3, 'blue': 2, 'green': 1}</code></pre>
+<h3>Important notes</h3>
+<ul>
+  <li>Start with a clear problem before writing code.</li>
+  <li>Trace the algorithm with a small list to check the logic.</li>
+  <li>Python has built-in tools such as <code>max()</code>, <code>min()</code>, and <code>sorted()</code>, but writing the steps yourself helps you understand how algorithms work.</li>
+</ul>
+<h3>Try it yourself</h3>
+<ul>
+  <li>Search a list for a name entered by the user.</li>
+  <li>Find the smallest number in a list without using <code>min()</code>.</li>
+  <li>Count how many times each letter appears in a word.</li>
+  <li>Sort a list using <code>sorted()</code> and compare it with your own search code.</li>
+</ul>`
+  };
+
+  window.COURSE_DATA = window.COURSE_DATA.map((entry) =>
+    entry.type === "tutorial" && tutorialHtml[entry.number]
+      ? { ...entry, html: tutorialHtml[entry.number] }
+      : entry
+  );
+})();
