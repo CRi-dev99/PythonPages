@@ -544,21 +544,11 @@ function SetupView({ onOpenIde, onSignUp }: { onOpenIde: () => void; onSignUp: (
     <main className="setup-view" aria-labelledby="setup-title">
       <section className="setup-panel">
         <span className="eyebrow">Set up Python</span>
-        <h1 id="setup-title">Start in the browser, install locally when you are ready.</h1>
-        <div className="setup-steps">
-          <article>
-            <strong>No install needed</strong>
-            <p>The PythonPages IDE runs Python in your browser, so you can start lessons immediately.</p>
-          </article>
-          <article>
-            <strong>Optional local setup</strong>
-            <p>Install Python and Thonny if you want a local editor for classwork or offline practice.</p>
-          </article>
-          <article>
-            <strong>Save your work</strong>
-            <p>Create an account to save projects to Supabase and reload them on another device.</p>
-          </article>
-        </div>
+        <h1 id="setup-title">No setup required.</h1>
+        <p>
+          Because you are using PythonPages, you can learn Python directly on this website. The browser IDE runs your code,
+          shows your output, and keeps the lesson beside your editor, so you can start learning without installing anything.
+        </p>
         <div className="landing-actions">
           <button className="primary-button" type="button" onClick={onOpenIde}>
             Open IDE
@@ -567,6 +557,69 @@ function SetupView({ onOpenIde, onSignUp }: { onOpenIde: () => void; onSignUp: (
             Sign up
           </button>
         </div>
+        <section className="setup-local" aria-labelledby="local-setup-title">
+          <div>
+            <span className="eyebrow">Optional</span>
+            <h2 id="local-setup-title">Set up Python locally</h2>
+            <p>
+              If you want to build your own projects outside PythonPages, install Python and VS Code on your computer.
+            </p>
+          </div>
+          <ol className="setup-steps">
+            <li>
+              <strong>Download Python</strong>
+              <p>
+                Go to{" "}
+                <a href="https://www.python.org/downloads/" target="_blank" rel="noreferrer">
+                  python.org/downloads
+                </a>{" "}
+                and download the latest version for your computer.
+              </p>
+            </li>
+            <li>
+              <strong>Install Python</strong>
+              <p>Run the installer and tick <strong>Add Python to PATH</strong> before you click install.</p>
+            </li>
+            <li>
+              <strong>Check Python works</strong>
+              <p>
+                Open a terminal and type <code>python --version</code>. If Python is installed, it will print the version
+                number.
+              </p>
+            </li>
+            <li>
+              <strong>Download VS Code</strong>
+              <p>
+                Go to{" "}
+                <a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">
+                  code.visualstudio.com
+                </a>{" "}
+                and install Visual Studio Code.
+              </p>
+            </li>
+            <li>
+              <strong>Install the Python extension</strong>
+              <p>
+                In VS Code, install the{" "}
+                <a href="https://marketplace.visualstudio.com/items?itemName=ms-python.python" target="_blank" rel="noreferrer">
+                  Microsoft Python extension
+                </a>
+                .
+              </p>
+            </li>
+            <li>
+              <strong>Create a project</strong>
+              <p>Open a folder in VS Code, create a file called <code>main.py</code>, and save your work there.</p>
+            </li>
+            <li>
+              <strong>Run your first file</strong>
+              <p>
+                Type <code>print("Hello, Python!")</code>, then use the Run button or type <code>python main.py</code> in
+                the VS Code terminal.
+              </p>
+            </li>
+          </ol>
+        </section>
       </section>
     </main>
   );

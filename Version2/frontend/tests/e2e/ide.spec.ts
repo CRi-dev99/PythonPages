@@ -75,7 +75,18 @@ test("lesson pane next button moves from lesson 1 to challenge 1 to lesson 2", a
 test("opens setup and auth views", async ({ page }) => {
   await page.goto("/");
   await mainNav(page).getByRole("button", { name: "Set up Python" }).click();
-  await expect(page.getByRole("heading", { name: "Start in the browser, install locally when you are ready." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "No setup required." })).toBeVisible();
+  await expect(page.getByText("Because you are using PythonPages")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Open IDE" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Set up Python locally" })).toBeVisible();
+  await expect(page.getByText("Add Python to PATH")).toBeVisible();
+  await expect(page.getByText("Install the Microsoft Python extension")).toBeVisible();
+  await expect(page.getByRole("link", { name: "python.org/downloads" })).toHaveAttribute("href", "https://www.python.org/downloads/");
+  await expect(page.getByRole("link", { name: "code.visualstudio.com" })).toHaveAttribute("href", "https://code.visualstudio.com/");
+  await expect(page.getByRole("link", { name: "Microsoft Python extension" })).toHaveAttribute(
+    "href",
+    "https://marketplace.visualstudio.com/items?itemName=ms-python.python"
+  );
 
   await mainNav(page).getByRole("button", { name: "Login" }).click();
   await expect(page.getByRole("heading", { name: "Login" })).toBeVisible();

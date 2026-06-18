@@ -300,21 +300,50 @@ button {
 
 .setup-steps {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 18px;
   margin-top: 24px;
+  padding-left: 20px;
 }
 
-.setup-steps article {
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 16px;
-  background: #ffffff;
+.setup-local {
+  margin-top: 34px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.setup-local h2 {
+  margin: 8px 0 10px;
+  color: var(--ink);
+  font-size: 1.45rem;
+}
+
+.setup-steps li {
+  padding-right: 12px;
 }
 
 .setup-steps strong {
   display: block;
   margin-bottom: 8px;
+  color: var(--ink);
+}
+
+.setup-steps p {
+  margin: 0;
+}
+
+.setup-steps a {
+  color: var(--blue);
+  font-weight: 800;
+}
+
+.setup-steps code {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.95em;
+  color: var(--ink);
+  background: #eef3fb;
+  border-radius: 5px;
+  padding: 2px 5px;
 }
 
 .auth-view {
