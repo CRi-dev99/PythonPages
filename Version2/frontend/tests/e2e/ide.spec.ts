@@ -4,6 +4,12 @@ function mainNav(page: Page) {
   return page.getByRole("navigation", { name: "Main navigation" });
 }
 
+async function activeNavLabels(page: Page) {
+  return mainNav(page)
+    .locator("button.active")
+    .evaluateAll((buttons) => buttons.map((button) => button.textContent?.trim() ?? ""));
+}
+
 test("loads the landing page and top navigation", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Learn Python in a real browser IDE." })).toBeVisible();
@@ -14,6 +20,27 @@ test("loads the landing page and top navigation", async ({ page }) => {
   await expect(mainNav(page).getByRole("button", { name: "IDE" })).toBeVisible();
   await expect(mainNav(page).getByRole("button", { name: "Login" })).toBeVisible();
   await expect(mainNav(page).getByRole("button", { name: "Sign up" })).toBeVisible();
+});
+
+test("keeps only the current nav button in the yellow active state", async ({ page }) => {
+  const yellow = "rgb(246, 199, 68)";
+  const nav = mainNav(page);
+  await page.goto("/");
+
+  await nav.getByRole("button", { name: "Tutorials" }).click();
+  await expect(page.getByRole("heading", { name: "Tutorials" })).toBeVisible();
+  await expect.poll(() => activeNavLabels(page)).toEqual(["Tutorials"]);
+  await expect(nav.getByRole("button", { name: "Tutorials" })).toHaveCSS("background-color", yellow);
+
+  await nav.getByRole("button", { name: "Challenges" }).hover();
+  await expect.poll(() => activeNavLabels(page)).toEqual(["Tutorials"]);
+  await expect(nav.getByRole("button", { name: "Challenges" })).not.toHaveCSS("background-color", yellow);
+
+  await nav.getByRole("button", { name: "Sign up" }).click();
+  await expect(page.getByRole("heading", { name: "Sign up" })).toBeVisible();
+  await expect.poll(() => activeNavLabels(page)).toEqual(["Sign up"]);
+  await expect(nav.getByRole("button", { name: "Sign up" })).toHaveCSS("background-color", yellow);
+  await expect(nav.getByRole("button", { name: "Tutorials" })).not.toHaveCSS("background-color", yellow);
 });
 
 test("opens tutorials and selects a tutorial in the IDE", async ({ page }) => {

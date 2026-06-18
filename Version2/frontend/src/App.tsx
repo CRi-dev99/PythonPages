@@ -402,7 +402,7 @@ function App() {
               <button className={view === "login" ? "nav-link active" : "nav-link"} type="button" onClick={() => openAuth("signin")}>
                 Login
               </button>
-              <button className="nav-cta" type="button" onClick={() => openAuth("signup")}>
+              <button className={view === "signup" ? "nav-cta active" : "nav-cta"} type="button" onClick={() => openAuth("signup")}>
                 Sign up
               </button>
             </>

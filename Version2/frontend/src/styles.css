@@ -119,17 +119,25 @@ button {
   padding: 7px 10px;
 }
 
-.nav-link:hover,
-.nav-link.active {
-  color: #111827;
-  background: var(--yellow);
+.nav-cta {
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  color: #eef4ff;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 7px 12px;
 }
 
-.nav-cta {
-  border: 0;
+.nav-link:hover:not(.active),
+.nav-cta:hover:not(.active) {
+  border-color: rgba(255, 255, 255, 0.32);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.nav-link.active,
+.nav-cta.active {
+  border-color: var(--yellow);
   color: #111827;
   background: var(--yellow);
-  padding: 8px 12px;
 }
 
 .nav-user {
