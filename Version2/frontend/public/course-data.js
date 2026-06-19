@@ -4,21 +4,21 @@ window.COURSE_DATA = [
     "number": 1,
     "title": "Lesson 1: print()",
     "url": "print().html",
-    "html": "<h2>Print statements</h2>\n<p>In Python, to display something on the screen when you run the code, you use the print() function.</p>\n<h3>Example:</h3>\n<pre><code>print(&quot;Paddy&quot;)</code></pre>\n<p>will display</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Paddy</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Try to display your name</li>\n  <li>Try to display your age</li>\n  <li>Try to break it, what happens if you have a capital P or if you don&#x27;t have quotation marks?</li>\n  <li>Figure out how to get your first name to display on one line and your second name on another</li>\n</ul>"
+    "html": "<h2>Print statements</h2>\n<p>In Python, to display something on the screen when you run the code, you use the print() function.</p>\n<h3>Example:</h3>\n<pre><code>print(&quot;Harry&quot;)</code></pre>\n<p>will display</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Harry</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Try to display your name</li>\n  <li>Try to display your age</li>\n  <li>Try to break it, what happens if you have a capital P or if you don&#x27;t have quotation marks?</li>\n  <li>Figure out how to get your first name to display on one line and your second name on another</li>\n</ul>"
   },
   {
     "type": "tutorial",
     "number": 2,
     "title": "Lesson 2: variables",
     "url": "variables.html",
-    "html": "<h2>Variables</h2>\n<p>A variable is a name that stores a value</p>\n<p>The value could be anything, a number, a string or a boolean</p>\n<p>You create a variable by writing the variable name, then an equals sign, then the value.</p>\n<h3>Example:</h3>\n<pre><code>name = &quot;Paddy&quot;\nage = 16\nis_student = True\n\nprint(name)\nprint(age)\nprint(is_student)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Paddy\n&gt;&gt;&gt; 16\n&gt;&gt;&gt; True</code></pre>\n<hr>\n<h3>What is a string?</h3>\n<p>A string is a piece of text in Python.</p>\n<p>You create a string by putting text inside quotes.</p>\n<p>This text can be any text, not just letters.</p>\n<h4>Example:</h4>\n<pre><code>&quot;Name&quot;, &quot;9&quot;, &quot;True&quot;, &quot;6.3&quot;</code></pre>\n<hr>\n<h3>What is a boolean?</h3>\n<p>A boolean value is a value that is either true or false, like a light switch. This is used when checking an on/off value in a program, eg. is a door opened or not.</p>\n<h4>Example:</h4>\n<pre><code>True, False</code></pre>\n<p>By the way, the capitalisation is important.</p>\n<hr>\n<h3>What is an integer?</h3>\n<p>Integers in Python are whole numbers without a decimal point. The difference between integers and strings is that integers are not enclosed within quotation marks.</p>\n<h4>Example:</h4>\n<pre><code>9, 5</code></pre>\n<hr>\n<h3>What is a float?</h3>\n<p>A float value is a value that is a decimal number</p>\n<h4>Example:</h4>\n<pre><code>9.0, 5.5565</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Make a variable for your name and print it</li>\n  <li>Make a variable for your age and print it</li>\n  <li>Change the value of a variable after you create it</li>\n  <li>Make three variables: one string, one integer and one boolean</li>\n</ul>"
+    "html": "<h2>Variables</h2>\n<p>A variable is a name that stores a value</p>\n<p>The value could be anything, a number, a string or a boolean</p>\n<p>You create a variable by writing the variable name, then an equals sign, then the value.</p>\n<h3>Example:</h3>\n<pre><code>name = &quot;Harry&quot;\nage = 16\nis_student = True\n\nprint(name)\nprint(age)\nprint(is_student)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Harry\n&gt;&gt;&gt; 16\n&gt;&gt;&gt; True</code></pre>\n<hr>\n<h3>What is a string?</h3>\n<p>A string is a piece of text in Python.</p>\n<p>You create a string by putting text inside quotes.</p>\n<p>This text can be any text, not just letters.</p>\n<h4>Example:</h4>\n<pre><code>&quot;Name&quot;, &quot;9&quot;, &quot;True&quot;, &quot;6.3&quot;</code></pre>\n<hr>\n<h3>What is a boolean?</h3>\n<p>A boolean value is a value that is either true or false, like a light switch. This is used when checking an on/off value in a program, eg. is a door opened or not.</p>\n<h4>Example:</h4>\n<pre><code>True, False</code></pre>\n<p>By the way, the capitalisation is important.</p>\n<hr>\n<h3>What is an integer?</h3>\n<p>Integers in Python are whole numbers without a decimal point. The difference between integers and strings is that integers are not enclosed within quotation marks.</p>\n<h4>Example:</h4>\n<pre><code>9, 5</code></pre>\n<hr>\n<h3>What is a float?</h3>\n<p>A float value is a value that is a decimal number</p>\n<h4>Example:</h4>\n<pre><code>9.0, 5.5565</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Make a variable for your name and print it</li>\n  <li>Make a variable for your age and print it</li>\n  <li>Change the value of a variable after you create it</li>\n  <li>Make three variables: one string, one integer and one boolean</li>\n</ul>"
   },
   {
     "type": "tutorial",
     "number": 3,
     "title": "Lesson 3: input()",
     "url": "input().html",
-    "html": "<h2>Input()</h2>\n<p>The input() function is used to take in user input.</p>\n<p>User input is any data a user enters into a program.</p>\n<hr>\n<h3>Input() usage</h3>\n<p>Anything inside the brackets will be displayed before the user types their answer.</p>\n<pre><code>name = input(&quot;Enter your name: &quot;)\nprint(name)</code></pre>\n<p>If the user types Paddy, it will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Enter your name: Paddy\n&gt;&gt;&gt; Paddy</code></pre>\n<hr>\n<h3>Important</h3>\n<p>The input() function always gives you a string, even if the user types a number.</p>\n<h4>Example:</h4>\n<pre><code>age = input(&quot;Enter your age: &quot;)\nprint(type(age))</code></pre>\n<p>If the user types 16, it will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; str</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Ask the user for their name and print it</li>\n  <li>Ask the user for their favourite colour and print it</li>\n  <li>Ask the user for their age and print the type of the answer</li>\n  <li>Try putting nothing inside the input brackets. What happens?</li>\n</ul>"
+    "html": "<h2>Input()</h2>\n<p>The input() function is used to take in user input.</p>\n<p>User input is any data a user enters into a program.</p>\n<hr>\n<h3>Input() usage</h3>\n<p>Anything inside the brackets will be displayed before the user types their answer.</p>\n<pre><code>name = input(&quot;Enter your name: &quot;)\nprint(name)</code></pre>\n<p>If the user types Harry, it will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Enter your name: Harry\n&gt;&gt;&gt; Harry</code></pre>\n<hr>\n<h3>Important</h3>\n<p>The input() function always gives you a string, even if the user types a number.</p>\n<h4>Example:</h4>\n<pre><code>age = input(&quot;Enter your age: &quot;)\nprint(type(age))</code></pre>\n<p>If the user types 16, it will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; str</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Ask the user for their name and print it</li>\n  <li>Ask the user for their favourite colour and print it</li>\n  <li>Ask the user for their age and print the type of the answer</li>\n  <li>Try putting nothing inside the input brackets. What happens?</li>\n</ul>"
   },
   {
     "type": "tutorial",
@@ -39,21 +39,21 @@ window.COURSE_DATA = [
     "number": 6,
     "title": "Lesson 6: string manipulation",
     "url": "string-manipulation.html",
-    "html": "<h2>String manipulation</h2>\n<p>String manipulation means changing or using text in different ways.</p>\n<hr>\n<h3>Joining strings</h3>\n<p>You can join strings together using the + symbol.</p>\n<h4>Example:</h4>\n<pre><code>first_name = &quot;Paddy&quot;\nsecond_name = &quot;Murphy&quot;\n\nprint(first_name + &quot; &quot; + second_name)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Paddy Murphy</code></pre>\n<hr>\n<h3>String methods</h3>\n<p>Python has useful methods for strings.</p>\n<h4>Example:</h4>\n<pre><code>message = &quot;hello&quot;\n\nprint(message.upper())\nprint(message.capitalize())</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; HELLO\n&gt;&gt;&gt; Hello</code></pre>\n<hr>\n<h3>Indexing strings</h3>\n<p>You can get one character from a string using its index.</p>\n<p>Python starts counting from 0.</p>\n<h4>Example:</h4>\n<pre><code>word = &quot;Python&quot;\nprint(word[0])\nprint(word[1])</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; P\n&gt;&gt;&gt; y</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Ask the user for their first name and second name, then print their full name</li>\n  <li>Print a word in uppercase</li>\n  <li>Print the first letter of your name</li>\n  <li>Try to print a letter using an index that is too big. What happens?</li>\n</ul>"
+    "html": "<h2>String manipulation</h2>\n<p>String manipulation means changing or using text in different ways.</p>\n<hr>\n<h3>Joining strings</h3>\n<p>You can join strings together using the + symbol.</p>\n<h4>Example:</h4>\n<pre><code>first_name = &quot;Harry&quot;\nsecond_name = &quot;Murphy&quot;\n\nprint(first_name + &quot; &quot; + second_name)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Harry Murphy</code></pre>\n<hr>\n<h3>String methods</h3>\n<p>Python has useful methods for strings.</p>\n<h4>Example:</h4>\n<pre><code>message = &quot;hello&quot;\n\nprint(message.upper())\nprint(message.capitalize())</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; HELLO\n&gt;&gt;&gt; Hello</code></pre>\n<hr>\n<h3>Indexing strings</h3>\n<p>You can get one character from a string using its index.</p>\n<p>Python starts counting from 0.</p>\n<h4>Example:</h4>\n<pre><code>word = &quot;Python&quot;\nprint(word[0])\nprint(word[1])</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; P\n&gt;&gt;&gt; y</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Ask the user for their first name and second name, then print their full name</li>\n  <li>Print a word in uppercase</li>\n  <li>Print the first letter of your name</li>\n  <li>Try to print a letter using an index that is too big. What happens?</li>\n</ul>"
   },
   {
     "type": "tutorial",
     "number": 7,
     "title": "Lesson 7: list manipulation",
     "url": "list-manipulation.html",
-    "html": "<h2>List manipulation</h2>\n<p>A list stores multiple values in one variable.</p>\n<p>Lists use square brackets.</p>\n<h4>Example:</h4>\n<pre><code>names = [&quot;Paddy&quot;, &quot;Sarah&quot;, &quot;John&quot;]\nprint(names)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; [&#x27;Paddy&#x27;, &#x27;Sarah&#x27;, &#x27;John&#x27;]</code></pre>\n<hr>\n<h3>Indexing lists</h3>\n<p>You can get one item from a list using its index.</p>\n<p>Python starts counting from 0.</p>\n<h4>Example:</h4>\n<pre><code>names = [&quot;Paddy&quot;, &quot;Sarah&quot;, &quot;John&quot;]\nprint(names[0])</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Paddy</code></pre>\n<hr>\n<h3>Changing a list</h3>\n<p>You can add, remove and change items in a list.</p>\n<h4>Example:</h4>\n<pre><code>numbers = [1, 2, 3]\n\nnumbers.append(4)\nnumbers.remove(2)\nnumbers[0] = 10\n\nprint(numbers)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; [10, 3, 4]</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Make a list of three favourite foods</li>\n  <li>Print the first item in the list</li>\n  <li>Add another item to the list</li>\n  <li>Remove one item from the list</li>\n  <li>Change one item in the list</li>\n</ul>"
+    "html": "<h2>List manipulation</h2>\n<p>A list stores multiple values in one variable.</p>\n<p>Lists use square brackets.</p>\n<h4>Example:</h4>\n<pre><code>names = [&quot;Harry&quot;, &quot;Sarah&quot;, &quot;John&quot;]\nprint(names)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; [&#x27;Harry&#x27;, &#x27;Sarah&#x27;, &#x27;John&#x27;]</code></pre>\n<hr>\n<h3>Indexing lists</h3>\n<p>You can get one item from a list using its index.</p>\n<p>Python starts counting from 0.</p>\n<h4>Example:</h4>\n<pre><code>names = [&quot;Harry&quot;, &quot;Sarah&quot;, &quot;John&quot;]\nprint(names[0])</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Harry</code></pre>\n<hr>\n<h3>Changing a list</h3>\n<p>You can add, remove and change items in a list.</p>\n<h4>Example:</h4>\n<pre><code>numbers = [1, 2, 3]\n\nnumbers.append(4)\nnumbers.remove(2)\nnumbers[0] = 10\n\nprint(numbers)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; [10, 3, 4]</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Make a list of three favourite foods</li>\n  <li>Print the first item in the list</li>\n  <li>Add another item to the list</li>\n  <li>Remove one item from the list</li>\n  <li>Change one item in the list</li>\n</ul>"
   },
   {
     "type": "tutorial",
     "number": 8,
     "title": "Lesson 8: for loops",
     "url": "for-loops.html",
-    "html": "<h2>For loops</h2>\n<p>A for loop repeats code for each item in a sequence.</p>\n<hr>\n<h3>Looping through a list</h3>\n<h4>Example:</h4>\n<pre><code>names = [&quot;Paddy&quot;, &quot;Sarah&quot;, &quot;John&quot;]\n\nfor name in names:\n    print(name)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Paddy\n&gt;&gt;&gt; Sarah\n&gt;&gt;&gt; John</code></pre>\n<hr>\n<h3>Using range()</h3>\n<p>The range() function is useful when you want to repeat code a certain number of times.</p>\n<h4>Example:</h4>\n<pre><code>for number in range(5):\n    print(number)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; 0\n&gt;&gt;&gt; 1\n&gt;&gt;&gt; 2\n&gt;&gt;&gt; 3\n&gt;&gt;&gt; 4</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Print your name five times using a for loop</li>\n  <li>Print the numbers from 0 to 9</li>\n  <li>Make a list of subjects and print each one</li>\n  <li>Try changing range(5) to range(1, 6). What happens?</li>\n</ul>"
+    "html": "<h2>For loops</h2>\n<p>A for loop repeats code for each item in a sequence.</p>\n<hr>\n<h3>Looping through a list</h3>\n<h4>Example:</h4>\n<pre><code>names = [&quot;Harry&quot;, &quot;Sarah&quot;, &quot;John&quot;]\n\nfor name in names:\n    print(name)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Harry\n&gt;&gt;&gt; Sarah\n&gt;&gt;&gt; John</code></pre>\n<hr>\n<h3>Using range()</h3>\n<p>The range() function is useful when you want to repeat code a certain number of times.</p>\n<h4>Example:</h4>\n<pre><code>for number in range(5):\n    print(number)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; 0\n&gt;&gt;&gt; 1\n&gt;&gt;&gt; 2\n&gt;&gt;&gt; 3\n&gt;&gt;&gt; 4</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Print your name five times using a for loop</li>\n  <li>Print the numbers from 0 to 9</li>\n  <li>Make a list of subjects and print each one</li>\n  <li>Try changing range(5) to range(1, 6). What happens?</li>\n</ul>"
   },
   {
     "type": "tutorial",
@@ -74,7 +74,7 @@ window.COURSE_DATA = [
     "number": 11,
     "title": "Lesson 11: dictionaries",
     "url": "dictionaries.html",
-    "html": "<h2>Dictionaries</h2>\n<p>A dictionary stores data using keys and values.</p>\n<p>Lists use positions. Dictionaries use names.</p>\n<hr>\n<h3>Example:</h3>\n<pre><code>student = {\n    &quot;name&quot;: &quot;Paddy&quot;,\n    &quot;age&quot;: 16,\n    &quot;year&quot;: 5\n}\n\nprint(student[&quot;name&quot;])</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Paddy</code></pre>\n<hr>\n<h3>Changing a dictionary</h3>\n<p>You can add or change values using their key.</p>\n<h4>Example:</h4>\n<pre><code>student = {\n    &quot;name&quot;: &quot;Paddy&quot;,\n    &quot;age&quot;: 16\n}\n\nstudent[&quot;age&quot;] = 17\nstudent[&quot;subject&quot;] = &quot;Computer Science&quot;\n\nprint(student)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; {&#x27;name&#x27;: &#x27;Paddy&#x27;, &#x27;age&#x27;: 17, &#x27;subject&#x27;: &#x27;Computer Science&#x27;}</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Make a dictionary for yourself with name, age and favourite subject</li>\n  <li>Print one value from the dictionary</li>\n  <li>Change one value in the dictionary</li>\n  <li>Add a new key and value to the dictionary</li>\n  <li>Try to print a key that does not exist. What happens?</li>\n</ul>"
+    "html": "<h2>Dictionaries</h2>\n<p>A dictionary stores data using keys and values.</p>\n<p>Lists use positions. Dictionaries use names.</p>\n<hr>\n<h3>Example:</h3>\n<pre><code>student = {\n    &quot;name&quot;: &quot;Harry&quot;,\n    &quot;age&quot;: 16,\n    &quot;year&quot;: 5\n}\n\nprint(student[&quot;name&quot;])</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Harry</code></pre>\n<hr>\n<h3>Changing a dictionary</h3>\n<p>You can add or change values using their key.</p>\n<h4>Example:</h4>\n<pre><code>student = {\n    &quot;name&quot;: &quot;Harry&quot;,\n    &quot;age&quot;: 16\n}\n\nstudent[&quot;age&quot;] = 17\nstudent[&quot;subject&quot;] = &quot;Computer Science&quot;\n\nprint(student)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; {&#x27;name&#x27;: &#x27;Harry&#x27;, &#x27;age&#x27;: 17, &#x27;subject&#x27;: &#x27;Computer Science&#x27;}</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Make a dictionary for yourself with name, age and favourite subject</li>\n  <li>Print one value from the dictionary</li>\n  <li>Change one value in the dictionary</li>\n  <li>Add a new key and value to the dictionary</li>\n  <li>Try to print a key that does not exist. What happens?</li>\n</ul>"
   },
   {
     "type": "tutorial",
@@ -88,7 +88,7 @@ window.COURSE_DATA = [
     "number": 13,
     "title": "Lesson 13: functions",
     "url": "functions.html",
-    "html": "<h2>Functions</h2>\n<p>A function is a reusable block of code.</p>\n<p>You can write the code once, then call it whenever you need it.</p>\n<hr>\n<h3>Creating a function</h3>\n<p>You create a function using def.</p>\n<h4>Example:</h4>\n<pre><code>def say_hello():\n    print(&quot;Hello&quot;)\n\nsay_hello()</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Hello</code></pre>\n<hr>\n<h3>Parameters</h3>\n<p>Parameters let you send values into a function.</p>\n<h4>Example:</h4>\n<pre><code>def greet(name):\n    print(&quot;Hello &quot; + name)\n\ngreet(&quot;Paddy&quot;)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Hello Paddy</code></pre>\n<hr>\n<h3>Return</h3>\n<p>Return sends a value back from a function.</p>\n<h4>Example:</h4>\n<pre><code>def add(number1, number2):\n    return number1 + number2\n\nresult = add(3, 4)\nprint(result)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; 7</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Make a function that prints your name</li>\n  <li>Make a function that takes a name and greets the person</li>\n  <li>Make a function that adds two numbers and returns the answer</li>\n  <li>Call the same function more than once</li>\n</ul>"
+    "html": "<h2>Functions</h2>\n<p>A function is a reusable block of code.</p>\n<p>You can write the code once, then call it whenever you need it.</p>\n<hr>\n<h3>Creating a function</h3>\n<p>You create a function using def.</p>\n<h4>Example:</h4>\n<pre><code>def say_hello():\n    print(&quot;Hello&quot;)\n\nsay_hello()</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Hello</code></pre>\n<hr>\n<h3>Parameters</h3>\n<p>Parameters let you send values into a function.</p>\n<h4>Example:</h4>\n<pre><code>def greet(name):\n    print(&quot;Hello &quot; + name)\n\ngreet(&quot;Harry&quot;)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Hello Harry</code></pre>\n<hr>\n<h3>Return</h3>\n<p>Return sends a value back from a function.</p>\n<h4>Example:</h4>\n<pre><code>def add(number1, number2):\n    return number1 + number2\n\nresult = add(3, 4)\nprint(result)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; 7</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Make a function that prints your name</li>\n  <li>Make a function that takes a name and greets the person</li>\n  <li>Make a function that adds two numbers and returns the answer</li>\n  <li>Call the same function more than once</li>\n</ul>"
   },
   {
     "type": "tutorial",
@@ -116,21 +116,21 @@ window.COURSE_DATA = [
     "number": 17,
     "title": "Lesson 17: static typing",
     "url": "static-typing.html",
-    "html": "<h2>Static typing</h2>\n<p>Python is dynamically typed.</p>\n<p>This means you usually do not have to write the type of a variable.</p>\n<p>Static typing uses type hints to show what type a value should be.</p>\n<hr>\n<h3>Variable type hints</h3>\n<h4>Example:</h4>\n<pre><code>name: str = &quot;Paddy&quot;\nage: int = 16\nheight: float = 1.75\nis_student: bool = True</code></pre>\n<p>Type hints do not change how the program runs, but they make the code easier to understand.</p>\n<hr>\n<h3>Function type hints</h3>\n<h4>Example:</h4>\n<pre><code>def add(number1: int, number2: int) -&gt; int:\n    return number1 + number2\n\nprint(add(3, 4))</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; 7</code></pre>\n<hr>\n<h3>Important</h3>\n<p>Python will still run this:</p>\n<pre><code>age: int = &quot;sixteen&quot;</code></pre>\n<p>The type hint is a helpful note, not a strict rule by itself.</p>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Add type hints to variables for your name, age and favourite subject</li>\n  <li>Add type hints to a function that multiplies two numbers</li>\n  <li>Try putting the wrong type into a hinted variable</li>\n  <li>Explain why type hints can help another programmer</li>\n</ul>"
+    "html": "<h2>Static typing</h2>\n<p>Python is dynamically typed.</p>\n<p>This means you usually do not have to write the type of a variable.</p>\n<p>Static typing uses type hints to show what type a value should be.</p>\n<hr>\n<h3>Variable type hints</h3>\n<h4>Example:</h4>\n<pre><code>name: str = &quot;Harry&quot;\nage: int = 16\nheight: float = 1.75\nis_student: bool = True</code></pre>\n<p>Type hints do not change how the program runs, but they make the code easier to understand.</p>\n<hr>\n<h3>Function type hints</h3>\n<h4>Example:</h4>\n<pre><code>def add(number1: int, number2: int) -&gt; int:\n    return number1 + number2\n\nprint(add(3, 4))</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; 7</code></pre>\n<hr>\n<h3>Important</h3>\n<p>Python will still run this:</p>\n<pre><code>age: int = &quot;sixteen&quot;</code></pre>\n<p>The type hint is a helpful note, not a strict rule by itself.</p>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Add type hints to variables for your name, age and favourite subject</li>\n  <li>Add type hints to a function that multiplies two numbers</li>\n  <li>Try putting the wrong type into a hinted variable</li>\n  <li>Explain why type hints can help another programmer</li>\n</ul>"
   },
   {
     "type": "tutorial",
     "number": 18,
     "title": "Lesson 18: classes",
     "url": "classes.html",
-    "html": "<h2>Classes</h2>\n<p>A class is a blueprint for creating objects.</p>\n<p>An object can store data and have functions that belong to it.</p>\n<hr>\n<h3>Creating a class</h3>\n<h4>Example:</h4>\n<pre><code>class Student:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n\nstudent1 = Student(&quot;Paddy&quot;, 16)\n\nprint(student1.name)\nprint(student1.age)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Paddy\n&gt;&gt;&gt; 16</code></pre>\n<hr>\n<h3>Methods</h3>\n<p>A method is a function inside a class.</p>\n<h4>Example:</h4>\n<pre><code>class Student:\n    def __init__(self, name):\n        self.name = name\n\n    def say_hello(self):\n        print(&quot;Hello, my name is &quot; + self.name)\n\nstudent1 = Student(&quot;Paddy&quot;)\nstudent1.say_hello()</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Hello, my name is Paddy</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Create a class called Dog with a name and age</li>\n  <li>Create two objects from the same class</li>\n  <li>Add a method that prints a sentence about the object</li>\n  <li>Try printing an attribute that does not exist. What happens?</li>\n</ul>"
+    "html": "<h2>Classes</h2>\n<p>A class is a blueprint for creating objects.</p>\n<p>An object can store data and have functions that belong to it.</p>\n<hr>\n<h3>Creating a class</h3>\n<h4>Example:</h4>\n<pre><code>class Student:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n\nstudent1 = Student(&quot;Harry&quot;, 16)\n\nprint(student1.name)\nprint(student1.age)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Harry\n&gt;&gt;&gt; 16</code></pre>\n<hr>\n<h3>Methods</h3>\n<p>A method is a function inside a class.</p>\n<h4>Example:</h4>\n<pre><code>class Student:\n    def __init__(self, name):\n        self.name = name\n\n    def say_hello(self):\n        print(&quot;Hello, my name is &quot; + self.name)\n\nstudent1 = Student(&quot;Harry&quot;)\nstudent1.say_hello()</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Hello, my name is Harry</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Create a class called Dog with a name and age</li>\n  <li>Create two objects from the same class</li>\n  <li>Add a method that prints a sentence about the object</li>\n  <li>Try printing an attribute that does not exist. What happens?</li>\n</ul>"
   },
   {
     "type": "tutorial",
     "number": 19,
     "title": "Lesson 19: OOP",
     "url": "oop.html",
-    "html": "<h2>OOP</h2>\n<p>OOP means Object-Oriented Programming.</p>\n<p>It is a way of organising code using classes and objects.</p>\n<hr>\n<h3>Why use OOP?</h3>\n<p>OOP helps you keep related data and functions together.</p>\n<p>For example, a Player object might store its name, health and score.</p>\n<hr>\n<h3>Example:</h3>\n<pre><code>class Player:\n    def __init__(self, name):\n        self.name = name\n        self.health = 100\n        self.score = 0\n\n    def take_damage(self, amount):\n        self.health = self.health - amount\n\n    def add_score(self, points):\n        self.score = self.score + points\n\nplayer1 = Player(&quot;Paddy&quot;)\nplayer1.take_damage(20)\nplayer1.add_score(10)\n\nprint(player1.health)\nprint(player1.score)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; 80\n&gt;&gt;&gt; 10</code></pre>\n<hr>\n<h3>Objects are separate</h3>\n<p>Each object has its own data.</p>\n<h4>Example:</h4>\n<pre><code>player1 = Player(&quot;Paddy&quot;)\nplayer2 = Player(&quot;Sarah&quot;)\n\nplayer1.add_score(10)\n\nprint(player1.score)\nprint(player2.score)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; 10\n&gt;&gt;&gt; 0</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Create a Player class with name, health and score</li>\n  <li>Make methods to change the health and score</li>\n  <li>Create two different players</li>\n  <li>Show that changing one player does not change the other player</li>\n</ul>"
+    "html": "<h2>OOP</h2>\n<p>OOP means Object-Oriented Programming.</p>\n<p>It is a way of organising code using classes and objects.</p>\n<hr>\n<h3>Why use OOP?</h3>\n<p>OOP helps you keep related data and functions together.</p>\n<p>For example, a Player object might store its name, health and score.</p>\n<hr>\n<h3>Example:</h3>\n<pre><code>class Player:\n    def __init__(self, name):\n        self.name = name\n        self.health = 100\n        self.score = 0\n\n    def take_damage(self, amount):\n        self.health = self.health - amount\n\n    def add_score(self, points):\n        self.score = self.score + points\n\nplayer1 = Player(&quot;Harry&quot;)\nplayer1.take_damage(20)\nplayer1.add_score(10)\n\nprint(player1.health)\nprint(player1.score)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; 80\n&gt;&gt;&gt; 10</code></pre>\n<hr>\n<h3>Objects are separate</h3>\n<p>Each object has its own data.</p>\n<h4>Example:</h4>\n<pre><code>player1 = Player(&quot;Harry&quot;)\nplayer2 = Player(&quot;Sarah&quot;)\n\nplayer1.add_score(10)\n\nprint(player1.score)\nprint(player2.score)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; 10\n&gt;&gt;&gt; 0</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Create a Player class with name, health and score</li>\n  <li>Make methods to change the health and score</li>\n  <li>Create two different players</li>\n  <li>Show that changing one player does not change the other player</li>\n</ul>"
   },
   {
     "type": "tutorial",
@@ -144,7 +144,7 @@ window.COURSE_DATA = [
     "number": 21,
     "title": "Lesson 21: advanced data algorithms",
     "url": "advanced-data-algorithms.html",
-    "html": "<h2>Advanced data algorithms</h2>\n<p>An algorithm is a set of steps used to solve a problem.</p>\n<p>Advanced data algorithms often work with lists, dictionaries and other data structures.</p>\n<hr>\n<h3>Searching a list</h3>\n<p>Searching means finding an item in a list.</p>\n<h4>Example:</h4>\n<pre><code>names = [&quot;Paddy&quot;, &quot;Sarah&quot;, &quot;John&quot;]\ntarget = &quot;Sarah&quot;\n\nfor name in names:\n    if name == target:\n        print(&quot;Found&quot;)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Found</code></pre>\n<hr>\n<h3>Finding the largest number</h3>\n<h4>Example:</h4>\n<pre><code>numbers = [4, 9, 2, 7]\nlargest = numbers[0]\n\nfor number in numbers:\n    if number &gt; largest:\n        largest = number\n\nprint(largest)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; 9</code></pre>\n<hr>\n<h3>Counting items</h3>\n<p>Dictionaries can be used to count how many times values appear.</p>\n<h4>Example:</h4>\n<pre><code>words = [&quot;red&quot;, &quot;blue&quot;, &quot;red&quot;, &quot;green&quot;, &quot;blue&quot;, &quot;red&quot;]\ncounts = {}\n\nfor word in words:\n    if word in counts:\n        counts[word] = counts[word] + 1\n    else:\n        counts[word] = 1\n\nprint(counts)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; {&#x27;red&#x27;: 3, &#x27;blue&#x27;: 2, &#x27;green&#x27;: 1}</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Search a list for a name entered by the user</li>\n  <li>Find the smallest number in a list</li>\n  <li>Count how many times each letter appears in a word</li>\n  <li>Sort a list using sorted() and compare it to your own searching code</li>\n</ul>"
+    "html": "<h2>Advanced data algorithms</h2>\n<p>An algorithm is a set of steps used to solve a problem.</p>\n<p>Advanced data algorithms often work with lists, dictionaries and other data structures.</p>\n<hr>\n<h3>Searching a list</h3>\n<p>Searching means finding an item in a list.</p>\n<h4>Example:</h4>\n<pre><code>names = [&quot;Harry&quot;, &quot;Sarah&quot;, &quot;John&quot;]\ntarget = &quot;Sarah&quot;\n\nfor name in names:\n    if name == target:\n        print(&quot;Found&quot;)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; Found</code></pre>\n<hr>\n<h3>Finding the largest number</h3>\n<h4>Example:</h4>\n<pre><code>numbers = [4, 9, 2, 7]\nlargest = numbers[0]\n\nfor number in numbers:\n    if number &gt; largest:\n        largest = number\n\nprint(largest)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; 9</code></pre>\n<hr>\n<h3>Counting items</h3>\n<p>Dictionaries can be used to count how many times values appear.</p>\n<h4>Example:</h4>\n<pre><code>words = [&quot;red&quot;, &quot;blue&quot;, &quot;red&quot;, &quot;green&quot;, &quot;blue&quot;, &quot;red&quot;]\ncounts = {}\n\nfor word in words:\n    if word in counts:\n        counts[word] = counts[word] + 1\n    else:\n        counts[word] = 1\n\nprint(counts)</code></pre>\n<p>will display:</p>\n<pre class=\"terminal-output\"><code>&gt;&gt;&gt; {&#x27;red&#x27;: 3, &#x27;blue&#x27;: 2, &#x27;green&#x27;: 1}</code></pre>\n<h2>Try it yourself</h2>\n<ul>\n  <li>Search a list for a name entered by the user</li>\n  <li>Find the smallest number in a list</li>\n  <li>Count how many times each letter appears in a word</li>\n  <li>Sort a list using sorted() and compare it to your own searching code</li>\n</ul>"
   },
   {
     "type": "challenge",
@@ -331,7 +331,7 @@ print("Answer =", 6 + 4)</code></pre>
 <pre><code>variable_name = value</code></pre>
 <p>The equals sign is the assignment operator. It puts the value on the right into the variable name on the left.</p>
 <h3>Example</h3>
-<pre><code>name = "Paddy"
+<pre><code>name = "Harry"
 age = 16
 is_student = True
 
@@ -339,7 +339,7 @@ print(name)
 print(age)
 print(is_student)</code></pre>
 <p>will display:</p>
-<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy
+<pre class="terminal-output"><code>&gt;&gt;&gt; Harry
 &gt;&gt;&gt; 16
 &gt;&gt;&gt; True</code></pre>
 <h3>Main data types</h3>
@@ -376,9 +376,9 @@ print(type(score))</code></pre>
 <h3>Example</h3>
 <pre><code>name = input("Enter your name: ")
 print("Hello", name)</code></pre>
-<p>If the user types Paddy, it will display:</p>
-<pre class="terminal-output"><code>&gt;&gt;&gt; Enter your name: Paddy
-&gt;&gt;&gt; Hello Paddy</code></pre>
+<p>If the user types Harry, it will display:</p>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Enter your name: Harry
+&gt;&gt;&gt; Hello Harry</code></pre>
 <h3>Input is always a string</h3>
 <p><code>input()</code> always gives back a string, even if the user types digits.</p>
 <pre><code>age = input("Enter your age: ")
@@ -489,18 +489,18 @@ else:
 <p><strong>Definition:</strong> String manipulation means creating, joining, measuring, changing, and reading parts of text.</p>
 <p>Strings are useful because programs often work with names, messages, passwords, menu choices, and other text entered by users.</p>
 <h3>Joining strings</h3>
-<pre><code>first_name = "Paddy"
+<pre><code>first_name = "Harry"
 second_name = "Murphy"
 print(first_name + " " + second_name)</code></pre>
 <p>will display:</p>
-<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy Murphy</code></pre>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Harry Murphy</code></pre>
 <h3>F-strings</h3>
 <p>An f-string lets you place variables inside a string using braces.</p>
-<pre><code>name = "Paddy"
+<pre><code>name = "Harry"
 age = 16
 print(f"{name} is {age} years old")</code></pre>
 <p>will display:</p>
-<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy is 16 years old</code></pre>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Harry is 16 years old</code></pre>
 <h3>Length, indexing and slicing</h3>
 <p><code>len()</code> counts characters. Indexing gets one character. Slicing gets part of a string.</p>
 <pre><code>word = "Python"
@@ -535,18 +535,18 @@ print(message.capitalize())</code></pre>
 <p><strong>Definition:</strong> A list is an ordered collection that stores multiple values in one variable.</p>
 <p>Lists are useful when one variable is not enough, such as storing several scores, names, menu options, or items in a shopping list.</p>
 <h3>List syntax</h3>
-<pre><code>names = ["Paddy", "Sarah", "John"]
+<pre><code>names = ["Harry", "Sarah", "John"]
 scores = [8, 10, 6]
 mixed = ["Python", 3, True]</code></pre>
 <p>Lists use square brackets. Items are separated by commas.</p>
 <h3>Indexing and length</h3>
 <p>Lists are ordered, and their indexes start at 0.</p>
-<pre><code>names = ["Paddy", "Sarah", "John"]
+<pre><code>names = ["Harry", "Sarah", "John"]
 print(names[0])
 print(names[2])
 print(len(names))</code></pre>
 <p>will display:</p>
-<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy
+<pre class="terminal-output"><code>&gt;&gt;&gt; Harry
 &gt;&gt;&gt; John
 &gt;&gt;&gt; 3</code></pre>
 <h3>Changing a list</h3>
@@ -582,12 +582,12 @@ for subject in subjects:
 <p><strong>Definition:</strong> A <code>for</code> loop repeats code once for each item in a sequence.</p>
 <p>For loops are useful when you know the group of items you want to work through, such as a list of names or a range of numbers.</p>
 <h3>Looping through a list</h3>
-<pre><code>names = ["Paddy", "Sarah", "John"]
+<pre><code>names = ["Harry", "Sarah", "John"]
 
 for name in names:
     print(name)</code></pre>
 <p>will display:</p>
-<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy
+<pre class="terminal-output"><code>&gt;&gt;&gt; Harry
 &gt;&gt;&gt; Sarah
 &gt;&gt;&gt; John</code></pre>
 <h3>Using range()</h3>
@@ -699,21 +699,21 @@ else:
 <p>Dictionaries are useful when each value needs a label, such as a student's name, age, and year group.</p>
 <h3>Syntax</h3>
 <pre><code>student = {
-    "name": "Paddy",
+    "name": "Harry",
     "age": 16,
     "year": 5
 }</code></pre>
 <p>The key is on the left of the colon. The value is on the right.</p>
 <h3>Reading values</h3>
 <pre><code>student = {
-    "name": "Paddy",
+    "name": "Harry",
     "age": 16,
     "year": 5
 }
 
 print(student["name"])</code></pre>
 <p>will display:</p>
-<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy</code></pre>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Harry</code></pre>
 <h3>Changing and adding values</h3>
 <pre><code>student["age"] = 17
 student["subject"] = "Computer Science"
@@ -786,9 +786,9 @@ say_hello()</code></pre>
 <pre><code>def greet(name):
     print("Hello", name)
 
-greet("Paddy")</code></pre>
+greet("Harry")</code></pre>
 <p>will display:</p>
-<pre class="terminal-output"><code>&gt;&gt;&gt; Hello Paddy</code></pre>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Hello Harry</code></pre>
 <h3>Return values</h3>
 <p><code>return</code> sends a value back to the place where the function was called.</p>
 <pre><code>def add(number1, number2):
@@ -928,7 +928,7 @@ match day:
 <p><strong>Definition:</strong> Static typing means knowing the expected type of a value before the program runs. Python normally uses dynamic typing, but it supports type hints.</p>
 <p>Type hints are useful because they make code easier to read, help editors give better advice, and help programmers find mistakes earlier.</p>
 <h3>Variable type hints</h3>
-<pre><code>name: str = "Paddy"
+<pre><code>name: str = "Harry"
 age: int = 16
 height: float = 1.75
 is_student: bool = True</code></pre>
@@ -964,12 +964,12 @@ print(add(3, 4))</code></pre>
         self.name = name
         self.age = age
 
-student1 = Student("Paddy", 16)
+student1 = Student("Harry", 16)
 
 print(student1.name)
 print(student1.age)</code></pre>
 <p>will display:</p>
-<pre class="terminal-output"><code>&gt;&gt;&gt; Paddy
+<pre class="terminal-output"><code>&gt;&gt;&gt; Harry
 &gt;&gt;&gt; 16</code></pre>
 <h3>Methods</h3>
 <p>A method is a function that belongs to a class.</p>
@@ -980,10 +980,10 @@ print(student1.age)</code></pre>
     def say_hello(self):
         print("Hello, my name is " + self.name)
 
-student1 = Student("Paddy")
+student1 = Student("Harry")
 student1.say_hello()</code></pre>
 <p>will display:</p>
-<pre class="terminal-output"><code>&gt;&gt;&gt; Hello, my name is Paddy</code></pre>
+<pre class="terminal-output"><code>&gt;&gt;&gt; Hello, my name is Harry</code></pre>
 <h3>Important notes</h3>
 <ul>
   <li><code>__init__</code> runs when a new object is created.</li>
@@ -1014,7 +1014,7 @@ student1.say_hello()</code></pre>
     def add_score(self, points):
         self.score = self.score + points
 
-player1 = Player("Paddy")
+player1 = Player("Harry")
 player1.take_damage(20)
 player1.add_score(10)
 
@@ -1024,7 +1024,7 @@ print(player1.score)</code></pre>
 <pre class="terminal-output"><code>&gt;&gt;&gt; 80
 &gt;&gt;&gt; 10</code></pre>
 <h3>Objects are separate</h3>
-<pre><code>player1 = Player("Paddy")
+<pre><code>player1 = Player("Harry")
 player2 = Player("Sarah")
 
 player1.add_score(10)
@@ -1097,7 +1097,7 @@ print(factorial(5))</code></pre>
 <p>Data algorithms are useful because programs often need to search, count, compare, sort, or summarise information stored in lists and dictionaries.</p>
 <h3>Searching a list</h3>
 <p>Searching means checking data to find a target value.</p>
-<pre><code>names = ["Paddy", "Sarah", "John"]
+<pre><code>names = ["Harry", "Sarah", "John"]
 target = "Sarah"
 
 for name in names:
