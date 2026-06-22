@@ -151,7 +151,138 @@ window.COURSE_DATA = [
     "number": 1,
     "title": "Challenge 1",
     "url": "challenge1.html",
-    "html": "<h3>Challenge 1</h3>\n<p>Print your name.</p>\n<h3>Challenge 2</h3>\n<p>Print your name, age and favourite subject on three separate lines.</p>\n<h3>Challenge 3</h3>\n<p>Print a small menu that looks like this:</p>\n<pre><code>1. Play\n2. Settings\n3. Quit</code></pre>\n<h3>Challenge 4</h3>\n<p>Print a simple drawing using only print statements.</p>\n<h3>Challenge 5</h3>\n<p>Create a fake receipt that shows a shop name, three items and a total price.</p>"
+    "html": "<h3>Challenge 1</h3>\n<p>Print your name.</p>\n<h3>Challenge 2</h3>\n<p>Print your name, age and favourite subject on three separate lines.</p>\n<h3>Challenge 3</h3>\n<p>Print a small menu that looks like this:</p>\n<pre><code>1. Play\n2. Settings\n3. Quit</code></pre>\n<h3>Challenge 4</h3>\n<p>Print a simple drawing using only print statements.</p>\n<h3>Challenge 5</h3>\n<p>Create a fake receipt that shows a shop name, three items and a total price.</p>",
+    "tasks": [
+      {
+        "id": "print-name",
+        "title": "Print a name",
+        "prompt": "Print the name Paddy.",
+        "visibleExample": {
+          "input": [],
+          "output": "Paddy"
+        },
+        "tests": [
+          {
+            "id": "print-name-output",
+            "name": "Prints the expected name",
+            "input": [],
+            "expectedOutput": "Paddy",
+            "match": "exact",
+            "visible": true
+          },
+          {
+            "id": "print-name-lines",
+            "name": "Uses one output line",
+            "input": [],
+            "expectedLineCount": 1,
+            "match": "line-count"
+          }
+        ],
+        "hints": [
+          "Use one print() statement with the name inside quotation marks.",
+          "Check the capital P and make sure you only print Paddy."
+        ]
+      },
+      {
+        "id": "three-lines",
+        "title": "Print three lines",
+        "prompt": "Print Paddy, 16, and Computer Science on three separate lines.",
+        "visibleExample": {
+          "input": [],
+          "output": "Paddy\n16\nComputer Science"
+        },
+        "tests": [
+          {
+            "id": "three-lines-output",
+            "name": "Prints the expected details",
+            "input": [],
+            "expectedOutput": "Paddy\n16\nComputer Science",
+            "match": "exact",
+            "visible": true
+          },
+          {
+            "id": "three-lines-count",
+            "name": "Uses three output lines",
+            "input": [],
+            "expectedLineCount": 3,
+            "match": "line-count"
+          }
+        ],
+        "hints": [
+          "Use three separate print() statements.",
+          "Each value should appear on its own line in the same order as the task."
+        ]
+      },
+      {
+        "id": "small-menu",
+        "title": "Print a menu",
+        "prompt": "Print the three-line menu exactly as shown.",
+        "visibleExample": {
+          "input": [],
+          "output": "1. Play\n2. Settings\n3. Quit"
+        },
+        "tests": [
+          {
+            "id": "small-menu-output",
+            "name": "Prints the expected menu",
+            "input": [],
+            "expectedOutput": "1. Play\n2. Settings\n3. Quit",
+            "match": "exact",
+            "visible": true
+          }
+        ],
+        "hints": [
+          "Use one print() for each menu option.",
+          "Check the numbers, full stops, capital letters, and spaces."
+        ]
+      },
+      {
+        "id": "star-drawing",
+        "title": "Print a drawing",
+        "prompt": "Print this three-line star drawing exactly as shown.",
+        "visibleExample": {
+          "input": [],
+          "output": "***\n* *\n***"
+        },
+        "tests": [
+          {
+            "id": "star-drawing-output",
+            "name": "Prints the expected drawing",
+            "input": [],
+            "expectedOutput": "***\n* *\n***",
+            "match": "exact",
+            "visible": true
+          }
+        ],
+        "hints": [
+          "Use three print() statements for the three rows.",
+          "The middle row needs a space between the two stars."
+        ]
+      },
+      {
+        "id": "fake-receipt",
+        "title": "Print a receipt",
+        "prompt": "Print this four-line fake receipt exactly as shown.",
+        "visibleExample": {
+          "input": [],
+          "output": "PythonPages Shop\nPencil - 1.50\nNotebook - 2.00\nTotal - 3.50"
+        },
+        "tests": [
+          {
+            "id": "fake-receipt-output",
+            "name": "Prints the expected receipt",
+            "input": [],
+            "expectedOutput": "PythonPages Shop\nPencil - 1.50\nNotebook - 2.00\nTotal - 3.50",
+            "match": "exact",
+            "visible": true
+          }
+        ],
+        "hints": [
+          "Use four print() statements, one for each receipt line.",
+          "Check the item names, hyphens, prices, and total."
+        ]
+      }
+    ]
   },
   {
     "type": "challenge",

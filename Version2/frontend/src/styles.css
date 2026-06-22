@@ -519,6 +519,155 @@ button {
   width: 100%;
 }
 
+.challenge-grader {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
+.grader-heading,
+.task-tabs,
+.example-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.grader-heading {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.grader-heading h2,
+.task-detail h3 {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.task-tabs {
+  grid-template-columns: 1fr;
+}
+
+.task-tab {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 8px;
+  align-items: center;
+  min-height: 54px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 9px 10px;
+  color: var(--ink);
+  background: #ffffff;
+  text-align: left;
+}
+
+.task-tab.active {
+  border-color: #b9c9ef;
+  background: #e8f0ff;
+}
+
+.task-tab.done {
+  border-color: #acd9c2;
+  background: #f2fbf6;
+}
+
+.task-tab span {
+  color: var(--blue);
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.task-tab strong {
+  grid-column: 1;
+  overflow-wrap: anywhere;
+  font-size: 0.92rem;
+}
+
+.task-tab svg {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  color: var(--green);
+}
+
+.task-detail {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #ffffff;
+}
+
+.task-detail p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.example-grid {
+  grid-template-columns: 1fr;
+}
+
+.example-grid span,
+.grade-test-result span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--blue);
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.example-grid pre {
+  min-height: 42px;
+  margin: 0;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 9px 10px;
+  color: var(--ink);
+  background: #f8fafc;
+  font: 0.9rem/1.45 Consolas, "Courier New", monospace;
+  white-space: pre-wrap;
+}
+
+.grade-feedback {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--blue);
+  border-radius: 8px;
+  padding: 10px 11px;
+  color: var(--muted);
+  background: #ffffff;
+}
+
+.grade-feedback.passed {
+  border-left-color: var(--green);
+}
+
+.grade-feedback.failed {
+  border-left-color: var(--red);
+}
+
+.grade-feedback > strong {
+  color: var(--ink);
+}
+
+.grade-feedback p,
+.grade-test-result p {
+  margin: 0;
+}
+
+.hint-text {
+  color: var(--ink);
+}
+
 .lesson-progress {
   display: inline-flex;
   gap: 6px;

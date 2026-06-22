@@ -1,9 +1,50 @@
+export type GradeMatch = "exact" | "contains" | "regex" | "line-count";
+
+export type GradeTest = {
+  id: string;
+  name: string;
+  input?: string[];
+  expectedOutput?: string;
+  expectedLineCount?: number;
+  match?: GradeMatch;
+  visible?: boolean;
+};
+
+export type ChallengeTask = {
+  id: string;
+  title: string;
+  prompt: string;
+  visibleExample: {
+    input: string[];
+    output: string;
+  };
+  tests: GradeTest[];
+  hints: string[];
+};
+
+export type GradeTestResult = {
+  id: string;
+  name: string;
+  input: string[];
+  expectedOutput: string;
+  actualOutput: string;
+  passed: boolean;
+  visible: boolean;
+  message: string;
+};
+
+export type GradeResult = {
+  passed: boolean;
+  tests: GradeTestResult[];
+};
+
 export type CourseEntry = {
   type: "tutorial" | "challenge";
   number: number;
   title: string;
   url: string;
   html: string;
+  tasks?: ChallengeTask[];
 };
 
 export type Diagnostic = {
@@ -59,4 +100,3 @@ declare global {
     COURSE_DATA?: CourseEntry[];
   }
 }
-

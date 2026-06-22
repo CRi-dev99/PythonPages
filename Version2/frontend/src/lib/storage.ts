@@ -4,6 +4,7 @@ import type { Session } from "@supabase/supabase-js";
 
 const LOCAL_KEY = "pythonpages:v2:projects";
 const LOCAL_COMPLETIONS_KEY = "pythonpages:v2:course-completions";
+const LOCAL_TASK_COMPLETIONS_KEY = "pythonpages:v2:challenge-task-completions";
 
 export const starterCode = 'name = input("What is your name? ")\nprint("Hello", name)\n';
 
@@ -53,6 +54,27 @@ export function markLocalCompletion(courseUrl: string): string[] {
   return next;
 }
 
+export function taskCompletionKey(challengeUrl: string, taskId: string): string {
+  return `${challengeUrl}::${taskId}`;
+}
+
+export function loadLocalTaskCompletions(): string[] {
+  const raw = localStorage.getItem(LOCAL_TASK_COMPLETIONS_KEY);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+export function markLocalTaskCompletion(challengeUrl: string, taskId: string): string[] {
+  const next = Array.from(new Set([...loadLocalTaskCompletions(), taskCompletionKey(challengeUrl, taskId)]));
+  localStorage.setItem(LOCAL_TASK_COMPLETIONS_KEY, JSON.stringify(next));
+  return next;
+}
+
 export async function loadCloudProjects(session: Session): Promise<ProjectRecord[]> {
   if (!supabase) return loadLocalProjects();
   const { data: projects, error } = await supabase
@@ -88,6 +110,19 @@ export async function loadCloudCompletions(session: Session): Promise<string[]> 
   return (data ?? []).map((completion) => completion.course_url).filter((courseUrl): courseUrl is string => typeof courseUrl === "string");
 }
 
+export async function loadCloudTaskCompletions(session: Session): Promise<string[]> {
+  if (!supabase) return loadLocalTaskCompletions();
+  const { data, error } = await supabase
+    .from("challenge_task_completions")
+    .select("challenge_url,task_id")
+    .eq("user_id", session.user.id)
+    .order("completed_at", { ascending: true });
+  if (error) throw error;
+  return (data ?? [])
+    .filter((completion) => typeof completion.challenge_url === "string" && typeof completion.task_id === "string")
+    .map((completion) => taskCompletionKey(completion.challenge_url, completion.task_id));
+}
+
 export async function markCloudCompletion(session: Session, courseUrl: string): Promise<void> {
   if (!supabase) {
     markLocalCompletion(courseUrl);
@@ -100,6 +135,23 @@ export async function markCloudCompletion(session: Session, courseUrl: string): 
       completed_at: new Date().toISOString()
     },
     { onConflict: "user_id,course_url" }
+  );
+  if (error) throw error;
+}
+
+export async function markCloudTaskCompletion(session: Session, challengeUrl: string, taskId: string): Promise<void> {
+  if (!supabase) {
+    markLocalTaskCompletion(challengeUrl, taskId);
+    return;
+  }
+  const { error } = await supabase.from("challenge_task_completions").upsert(
+    {
+      user_id: session.user.id,
+      challenge_url: challengeUrl,
+      task_id: taskId,
+      completed_at: new Date().toISOString()
+    },
+    { onConflict: "user_id,challenge_url,task_id" }
   );
   if (error) throw error;
 }

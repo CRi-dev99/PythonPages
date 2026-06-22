@@ -14,6 +14,61 @@ function doneBadgeFor(page: Page, cardName: RegExp) {
   return page.getByRole("button", { name: cardName }).locator(".done-badge");
 }
 
+async function setEditorCode(page: Page, code: string) {
+  await page.locator(".monaco-editor").click();
+  await page.keyboard.press("Control+A");
+  await page.keyboard.press("Backspace");
+  await page.keyboard.insertText(code);
+}
+
+async function installFakeGrader(page: Page) {
+  await page.addInitScript(() => {
+    type FakeGradeTest = {
+      id: string;
+      name: string;
+      input?: string[];
+      expectedOutput?: string;
+      expectedLineCount?: number;
+      match?: string;
+      visible?: boolean;
+    };
+
+    class FakeWorker {
+      onmessage: ((event: { data: unknown }) => void) | null = null;
+      onerror: ((event: { message: string }) => void) | null = null;
+
+      postMessage(message: { type?: string; code?: string; tests?: FakeGradeTest[] }) {
+        if (message.type === "init") {
+          window.setTimeout(() => this.onmessage?.({ data: { type: "ready" } }), 0);
+          return;
+        }
+        if (message.type === "run") {
+          window.setTimeout(() => this.onmessage?.({ data: { type: "output", status: "finished", output: "" } }), 0);
+          return;
+        }
+        if (message.type !== "grade") return;
+        const tests = Array.isArray(message.tests) ? message.tests : [];
+        const passed = String(message.code ?? "").includes("# pass");
+        const results = tests.map((test) => ({
+          id: test.id,
+          name: test.name,
+          input: test.input ?? [],
+          expectedOutput: test.match === "line-count" ? `${test.expectedLineCount ?? 0} line(s)` : test.expectedOutput ?? "",
+          actualOutput: passed ? test.expectedOutput ?? "" : "wrong output",
+          passed,
+          visible: Boolean(test.visible),
+          message: passed ? "Passed" : "Expected output did not match."
+        }));
+        window.setTimeout(() => this.onmessage?.({ data: { type: "grade-result", result: { passed, tests: results } } }), 0);
+      }
+
+      terminate() {}
+    }
+
+    Object.defineProperty(window, "Worker", { value: FakeWorker });
+  });
+}
+
 test("loads the landing page and top navigation", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Learn Python in a real browser IDE." })).toBeVisible();
@@ -69,6 +124,67 @@ test("opens challenges and selects a challenge in the IDE", async ({ page }) => 
   await expect(page.getByLabel("Python IDE workspace")).toBeVisible();
 });
 
+test("graded challenge shows mini tasks and expected output", async ({ page }) => {
+  await installFakeGrader(page);
+  await page.goto("/?page=challenge1.html");
+
+  await expect(page.getByRole("heading", { name: "Challenge 1", level: 1 })).toBeVisible();
+  await expect(page.getByLabel("Challenge autograder")).toContainText("0 / 5 tasks passed");
+  await expect(page.getByRole("tab")).toHaveCount(5);
+  await expect(page.getByRole("tab", { name: /Task 1\s+Print a name/ })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByText("Print the name Paddy.")).toBeVisible();
+  await expect(page.getByText("Expected output")).toBeVisible();
+  await expect(page.locator(".task-detail pre").last()).toContainText("Paddy");
+  await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
+});
+
+test("graded challenge reveals hints after repeated failed checks", async ({ page }) => {
+  await installFakeGrader(page);
+  await page.goto("/?page=challenge1.html");
+  await setEditorCode(page, "print('wrong')");
+
+  await page.getByRole("button", { name: "Check answer" }).click();
+  await expect(page.getByText("Not quite yet")).toBeVisible();
+  await expect(page.getByText("Hint:")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Check answer" }).click();
+  await expect(page.getByText("Hint:")).toBeVisible();
+  await expect(page.getByText("Use one print() statement with the name inside quotation marks.")).toBeVisible();
+});
+
+test("graded challenge passes tasks and persists local task progress", async ({ page }) => {
+  await installFakeGrader(page);
+  await page.goto("/?page=challenge1.html");
+  await setEditorCode(page, "# pass");
+
+  await page.getByRole("button", { name: "Check answer" }).click();
+  await expect(page.locator(".task-tab.done")).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Passed" })).toBeDisabled();
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Challenge 1", level: 1 })).toBeVisible();
+  await expect(page.locator(".task-tab.done")).toHaveCount(1);
+  await expect(page.getByLabel("Challenge autograder")).toContainText("1 / 5 tasks passed");
+});
+
+test("passing all graded challenge tasks marks the challenge done", async ({ page }) => {
+  await installFakeGrader(page);
+  await page.goto("/?page=challenge1.html");
+
+  for (let index = 0; index < 5; index += 1) {
+    await page.getByRole("tab").nth(index).click();
+    await setEditorCode(page, "# pass");
+    await page.getByRole("button", { name: "Check answer" }).click();
+    await expect(page.locator(".task-tab.done")).toHaveCount(index + 1);
+  }
+
+  await expect(page.locator(".lesson-progress.done")).toContainText("Done");
+  await mainNav(page).getByRole("button", { name: "Challenges" }).click();
+  await expect(page.getByLabel("Challenges progress")).toContainText("1 / 21 done");
+  await expect(page.getByLabel("Challenges progress")).toContainText("Overall: 1 / 42 done");
+  await expect(doneBadgeFor(page, /Challenge 1\s+Challenge 1/)).toHaveText("Done");
+});
+
 test("lesson pane next button moves from lesson 1 to challenge 1 to lesson 2", async ({ page }) => {
   await page.goto("/");
   await mainNav(page).getByRole("button", { name: "IDE" }).click();
@@ -81,12 +197,12 @@ test("lesson pane next button moves from lesson 1 to challenge 1 to lesson 2", a
 
   await mainNav(page).getByRole("button", { name: "Tutorials" }).click();
   await expect(page.getByLabel("Tutorials progress")).toContainText("1 / 21 done");
-  await expect(page.getByLabel("Tutorials progress")).toContainText("Overall: 2 / 42 done");
+  await expect(page.getByLabel("Tutorials progress")).toContainText("Overall: 1 / 42 done");
   await expect(doneBadgeFor(page, /Lesson 1\s+Lesson 1: print\(\)/)).toHaveText("Done");
   await mainNav(page).getByRole("button", { name: "Challenges" }).click();
-  await expect(page.getByLabel("Challenges progress")).toContainText("1 / 21 done");
-  await expect(page.getByLabel("Challenges progress")).toContainText("Overall: 2 / 42 done");
-  await expect(doneBadgeFor(page, /Challenge 1\s+Challenge 1/)).toHaveText("Done");
+  await expect(page.getByLabel("Challenges progress")).toContainText("0 / 21 done");
+  await expect(page.getByLabel("Challenges progress")).toContainText("Overall: 1 / 42 done");
+  await expect(doneBadgeFor(page, /Challenge 1\s+Challenge 1/)).toHaveCount(0);
 });
 
 test("local course completion persists after reload", async ({ page }) => {

@@ -30,16 +30,21 @@ import {
   deleteCloudProject,
   loadCloudCompletions,
   loadCloudProjects,
+  loadCloudTaskCompletions,
   loadLocalCompletions,
+  loadLocalTaskCompletions,
   loadLocalProjects,
   markCloudCompletion,
+  markCloudTaskCompletion,
   markLocalCompletion,
+  markLocalTaskCompletion,
   saveCloudProject,
-  saveLocalProjects
+  saveLocalProjects,
+  taskCompletionKey
 } from "./lib/storage";
 import { usePyodideRunner } from "./lib/usePyodideRunner";
 import type { RunnerState } from "./lib/usePyodideRunner";
-import type { AnalysisResult, ChatMessage, CourseEntry, ProjectRecord } from "./types";
+import type { AnalysisResult, ChallengeTask, ChatMessage, CourseEntry, GradeResult, ProjectRecord } from "./types";
 
 type AppView = "home" | "tutorials" | "challenges" | "setup" | "ide" | "login" | "signup";
 type ResizeKey = "lessonWidth" | "chatWidth" | "outputHeight" | "diagnosticsWidth";
@@ -75,6 +80,9 @@ function App() {
   const [projects, setProjects] = useState<ProjectRecord[]>([]);
   const [currentProjectId, setCurrentProjectId] = useState("");
   const [completedCourseUrls, setCompletedCourseUrls] = useState<Set<string>>(() => new Set(loadLocalCompletions()));
+  const [completedTaskKeys, setCompletedTaskKeys] = useState<Set<string>>(() => new Set(loadLocalTaskCompletions()));
+  const [selectedTaskId, setSelectedTaskId] = useState("");
+  const [taskFailureCounts, setTaskFailureCounts] = useState<Record<string, number>>({});
   const [saveStatus, setSaveStatus] = useState("Not saved yet");
   const [analysis, setAnalysis] = useState<AnalysisResult>(emptyAnalysis);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -93,6 +101,8 @@ function App() {
   const selectedLesson = selectedEntries.find((entry) => entry.number === selectedNumber) ?? selectedEntries[0];
   const nextCourseEntry = selectedLesson ? getNextCourseEntry(courseData, selectedLesson) : undefined;
   const selectedLessonDone = selectedLesson ? completedCourseUrls.has(selectedLesson.url) : false;
+  const selectedTasks = selectedLesson?.tasks ?? [];
+  const selectedTask = selectedTasks.find((task) => task.id === selectedTaskId) ?? selectedTasks[0];
   const currentProject = projects.find((project) => project.id === currentProjectId) ?? projects[0];
   const currentFile = currentProject?.files[0];
   const code = currentFile?.content ?? "";
@@ -171,20 +181,39 @@ function App() {
     async function loadCompletions() {
       if (supabase && session) {
         try {
-          const cloudCompletions = await loadCloudCompletions(session);
-          if (!cancelled) setCompletedCourseUrls(new Set(cloudCompletions));
+          const [cloudCompletions, cloudTaskCompletions] = await Promise.all([
+            loadCloudCompletions(session),
+            loadCloudTaskCompletions(session)
+          ]);
+          if (!cancelled) {
+            setCompletedCourseUrls(new Set(cloudCompletions));
+            setCompletedTaskKeys(new Set(cloudTaskCompletions));
+          }
         } catch (error) {
           if (!cancelled) setSaveStatus(error instanceof Error ? error.message : "Could not load course progress");
         }
         return;
       }
       setCompletedCourseUrls(new Set(loadLocalCompletions()));
+      setCompletedTaskKeys(new Set(loadLocalTaskCompletions()));
     }
     loadCompletions();
     return () => {
       cancelled = true;
     };
   }, [session]);
+
+  useEffect(() => {
+    if (!selectedTasks.length) {
+      setSelectedTaskId("");
+      return;
+    }
+    if (!selectedTasks.some((task) => task.id === selectedTaskId)) {
+      setSelectedTaskId(selectedTasks[0].id);
+    }
+    runner.resetGrade();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLesson?.url, selectedTasks.length]);
 
   useEffect(() => {
     if (!currentProject) return;
@@ -242,8 +271,56 @@ function App() {
     }
   }
 
+  async function markTaskDone(entry: CourseEntry | undefined, task: ChallengeTask | undefined) {
+    if (!entry || !task) return;
+    const key = taskCompletionKey(entry.url, task.id);
+    if (completedTaskKeys.has(key)) return;
+
+    const nextTaskKeys = new Set([...completedTaskKeys, key]);
+    setCompletedTaskKeys(nextTaskKeys);
+    try {
+      if (supabase && session) {
+        await markCloudTaskCompletion(session, entry.url, task.id);
+        setSaveStatus(`${task.title} passed`);
+      } else {
+        markLocalTaskCompletion(entry.url, task.id);
+        setSaveStatus(`${task.title} passed locally`);
+      }
+      if (entry.tasks?.length && entry.tasks.every((item) => nextTaskKeys.has(taskCompletionKey(entry.url, item.id)))) {
+        await markCourseDone(entry);
+      }
+    } catch (error) {
+      setCompletedTaskKeys((current) => {
+        const next = new Set(current);
+        next.delete(key);
+        return next;
+      });
+      setSaveStatus(error instanceof Error ? error.message : "Could not save challenge progress");
+    }
+  }
+
+  async function checkSelectedTask() {
+    if (!selectedLesson || !selectedTask) return;
+    setBusy(true);
+    try {
+      const result = await runner.grade(code, selectedTask.tests);
+      const key = taskCompletionKey(selectedLesson.url, selectedTask.id);
+      if (result.passed) {
+        setTaskFailureCounts((current) => ({ ...current, [key]: 0 }));
+        await markTaskDone(selectedLesson, selectedTask);
+      } else {
+        setTaskFailureCounts((current) => ({ ...current, [key]: (current[key] ?? 0) + 1 }));
+        setSaveStatus(`${selectedTask.title} needs another try`);
+      }
+    } catch (error) {
+      setSaveStatus(error instanceof Error ? error.message : "Could not check answer");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function openNextCourseEntry(currentEntry: CourseEntry | undefined, nextEntry: CourseEntry) {
-    await markCourseDone(currentEntry);
+    if (!currentEntry?.tasks?.length) await markCourseDone(currentEntry);
     openCourseEntry(nextEntry);
   }
 
@@ -511,6 +588,7 @@ function App() {
           currentFile={currentFile}
           currentProject={currentProject}
           currentProjectId={currentProjectId}
+          completedTaskKeys={completedTaskKeys}
           lessonCollapsed={lessonCollapsed}
           projects={projects}
           runner={runner}
@@ -518,9 +596,12 @@ function App() {
           nextCourseEntry={nextCourseEntry}
           selectedLessonDone={selectedLessonDone}
           selectedLesson={selectedLesson}
+          selectedTask={selectedTask}
           session={session}
+          taskFailureCounts={taskFailureCounts}
           terminalInput={terminalInput}
           onChatDraftChange={setChatDraft}
+          onCheckTask={checkSelectedTask}
           onCreateProject={createProject}
           onDeleteProject={deleteProject}
           onProjectChange={setCurrentProjectId}
@@ -531,6 +612,7 @@ function App() {
           onSendTerminalInput={sendTerminalInput}
           onMarkCourseDone={() => markCourseDone(selectedLesson)}
           onOpenNextCourseEntry={(entry) => openNextCourseEntry(selectedLesson, entry)}
+          onSelectTask={setSelectedTaskId}
           onSetLessonCollapsed={setLessonCollapsed}
           onTerminalInputChange={setTerminalInput}
           onUpdateCode={updateCode}
@@ -794,6 +876,7 @@ function IdeView({
   currentFile,
   currentProject,
   currentProjectId,
+  completedTaskKeys,
   lessonCollapsed,
   nextCourseEntry,
   projects,
@@ -801,9 +884,12 @@ function IdeView({
   saveStatus,
   selectedLesson,
   selectedLessonDone,
+  selectedTask,
   session,
+  taskFailureCounts,
   terminalInput,
   onChatDraftChange,
+  onCheckTask,
   onCreateProject,
   onDeleteProject,
   onProjectChange,
@@ -814,6 +900,7 @@ function IdeView({
   onSendTerminalInput,
   onMarkCourseDone,
   onOpenNextCourseEntry,
+  onSelectTask,
   onSetLessonCollapsed,
   onTerminalInputChange,
   onUpdateCode,
@@ -827,6 +914,7 @@ function IdeView({
   currentFile: ProjectRecord["files"][number] | undefined;
   currentProject: ProjectRecord | undefined;
   currentProjectId: string;
+  completedTaskKeys: Set<string>;
   lessonCollapsed: boolean;
   nextCourseEntry: CourseEntry | undefined;
   projects: ProjectRecord[];
@@ -834,9 +922,12 @@ function IdeView({
   saveStatus: string;
   selectedLesson: CourseEntry | undefined;
   selectedLessonDone: boolean;
+  selectedTask: ChallengeTask | undefined;
   session: Session | null;
+  taskFailureCounts: Record<string, number>;
   terminalInput: string;
   onChatDraftChange: (value: string) => void;
+  onCheckTask: () => void;
   onCreateProject: () => void;
   onDeleteProject: () => void;
   onProjectChange: (value: string) => void;
@@ -847,6 +938,7 @@ function IdeView({
   onSendTerminalInput: (event: FormEvent<HTMLFormElement>) => void;
   onMarkCourseDone: () => void;
   onOpenNextCourseEntry: (entry: CourseEntry) => void;
+  onSelectTask: (taskId: string) => void;
   onSetLessonCollapsed: (value: boolean) => void;
   onTerminalInputChange: (value: string) => void;
   onUpdateCode: (value: string | undefined) => void;
@@ -856,6 +948,16 @@ function IdeView({
   const [diagnosticsCollapsed, setDiagnosticsCollapsed] = useState(false);
   const [layout, setLayout] = useState<IdeLayout>(loadIdeLayout);
   const diagnostics = [...analysis.safety_findings, ...analysis.diagnostics];
+  const challengeTasks = selectedLesson?.tasks ?? [];
+  const selectedTaskKey = selectedLesson && selectedTask ? taskCompletionKey(selectedLesson.url, selectedTask.id) : "";
+  const selectedTaskDone = Boolean(selectedTaskKey && completedTaskKeys.has(selectedTaskKey));
+  const completedTaskCount = selectedLesson
+    ? challengeTasks.filter((task) => completedTaskKeys.has(taskCompletionKey(selectedLesson.url, task.id))).length
+    : 0;
+  const failedAttempts = selectedTaskKey ? (taskFailureCounts[selectedTaskKey] ?? 0) : 0;
+  const visibleHint = selectedTask && failedAttempts > 1 ? selectedTask.hints[Math.min(failedAttempts - 2, selectedTask.hints.length - 1)] : "";
+  const isChecking = runner.graderState.status === "checking" || runner.graderState.status === "loading";
+  const runnerBusy = runner.state.status === "loading" || runner.state.status === "running" || runner.state.status === "waiting";
   const mainClass = [
     "ide-main",
     lessonCollapsed ? "lesson-hidden" : "",
@@ -925,6 +1027,80 @@ function IdeView({
           </div>
         )}
         <div className="lesson-body markdown-body" dangerouslySetInnerHTML={{ __html: selectedLesson?.html ?? "" }} />
+        {!lessonCollapsed && selectedLesson && challengeTasks.length > 0 && selectedTask && (
+          <section className="challenge-grader" aria-label="Challenge autograder">
+            <div className="grader-heading">
+              <div>
+                <span className="eyebrow">Autograder</span>
+                <h2>{completedTaskCount} / {challengeTasks.length} tasks passed</h2>
+              </div>
+              {selectedLessonDone && (
+                <span className="done-badge">
+                  <CheckCircle size={14} /> Done
+                </span>
+              )}
+            </div>
+            <div className="task-tabs" role="tablist" aria-label="Challenge tasks">
+              {challengeTasks.map((task, index) => {
+                const taskDone = completedTaskKeys.has(taskCompletionKey(selectedLesson.url, task.id));
+                return (
+                  <button
+                    aria-selected={task.id === selectedTask.id}
+                    className={[
+                      "task-tab",
+                      task.id === selectedTask.id ? "active" : "",
+                      taskDone ? "done" : ""
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                    key={task.id}
+                    onClick={() => {
+                      onSelectTask(task.id);
+                      runner.resetGrade();
+                    }}
+                    role="tab"
+                    type="button"
+                  >
+                    <span>Task {index + 1}</span>
+                    <strong>{task.title}</strong>
+                    {taskDone && <CheckCircle size={15} />}
+                  </button>
+                );
+              })}
+            </div>
+            <article className="task-detail">
+              <h3>{selectedTask.title}</h3>
+              <p>{selectedTask.prompt}</p>
+              <div className="example-grid">
+                <div>
+                  <span>Input</span>
+                  <pre>{selectedTask.visibleExample.input.length ? selectedTask.visibleExample.input.join("\n") : "No input"}</pre>
+                </div>
+                <div>
+                  <span>Expected output</span>
+                  <pre>{selectedTask.visibleExample.output}</pre>
+                </div>
+              </div>
+              <button
+                className="primary-button"
+                disabled={busy || isChecking || runnerBusy || !currentFile || selectedTaskDone}
+                onClick={onCheckTask}
+                type="button"
+              >
+                {selectedTaskDone ? (
+                  <>
+                    <CheckCircle size={17} /> Passed
+                  </>
+                ) : isChecking ? (
+                  "Checking..."
+                ) : (
+                  "Check answer"
+                )}
+              </button>
+              <GradeFeedback result={runner.graderState.result} status={runner.graderState.status} visibleHint={visibleHint} />
+            </article>
+          </section>
+        )}
         {selectedLesson && (
           <div className="lesson-actions">
             {nextCourseEntry ? (
@@ -1177,6 +1353,64 @@ function IdeView({
         <span>Allowed packages: numpy, pandas, matplotlib</span>
       </footer>
     </main>
+  );
+}
+
+function GradeFeedback({
+  result,
+  status,
+  visibleHint
+}: {
+  result: GradeResult | null;
+  status: ReturnType<typeof usePyodideRunner>["graderState"]["status"];
+  visibleHint: string;
+}) {
+  if (status === "idle" || status === "loading" || status === "checking") return null;
+  if (status === "error") {
+    return (
+      <div className="grade-feedback failed" aria-live="polite">
+        <strong>Could not check this answer.</strong>
+      </div>
+    );
+  }
+  if (!result) return null;
+
+  const visibleResults = result.tests.filter((test) => test.visible);
+  const hiddenResults = result.tests.filter((test) => !test.visible);
+  const hiddenPassed = hiddenResults.filter((test) => test.passed).length;
+
+  return (
+    <div className={result.passed ? "grade-feedback passed" : "grade-feedback failed"} aria-live="polite">
+      <strong>{result.passed ? "Passed" : "Not quite yet"}</strong>
+      {visibleResults.map((test) => (
+        <div className="grade-test-result" key={test.id}>
+          <span>{test.name}</span>
+          <p>{test.passed ? "The visible example matched." : test.message}</p>
+          {!test.passed && (
+            <div className="example-grid">
+              <div>
+                <span>Expected</span>
+                <pre>{test.expectedOutput || "No output"}</pre>
+              </div>
+              <div>
+                <span>Your output</span>
+                <pre>{test.actualOutput || "No output"}</pre>
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+      {hiddenResults.length > 0 && (
+        <p>
+          Hidden checks: {hiddenPassed} / {hiddenResults.length} passed
+        </p>
+      )}
+      {!result.passed && visibleHint && (
+        <p className="hint-text">
+          <strong>Hint:</strong> {visibleHint}
+        </p>
+      )}
+    </div>
   );
 }
 

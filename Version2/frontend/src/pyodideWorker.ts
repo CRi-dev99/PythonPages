@@ -9,6 +9,29 @@ type PyodideApi = {
   setStderr: (options: { batched: (text: string) => void }) => void;
 };
 
+type GradeMatch = "exact" | "contains" | "regex" | "line-count";
+
+type GradeTest = {
+  id: string;
+  name: string;
+  input?: string[];
+  expectedOutput?: string;
+  expectedLineCount?: number;
+  match?: GradeMatch;
+  visible?: boolean;
+};
+
+type GradeTestResult = {
+  id: string;
+  name: string;
+  input: string[];
+  expectedOutput: string;
+  actualOutput: string;
+  passed: boolean;
+  visible: boolean;
+  message: string;
+};
+
 let pyodide: PyodideApi | null = null;
 let pyodidePromise: Promise<PyodideApi> | null = null;
 let currentCode = "";
@@ -16,6 +39,7 @@ let queuedInputs: string[] = [];
 let outputBuffer = "";
 let stderrBuffer = "";
 let runToken = 0;
+let gradeToken = 0;
 
 const allowedPackages = new Set(["numpy", "pandas", "matplotlib"]);
 const packageAliases = new Map([
@@ -39,6 +63,9 @@ self.onmessage = async (event: MessageEvent) => {
     if (message.type === "input") {
       queuedInputs.push(String(message.value ?? ""));
       await execute(++runToken);
+    }
+    if (message.type === "grade") {
+      await gradeCode(String(message.code || ""), Array.isArray(message.tests) ? message.tests : [], ++gradeToken);
     }
   } catch (error) {
     postMessage({ type: "error", error: error instanceof Error ? error.message : String(error) });
@@ -89,6 +116,92 @@ async function execute(token: number): Promise<void> {
   postMessage({ type: "output", status: "finished", output });
 }
 
+async function gradeCode(code: string, tests: GradeTest[], token: number): Promise<void> {
+  const runtime = await ensurePyodide();
+  postMessage({ type: "status", message: "Checking answer..." });
+  const packages = packagesFor(code);
+  if (packages.length) {
+    postMessage({ type: "status", message: `Loading ${packages.join(", ")}...` });
+    await runtime.loadPackage(packages);
+  }
+
+  const results: GradeTestResult[] = [];
+  for (const test of tests) {
+    outputBuffer = "";
+    stderrBuffer = "";
+    const inputs = Array.isArray(test.input) ? test.input.map((item) => String(item)) : [];
+    const result = (await runtime.runPythonAsync(buildScript(code, inputs, true))) as string;
+    if (token !== gradeToken) return;
+
+    const parsed = JSON.parse(result) as { status: string; prompt?: string; error?: string };
+    const actualOutput = trimOutput(`${outputBuffer}${stderrBuffer}`);
+    results.push(evaluateTest(test, parsed.status, actualOutput, parsed.error || parsed.prompt || ""));
+  }
+
+  postMessage({ type: "grade-result", result: { passed: results.every((result) => result.passed), tests: results } });
+}
+
+function evaluateTest(test: GradeTest, status: string, actualOutput: string, runtimeMessage: string): GradeTestResult {
+  const expectedOutput = test.expectedOutput ?? "";
+  if (status === "waiting_for_input") {
+    return {
+      id: test.id,
+      name: test.name,
+      input: test.input ?? [],
+      expectedOutput,
+      actualOutput,
+      passed: false,
+      visible: Boolean(test.visible),
+      message: "The code asked for more input than this task provides."
+    };
+  }
+  if (status === "error") {
+    return {
+      id: test.id,
+      name: test.name,
+      input: test.input ?? [],
+      expectedOutput,
+      actualOutput,
+      passed: false,
+      visible: Boolean(test.visible),
+      message: runtimeMessage || "The code raised an error."
+    };
+  }
+
+  const passed = outputMatches(test, actualOutput);
+  return {
+    id: test.id,
+    name: test.name,
+    input: test.input ?? [],
+    expectedOutput: test.match === "line-count" ? `${test.expectedLineCount ?? 0} line(s)` : expectedOutput,
+    actualOutput,
+    passed,
+    visible: Boolean(test.visible),
+    message: passed ? "Passed" : "Expected output did not match."
+  };
+}
+
+function outputMatches(test: GradeTest, actualOutput: string): boolean {
+  const match = test.match ?? "exact";
+  const actual = normalizeOutput(actualOutput);
+  const expected = normalizeOutput(test.expectedOutput ?? "");
+  if (match === "contains") return actual.includes(expected);
+  if (match === "regex") return new RegExp(test.expectedOutput ?? "", "m").test(actual);
+  if (match === "line-count") return countOutputLines(actualOutput) === (test.expectedLineCount ?? 0);
+  return actual === expected;
+}
+
+function normalizeOutput(output: string): string {
+  const lines = output.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n").map((line) => line.trimEnd());
+  while (lines.length && lines[lines.length - 1] === "") lines.pop();
+  return lines.join("\n").trim();
+}
+
+function countOutputLines(output: string): number {
+  const normalized = normalizeOutput(output);
+  return normalized ? normalized.split("\n").length : 0;
+}
+
 function packagesFor(code: string): string[] {
   const found = new Set<string>();
   const importPattern = /^\s*(?:import|from)\s+([A-Za-z_][\w.]*)(?:\s+as\s+([A-Za-z_]\w*))?/gm;
@@ -101,7 +214,7 @@ function packagesFor(code: string): string[] {
   return [...found];
 }
 
-function buildScript(code: string, inputs: string[]): string {
+function buildScript(code: string, inputs: string[], isolated = false): string {
   return `
 import builtins
 import json
@@ -139,7 +252,8 @@ try:
     builtins.__import__ = __py_ide_import
     builtins.input = __py_ide_input
     try:
-        exec(compile(${JSON.stringify(code)}, "student_code.py", "exec"), globals(), globals())
+        __py_ide_globals = {"__name__": "__main__"} if ${isolated ? "True" : "False"} else globals()
+        exec(compile(${JSON.stringify(code)}, "student_code.py", "exec"), __py_ide_globals, __py_ide_globals)
     except __PyIdeNeedInput as exc:
         __py_ide_result["status"] = "waiting_for_input"
         __py_ide_result["prompt"] = str(exc)
