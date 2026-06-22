@@ -151,7 +151,7 @@ window.COURSE_DATA = [
     "number": 1,
     "title": "Challenge 1",
     "url": "challenge1.html",
-    "html": "<h3>Challenge 1</h3>\n<p>Print your name.</p>\n<h3>Challenge 2</h3>\n<p>Print your name, age and favourite subject on three separate lines.</p>\n<h3>Challenge 3</h3>\n<p>Print a small menu that looks like this:</p>\n<pre><code>1. Play\n2. Settings\n3. Quit</code></pre>\n<h3>Challenge 4</h3>\n<p>Print a simple drawing using only print statements.</p>\n<h3>Challenge 5</h3>\n<p>Create a fake receipt that shows a shop name, three items and a total price.</p>",
+    "html": "<h3>Challenge 1</h3>\n<p>Print the name Paddy.</p>\n<h3>Challenge 2</h3>\n<p>Print Paddy, 16, and Computer Science on three separate lines.</p>\n<h3>Challenge 3</h3>\n<p>Print a small menu that looks like this:</p>\n<pre><code>1. Play\n2. Settings\n3. Quit</code></pre>\n<h3>Challenge 4</h3>\n<p>Print this star drawing exactly as shown:</p>\n<pre><code>***\n* *\n***</code></pre>\n<h3>Challenge 5</h3>\n<p>Print this fake receipt exactly as shown:</p>\n<pre><code>PythonPages Shop\nPencil - 1.50\nNotebook - 2.00\nTotal - 3.50</code></pre>",
     "tasks": [
       {
         "id": "print-name",

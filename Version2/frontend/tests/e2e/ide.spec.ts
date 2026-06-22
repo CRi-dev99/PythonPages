@@ -132,7 +132,7 @@ test("graded challenge shows mini tasks and expected output", async ({ page }) =
   await expect(page.getByLabel("Challenge autograder")).toContainText("0 / 5 tasks passed");
   await expect(page.getByRole("tab")).toHaveCount(5);
   await expect(page.getByRole("tab", { name: /Task 1\s+Print a name/ })).toHaveAttribute("aria-selected", "true");
-  await expect(page.getByText("Print the name Paddy.")).toBeVisible();
+  await expect(page.getByLabel("Challenge autograder").getByText("Print the name Paddy.")).toBeVisible();
   await expect(page.getByText("Expected output")).toBeVisible();
   await expect(page.locator(".task-detail pre").last()).toContainText("Paddy");
   await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
