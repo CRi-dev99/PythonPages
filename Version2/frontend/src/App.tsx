@@ -4,6 +4,7 @@ import {
   ArrowRight,
   BookOpen,
   Bug,
+  CheckCircle,
   Cloud,
   FileCode2,
   FolderPlus,
@@ -27,8 +28,12 @@ import {
   createCloudProject,
   createLocalProject,
   deleteCloudProject,
+  loadCloudCompletions,
   loadCloudProjects,
+  loadLocalCompletions,
   loadLocalProjects,
+  markCloudCompletion,
+  markLocalCompletion,
   saveCloudProject,
   saveLocalProjects
 } from "./lib/storage";
@@ -69,6 +74,7 @@ function App() {
   const [authStatus, setAuthStatus] = useState("");
   const [projects, setProjects] = useState<ProjectRecord[]>([]);
   const [currentProjectId, setCurrentProjectId] = useState("");
+  const [completedCourseUrls, setCompletedCourseUrls] = useState<Set<string>>(() => new Set(loadLocalCompletions()));
   const [saveStatus, setSaveStatus] = useState("Not saved yet");
   const [analysis, setAnalysis] = useState<AnalysisResult>(emptyAnalysis);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -86,6 +92,7 @@ function App() {
   const selectedEntries = courseData.filter((entry) => entry.type === courseType);
   const selectedLesson = selectedEntries.find((entry) => entry.number === selectedNumber) ?? selectedEntries[0];
   const nextCourseEntry = selectedLesson ? getNextCourseEntry(courseData, selectedLesson) : undefined;
+  const selectedLessonDone = selectedLesson ? completedCourseUrls.has(selectedLesson.url) : false;
   const currentProject = projects.find((project) => project.id === currentProjectId) ?? projects[0];
   const currentFile = currentProject?.files[0];
   const code = currentFile?.content ?? "";
@@ -160,6 +167,26 @@ function App() {
   }, [session]);
 
   useEffect(() => {
+    let cancelled = false;
+    async function loadCompletions() {
+      if (supabase && session) {
+        try {
+          const cloudCompletions = await loadCloudCompletions(session);
+          if (!cancelled) setCompletedCourseUrls(new Set(cloudCompletions));
+        } catch (error) {
+          if (!cancelled) setSaveStatus(error instanceof Error ? error.message : "Could not load course progress");
+        }
+        return;
+      }
+      setCompletedCourseUrls(new Set(loadLocalCompletions()));
+    }
+    loadCompletions();
+    return () => {
+      cancelled = true;
+    };
+  }, [session]);
+
+  useEffect(() => {
     if (!currentProject) return;
     setProjects((current) =>
       current.map((project) =>
@@ -192,6 +219,32 @@ function App() {
     setLessonCollapsed(false);
     setView("ide");
     window.history.replaceState(null, "", `?page=${encodeURIComponent(entry.url)}`);
+  }
+
+  async function markCourseDone(entry: CourseEntry | undefined) {
+    if (!entry || completedCourseUrls.has(entry.url)) return;
+    setCompletedCourseUrls((current) => new Set([...current, entry.url]));
+    try {
+      if (supabase && session) {
+        await markCloudCompletion(session, entry.url);
+        setSaveStatus(`${entry.title} marked done`);
+      } else {
+        markLocalCompletion(entry.url);
+        setSaveStatus(`${entry.title} marked done locally`);
+      }
+    } catch (error) {
+      setCompletedCourseUrls((current) => {
+        const next = new Set(current);
+        next.delete(entry.url);
+        return next;
+      });
+      setSaveStatus(error instanceof Error ? error.message : "Could not save course progress");
+    }
+  }
+
+  async function openNextCourseEntry(currentEntry: CourseEntry | undefined, nextEntry: CourseEntry) {
+    await markCourseDone(currentEntry);
+    openCourseEntry(nextEntry);
   }
 
   function openAuth(nextMode: "signin" | "signup") {
@@ -417,9 +470,21 @@ function App() {
           onNavigate={navigate}
         />
       )}
-      {view === "tutorials" && <CourseDirectory title="Tutorials" entries={courseData.filter((entry) => entry.type === "tutorial")} onOpen={openCourseEntry} />}
+      {view === "tutorials" && (
+        <CourseDirectory
+          title="Tutorials"
+          entries={courseData.filter((entry) => entry.type === "tutorial")}
+          completedCourseUrls={completedCourseUrls}
+          onOpen={openCourseEntry}
+        />
+      )}
       {view === "challenges" && (
-        <CourseDirectory title="Challenges" entries={courseData.filter((entry) => entry.type === "challenge")} onOpen={openCourseEntry} />
+        <CourseDirectory
+          title="Challenges"
+          entries={courseData.filter((entry) => entry.type === "challenge")}
+          completedCourseUrls={completedCourseUrls}
+          onOpen={openCourseEntry}
+        />
       )}
       {view === "setup" && <SetupView onOpenIde={() => navigate("ide")} onSignUp={() => openAuth("signup")} />}
       {(view === "login" || view === "signup") && (
@@ -449,6 +514,7 @@ function App() {
           runner={runner}
           saveStatus={saveStatus}
           nextCourseEntry={nextCourseEntry}
+          selectedLessonDone={selectedLessonDone}
           selectedLesson={selectedLesson}
           session={session}
           terminalInput={terminalInput}
@@ -461,7 +527,8 @@ function App() {
           onSave={() => saveCurrentProject(true)}
           onSendChat={sendChat}
           onSendTerminalInput={sendTerminalInput}
-          onOpenCourseEntry={openCourseEntry}
+          onMarkCourseDone={() => markCourseDone(selectedLesson)}
+          onOpenNextCourseEntry={(entry) => openNextCourseEntry(selectedLesson, entry)}
           onSetLessonCollapsed={setLessonCollapsed}
           onTerminalInputChange={setTerminalInput}
           onUpdateCode={updateCode}
@@ -520,7 +587,17 @@ function HomeView({
   );
 }
 
-function CourseDirectory({ entries, onOpen, title }: { entries: CourseEntry[]; onOpen: (entry: CourseEntry) => void; title: string }) {
+function CourseDirectory({
+  completedCourseUrls,
+  entries,
+  onOpen,
+  title
+}: {
+  completedCourseUrls: Set<string>;
+  entries: CourseEntry[];
+  onOpen: (entry: CourseEntry) => void;
+  title: string;
+}) {
   return (
     <main className="directory-view" aria-labelledby={`${title.toLowerCase()}-title`}>
       <div className="section-heading">
@@ -528,12 +605,20 @@ function CourseDirectory({ entries, onOpen, title }: { entries: CourseEntry[]; o
         <h1 id={`${title.toLowerCase()}-title`}>{title}</h1>
       </div>
       <div className="course-grid">
-        {entries.map((entry) => (
-          <button className="course-card" key={entry.url} type="button" onClick={() => onOpen(entry)}>
-            <span>{entry.type === "tutorial" ? "Lesson" : "Challenge"} {entry.number}</span>
-            <strong>{entry.title}</strong>
-          </button>
-        ))}
+        {entries.map((entry) => {
+          const isDone = completedCourseUrls.has(entry.url);
+          return (
+            <button className={isDone ? "course-card done" : "course-card"} key={entry.url} type="button" onClick={() => onOpen(entry)}>
+              <span>{entry.type === "tutorial" ? "Lesson" : "Challenge"} {entry.number}</span>
+              <strong>{entry.title}</strong>
+              {isDone && (
+                <small className="done-badge">
+                  <CheckCircle size={14} /> Done
+                </small>
+              )}
+            </button>
+          );
+        })}
       </div>
     </main>
   );
@@ -688,6 +773,7 @@ function IdeView({
   runner,
   saveStatus,
   selectedLesson,
+  selectedLessonDone,
   session,
   terminalInput,
   onChatDraftChange,
@@ -699,7 +785,8 @@ function IdeView({
   onSave,
   onSendChat,
   onSendTerminalInput,
-  onOpenCourseEntry,
+  onMarkCourseDone,
+  onOpenNextCourseEntry,
   onSetLessonCollapsed,
   onTerminalInputChange,
   onUpdateCode,
@@ -719,6 +806,7 @@ function IdeView({
   runner: ReturnType<typeof usePyodideRunner>;
   saveStatus: string;
   selectedLesson: CourseEntry | undefined;
+  selectedLessonDone: boolean;
   session: Session | null;
   terminalInput: string;
   onChatDraftChange: (value: string) => void;
@@ -730,7 +818,8 @@ function IdeView({
   onSave: () => void;
   onSendChat: (event: FormEvent<HTMLFormElement>) => void;
   onSendTerminalInput: (event: FormEvent<HTMLFormElement>) => void;
-  onOpenCourseEntry: (entry: CourseEntry) => void;
+  onMarkCourseDone: () => void;
+  onOpenNextCourseEntry: (entry: CourseEntry) => void;
   onSetLessonCollapsed: (value: boolean) => void;
   onTerminalInputChange: (value: string) => void;
   onUpdateCode: (value: string | undefined) => void;
@@ -802,12 +891,24 @@ function IdeView({
             {lessonCollapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
           </button>
         </div>
+        {!lessonCollapsed && selectedLesson && (
+          <div className={selectedLessonDone ? "lesson-progress done" : "lesson-progress"}>
+            {selectedLessonDone && <CheckCircle size={15} />}
+            {selectedLessonDone ? "Done" : "In progress"}
+          </div>
+        )}
         <div className="lesson-body markdown-body" dangerouslySetInnerHTML={{ __html: selectedLesson?.html ?? "" }} />
-        {nextCourseEntry && (
+        {selectedLesson && (
           <div className="lesson-actions">
-            <button className="primary-button" type="button" onClick={() => onOpenCourseEntry(nextCourseEntry)}>
-              Go to {nextCourseEntry.title} <ArrowRight size={17} />
-            </button>
+            {nextCourseEntry ? (
+              <button className="primary-button" type="button" onClick={() => onOpenNextCourseEntry(nextCourseEntry)}>
+                Go to {nextCourseEntry.title} <ArrowRight size={17} />
+              </button>
+            ) : (
+              <button className="primary-button" type="button" onClick={onMarkCourseDone} disabled={selectedLessonDone}>
+                <CheckCircle size={17} /> Done
+              </button>
+            )}
           </div>
         )}
       </section>

@@ -275,6 +275,16 @@ button {
   text-align: left;
 }
 
+.course-card.done {
+  border-color: #acd9c2;
+  background: #f2fbf6;
+}
+
+.course-card.done:hover {
+  border-color: #80c49f;
+  background: #e9f8ef;
+}
+
 .course-card span,
 .course-card strong {
   display: block;
@@ -291,6 +301,21 @@ button {
   margin-top: 8px;
   font-size: 1.05rem;
   line-height: 1.3;
+}
+
+.done-badge {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  margin-top: 12px;
+  border: 1px solid #acd9c2;
+  border-radius: 999px;
+  padding: 4px 8px;
+  color: var(--green);
+  background: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .setup-panel,
@@ -414,6 +439,7 @@ button {
 }
 
 .lesson-hidden .lesson-pane .lesson-body,
+.lesson-hidden .lesson-pane .lesson-progress,
 .lesson-hidden .lesson-pane .panel-title h1,
 .lesson-hidden .lesson-pane .panel-title svg:first-child {
   display: none;
@@ -440,6 +466,28 @@ button {
 
 .lesson-actions .primary-button {
   width: 100%;
+}
+
+.lesson-progress {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  min-height: 28px;
+  margin: -4px 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 8px;
+  color: var(--muted);
+  background: #f8fafc;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.lesson-progress.done {
+  border-color: #acd9c2;
+  color: var(--green);
+  background: #f2fbf6;
 }
 
 .resize-handle {

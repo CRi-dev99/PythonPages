@@ -45,11 +45,19 @@ create table if not exists public.chat_messages (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.course_completions (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  course_url text not null,
+  completed_at timestamptz not null default now(),
+  primary key (user_id, course_url)
+);
+
 alter table public.profiles enable row level security;
 alter table public.projects enable row level security;
 alter table public.project_files enable row level security;
 alter table public.chat_threads enable row level security;
 alter table public.chat_messages enable row level security;
+alter table public.course_completions enable row level security;
 
 create policy "profiles are owned by the signed in user"
   on public.profiles for all
@@ -88,3 +96,7 @@ create policy "chat messages are owned by the signed in user"
     )
   );
 
+create policy "course completions are owned by the signed in user"
+  on public.course_completions for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);

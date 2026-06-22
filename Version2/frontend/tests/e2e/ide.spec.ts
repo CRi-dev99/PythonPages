@@ -10,6 +10,10 @@ async function activeNavLabels(page: Page) {
     .evaluateAll((buttons) => buttons.map((button) => button.textContent?.trim() ?? ""));
 }
 
+function doneBadgeFor(page: Page, cardName: RegExp) {
+  return page.getByRole("button", { name: cardName }).locator(".done-badge");
+}
+
 test("loads the landing page and top navigation", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Learn Python in a real browser IDE." })).toBeVisible();
@@ -70,6 +74,37 @@ test("lesson pane next button moves from lesson 1 to challenge 1 to lesson 2", a
   await expect(page.getByRole("heading", { name: "Lesson 2: variables", level: 1 })).toBeVisible();
   await expect(page.getByRole("button", { name: "Go to Challenge 2" })).toBeVisible();
   await expect.poll(() => page.url()).toContain("page=");
+
+  await mainNav(page).getByRole("button", { name: "Tutorials" }).click();
+  await expect(doneBadgeFor(page, /Lesson 1\s+Lesson 1: print\(\)/)).toHaveText("Done");
+  await mainNav(page).getByRole("button", { name: "Challenges" }).click();
+  await expect(doneBadgeFor(page, /Challenge 1\s+Challenge 1/)).toHaveText("Done");
+});
+
+test("local course completion persists after reload", async ({ page }) => {
+  await page.goto("/");
+  await mainNav(page).getByRole("button", { name: "IDE" }).click();
+  await page.getByRole("button", { name: "Go to Challenge 1" }).click();
+  await expect(page.getByRole("heading", { name: "Challenge 1", level: 1 })).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Challenge 1", level: 1 })).toBeVisible();
+  await mainNav(page).getByRole("button", { name: "Tutorials" }).click();
+  await expect(doneBadgeFor(page, /Lesson 1\s+Lesson 1: print\(\)/)).toHaveText("Done");
+});
+
+test("final course item can be marked done", async ({ page }) => {
+  await page.goto("/?page=challenge21.html");
+  await expect(page.getByRole("heading", { name: "Challenge 21", level: 1 })).toBeVisible();
+  const doneButton = page.locator(".lesson-actions").getByRole("button", { name: "Done" });
+
+  await expect(doneButton).toBeEnabled();
+  await doneButton.click();
+  await expect(doneButton).toBeDisabled();
+  await expect(page.locator(".lesson-progress.done")).toContainText("Done");
+
+  await mainNav(page).getByRole("button", { name: "Challenges" }).click();
+  await expect(doneBadgeFor(page, /Challenge 21\s+Challenge 21/)).toHaveText("Done");
 });
 
 test("opens setup and auth views", async ({ page }) => {

@@ -3,6 +3,7 @@ import { supabase } from "./supabase";
 import type { Session } from "@supabase/supabase-js";
 
 const LOCAL_KEY = "pythonpages:v2:projects";
+const LOCAL_COMPLETIONS_KEY = "pythonpages:v2:course-completions";
 
 export const starterCode = 'name = input("What is your name? ")\nprint("Hello", name)\n';
 
@@ -35,6 +36,23 @@ export function saveLocalProjects(projects: ProjectRecord[]): void {
   localStorage.setItem(LOCAL_KEY, JSON.stringify(projects));
 }
 
+export function loadLocalCompletions(): string[] {
+  const raw = localStorage.getItem(LOCAL_COMPLETIONS_KEY);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+export function markLocalCompletion(courseUrl: string): string[] {
+  const next = Array.from(new Set([...loadLocalCompletions(), courseUrl]));
+  localStorage.setItem(LOCAL_COMPLETIONS_KEY, JSON.stringify(next));
+  return next;
+}
+
 export async function loadCloudProjects(session: Session): Promise<ProjectRecord[]> {
   if (!supabase) return loadLocalProjects();
   const { data: projects, error } = await supabase
@@ -57,6 +75,33 @@ export async function loadCloudProjects(session: Session): Promise<ProjectRecord
     ...project,
     files: (files ?? []).filter((file) => file.project_id === project.id)
   })) as ProjectRecord[];
+}
+
+export async function loadCloudCompletions(session: Session): Promise<string[]> {
+  if (!supabase) return loadLocalCompletions();
+  const { data, error } = await supabase
+    .from("course_completions")
+    .select("course_url")
+    .eq("user_id", session.user.id)
+    .order("completed_at", { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map((completion) => completion.course_url).filter((courseUrl): courseUrl is string => typeof courseUrl === "string");
+}
+
+export async function markCloudCompletion(session: Session, courseUrl: string): Promise<void> {
+  if (!supabase) {
+    markLocalCompletion(courseUrl);
+    return;
+  }
+  const { error } = await supabase.from("course_completions").upsert(
+    {
+      user_id: session.user.id,
+      course_url: courseUrl,
+      completed_at: new Date().toISOString()
+    },
+    { onConflict: "user_id,course_url" }
+  );
+  if (error) throw error;
 }
 
 export async function createCloudProject(session: Session, title: string): Promise<ProjectRecord> {
@@ -113,4 +158,3 @@ export async function deleteCloudProject(projectId: string): Promise<void> {
   if (!supabase) return;
   await supabase.from("projects").delete().eq("id", projectId);
 }
-
