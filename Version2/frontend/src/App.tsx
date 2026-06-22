@@ -949,6 +949,7 @@ function IdeView({
   const [layout, setLayout] = useState<IdeLayout>(loadIdeLayout);
   const diagnostics = [...analysis.safety_findings, ...analysis.diagnostics];
   const challengeTasks = selectedLesson?.tasks ?? [];
+  const selectedLessonIsGraded = challengeTasks.length > 0;
   const selectedTaskKey = selectedLesson && selectedTask ? taskCompletionKey(selectedLesson.url, selectedTask.id) : "";
   const selectedTaskDone = Boolean(selectedTaskKey && completedTaskKeys.has(selectedTaskKey));
   const completedTaskCount = selectedLesson
@@ -1106,6 +1107,10 @@ function IdeView({
             {nextCourseEntry ? (
               <button className="primary-button" type="button" onClick={() => onOpenNextCourseEntry(nextCourseEntry)}>
                 Go to {nextCourseEntry.title} <ArrowRight size={17} />
+              </button>
+            ) : selectedLessonIsGraded ? (
+              <button className="primary-button" type="button" disabled>
+                <CheckCircle size={17} /> {selectedLessonDone ? "Done" : "Pass all tasks to finish"}
               </button>
             ) : (
               <button className="primary-button" type="button" onClick={onMarkCourseDone} disabled={selectedLessonDone}>

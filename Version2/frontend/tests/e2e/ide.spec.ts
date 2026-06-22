@@ -133,9 +133,64 @@ test("graded challenge shows mini tasks and expected output", async ({ page }) =
   await expect(page.getByRole("tab")).toHaveCount(5);
   await expect(page.getByRole("tab", { name: /Task 1\s+Print a name/ })).toHaveAttribute("aria-selected", "true");
   await expect(page.getByLabel("Challenge autograder").getByText("Print the name Paddy.")).toBeVisible();
-  await expect(page.getByText("Expected output")).toBeVisible();
+  await expect(page.getByLabel("Challenge autograder").getByText("Expected output")).toBeVisible();
   await expect(page.locator(".task-detail pre").last()).toContainText("Paddy");
   await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
+});
+
+test("all challenge pages expose five graded mini tasks", async ({ page }) => {
+  await page.goto("/");
+
+  const data = await page.evaluate(() => {
+    const challenges = window.COURSE_DATA?.filter((entry) => entry.type === "challenge") ?? [];
+    return challenges.map((entry) => ({
+      url: entry.url,
+      taskCount: entry.tasks?.length ?? 0,
+      uniqueTaskCount: new Set((entry.tasks ?? []).map((task) => task.id)).size
+    }));
+  });
+
+  expect(data).toHaveLength(21);
+  expect(data.filter((entry) => entry.taskCount !== 5 || entry.uniqueTaskCount !== 5)).toEqual([]);
+
+  for (let number = 1; number <= 21; number += 1) {
+    await page.goto(`/?page=challenge${number}.html`);
+    await expect(page.getByRole("heading", { name: `Challenge ${number}`, level: 1 })).toBeVisible();
+    await expect(page.getByLabel("Challenge autograder")).toContainText("0 / 5 tasks passed");
+    await expect(page.getByRole("tab")).toHaveCount(5);
+  }
+});
+
+test("graded task data includes source, assertion, class, recursion, and algorithm checks", async ({ page }) => {
+  await page.goto("/");
+
+  const checks = await page.evaluate(() => {
+    const challenges = window.COURSE_DATA?.filter((entry) => entry.type === "challenge") ?? [];
+    const byUrl = new Map(challenges.map((entry) => [entry.url, entry]));
+    const challenge2 = byUrl.get("challenge2.html");
+    const challenge3 = byUrl.get("challenge3.html");
+    const challenge13 = byUrl.get("challenge13.html");
+    const challenge18 = byUrl.get("challenge18.html");
+    const challenge20 = byUrl.get("challenge20.html");
+    const challenge21 = byUrl.get("challenge21.html");
+    return {
+      variableSource: Boolean(challenge2?.tasks?.[0]?.tests.some((test) => test.sourceRegexes?.length)),
+      inputBranch: Boolean(challenge3?.tasks?.[0]?.tests.some((test) => test.input?.includes("Paddy"))),
+      functionAssertion: Boolean(challenge13?.tasks?.some((task) => task.tests.some((test) => test.assertion))),
+      classAssertion: Boolean(challenge18?.tasks?.some((task) => task.tests.some((test) => test.assertion?.includes("Student")))),
+      recursionAssertion: Boolean(challenge20?.tasks?.some((task) => task.tests.some((test) => test.assertion?.includes("countdown")))),
+      algorithmForbid: Boolean(challenge21?.tasks?.some((task) => task.tests.some((test) => test.sourceNotRegexes?.some((pattern) => pattern.includes("max")))))
+    };
+  });
+
+  expect(checks).toEqual({
+    variableSource: true,
+    inputBranch: true,
+    functionAssertion: true,
+    classAssertion: true,
+    recursionAssertion: true,
+    algorithmForbid: true
+  });
 });
 
 test("graded challenge reveals hints after repeated failed checks", async ({ page }) => {
@@ -218,14 +273,22 @@ test("local course completion persists after reload", async ({ page }) => {
   await expect(doneBadgeFor(page, /Lesson 1\s+Lesson 1: print\(\)/)).toHaveText("Done");
 });
 
-test("final course item can be marked done", async ({ page }) => {
+test("final graded challenge cannot be manually marked done before tasks pass", async ({ page }) => {
+  await installFakeGrader(page);
   await page.goto("/?page=challenge21.html");
   await expect(page.getByRole("heading", { name: "Challenge 21", level: 1 })).toBeVisible();
-  const doneButton = page.locator(".lesson-actions").getByRole("button", { name: "Done" });
+  const finishButton = page.locator(".lesson-actions").getByRole("button", { name: "Pass all tasks to finish" });
 
-  await expect(doneButton).toBeEnabled();
-  await doneButton.click();
-  await expect(doneButton).toBeDisabled();
+  await expect(finishButton).toBeDisabled();
+  await expect(page.locator(".lesson-progress.done")).toHaveCount(0);
+
+  for (let index = 0; index < 5; index += 1) {
+    await page.getByRole("tab").nth(index).click();
+    await setEditorCode(page, "# pass");
+    await page.getByRole("button", { name: "Check answer" }).click();
+  }
+
+  await expect(page.locator(".lesson-actions").getByRole("button", { name: "Done" })).toBeDisabled();
   await expect(page.locator(".lesson-progress.done")).toContainText("Done");
 
   await mainNav(page).getByRole("button", { name: "Challenges" }).click();
@@ -305,6 +368,7 @@ test("can create a local project from the IDE", async ({ page }) => {
 });
 
 test("IDE keeps the editor central with collapsible and resizable tools", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
   await page.route("**/api/analyze", async (route) => {
     await route.fulfill({
       status: 200,

@@ -18,6 +18,12 @@ type GradeTest = {
   expectedOutput?: string;
   expectedLineCount?: number;
   match?: GradeMatch;
+  assertion?: string;
+  sourceIncludes?: string[];
+  sourceExcludes?: string[];
+  sourceRegexes?: string[];
+  sourceNotRegexes?: string[];
+  stepLimit?: number;
   visible?: boolean;
 };
 
@@ -100,7 +106,7 @@ async function execute(token: number): Promise<void> {
     await runtime.loadPackage(packages);
   }
 
-  const result = (await runtime.runPythonAsync(buildScript(currentCode, queuedInputs))) as string;
+  const result = (await runtime.runPythonAsync(buildScript(currentCode, queuedInputs, { isolated: false, echoInput: true }))) as string;
   if (token !== runToken) return;
   const parsed = JSON.parse(result) as { status: string; prompt?: string; error?: string };
   const output = trimOutput(`${outputBuffer}${stderrBuffer}`);
@@ -118,10 +124,10 @@ async function execute(token: number): Promise<void> {
 
 async function gradeCode(code: string, tests: GradeTest[], token: number): Promise<void> {
   const runtime = await ensurePyodide();
-  postMessage({ type: "status", message: "Checking answer..." });
+  postMessage({ type: "grade-status", message: "Checking answer..." });
   const packages = packagesFor(code);
   if (packages.length) {
-    postMessage({ type: "status", message: `Loading ${packages.join(", ")}...` });
+    postMessage({ type: "grade-status", message: `Loading ${packages.join(", ")}...` });
     await runtime.loadPackage(packages);
   }
 
@@ -130,12 +136,30 @@ async function gradeCode(code: string, tests: GradeTest[], token: number): Promi
     outputBuffer = "";
     stderrBuffer = "";
     const inputs = Array.isArray(test.input) ? test.input.map((item) => String(item)) : [];
-    const result = (await runtime.runPythonAsync(buildScript(code, inputs, true))) as string;
+    const sourceResult = evaluateSourceChecks(test, code);
+    if (!shouldRunPython(test)) {
+      results.push(sourceResult);
+      continue;
+    }
+
+    const result = (await runtime.runPythonAsync(
+      buildScript(code, inputs, {
+        assertion: test.assertion,
+        echoInput: false,
+        isolated: true,
+        stepLimit: test.stepLimit ?? 60000
+      })
+    )) as string;
     if (token !== gradeToken) return;
 
     const parsed = JSON.parse(result) as { status: string; prompt?: string; error?: string };
     const actualOutput = trimOutput(`${outputBuffer}${stderrBuffer}`);
-    results.push(evaluateTest(test, parsed.status, actualOutput, parsed.error || parsed.prompt || ""));
+    const runtimeResult = evaluateTest(test, parsed.status, actualOutput, parsed.error || parsed.prompt || "");
+    results.push({
+      ...runtimeResult,
+      passed: sourceResult.passed && runtimeResult.passed,
+      message: sourceResult.passed ? runtimeResult.message : sourceResult.message
+    });
   }
 
   postMessage({ type: "grade-result", result: { passed: results.every((result) => result.passed), tests: results } });
@@ -143,6 +167,7 @@ async function gradeCode(code: string, tests: GradeTest[], token: number): Promi
 
 function evaluateTest(test: GradeTest, status: string, actualOutput: string, runtimeMessage: string): GradeTestResult {
   const expectedOutput = test.expectedOutput ?? "";
+  const checksOutput = hasOutputExpectation(test);
   if (status === "waiting_for_input") {
     return {
       id: test.id,
@@ -164,11 +189,11 @@ function evaluateTest(test: GradeTest, status: string, actualOutput: string, run
       actualOutput,
       passed: false,
       visible: Boolean(test.visible),
-      message: runtimeMessage || "The code raised an error."
+      message: conciseRuntimeMessage(runtimeMessage) || "The code raised an error."
     };
   }
 
-  const passed = outputMatches(test, actualOutput);
+  const passed = checksOutput ? outputMatches(test, actualOutput) : true;
   return {
     id: test.id,
     name: test.name,
@@ -177,7 +202,42 @@ function evaluateTest(test: GradeTest, status: string, actualOutput: string, run
     actualOutput,
     passed,
     visible: Boolean(test.visible),
-    message: passed ? "Passed" : "Expected output did not match."
+    message: passed ? "Passed" : checksOutput ? "Expected output did not match." : "Hidden behavior check failed."
+  };
+}
+
+function shouldRunPython(test: GradeTest): boolean {
+  return hasOutputExpectation(test) || Boolean(test.assertion);
+}
+
+function hasOutputExpectation(test: GradeTest): boolean {
+  return typeof test.expectedOutput === "string" || typeof test.expectedLineCount === "number";
+}
+
+function evaluateSourceChecks(test: GradeTest, code: string): GradeTestResult {
+  const failures: string[] = [];
+  for (const required of test.sourceIncludes ?? []) {
+    if (!code.includes(required)) failures.push(`Use ${required} in your code.`);
+  }
+  for (const forbidden of test.sourceExcludes ?? []) {
+    if (code.includes(forbidden)) failures.push(`Do not use ${forbidden} for this task.`);
+  }
+  for (const pattern of test.sourceRegexes ?? []) {
+    if (!new RegExp(pattern, "m").test(code)) failures.push("A required code pattern is missing.");
+  }
+  for (const pattern of test.sourceNotRegexes ?? []) {
+    if (new RegExp(pattern, "m").test(code)) failures.push("This task forbids one of the code patterns used.");
+  }
+
+  return {
+    id: test.id,
+    name: test.name,
+    input: test.input ?? [],
+    expectedOutput: test.match === "line-count" ? `${test.expectedLineCount ?? 0} line(s)` : (test.expectedOutput ?? ""),
+    actualOutput: "",
+    passed: failures.length === 0,
+    visible: Boolean(test.visible),
+    message: failures[0] ?? "Passed"
   };
 }
 
@@ -202,6 +262,14 @@ function countOutputLines(output: string): number {
   return normalized ? normalized.split("\n").length : 0;
 }
 
+function conciseRuntimeMessage(message: string): string {
+  if (!message) return "";
+  const lines = message.trim().split("\n").filter(Boolean);
+  const assertion = [...lines].reverse().find((line) => line.startsWith("AssertionError"));
+  const timeout = [...lines].reverse().find((line) => line.includes("TimeoutError"));
+  return assertion || timeout || lines[lines.length - 1] || "";
+}
+
 function packagesFor(code: string): string[] {
   const found = new Set<string>();
   const importPattern = /^\s*(?:import|from)\s+([A-Za-z_][\w.]*)(?:\s+as\s+([A-Za-z_]\w*))?/gm;
@@ -214,14 +282,25 @@ function packagesFor(code: string): string[] {
   return [...found];
 }
 
-function buildScript(code: string, inputs: string[], isolated = false): string {
+function buildScript(
+  code: string,
+  inputs: string[],
+  options: { assertion?: string; echoInput?: boolean; isolated?: boolean; stepLimit?: number | null } = {}
+): string {
+  const assertion = options.assertion ?? "";
+  const echoInput = options.echoInput ?? true;
+  const isolated = options.isolated ?? false;
+  const stepLimit = options.stepLimit ?? null;
   return `
 import builtins
 import json
+import sys
 import traceback
 
 __py_ide_result = {"status": "finished", "prompt": "", "error": ""}
 __py_ide_inputs = ${JSON.stringify(inputs)}
+__py_ide_step_limit = ${stepLimit === null ? "None" : JSON.stringify(stepLimit)}
+__py_ide_steps = 0
 __py_ide_blocked_imports = {
     "cffi", "ctypes", "http.client", "js", "micropip", "pyodide",
     "requests", "socket", "subprocess", "urllib"
@@ -245,15 +324,28 @@ def __py_ide_input(prompt=""):
     if not __py_ide_inputs:
         raise __PyIdeNeedInput(str(prompt))
     value = __py_ide_inputs.pop(0)
-    print(str(prompt) + value)
+    if ${echoInput ? "True" : "False"}:
+        print(str(prompt) + value)
     return value
+
+def __py_ide_trace(frame, event, arg):
+    global __py_ide_steps
+    if event == "line" and __py_ide_step_limit is not None:
+        __py_ide_steps += 1
+        if __py_ide_steps > __py_ide_step_limit:
+            raise TimeoutError("Code took too long while checking the answer.")
+    return __py_ide_trace
 
 try:
     builtins.__import__ = __py_ide_import
     builtins.input = __py_ide_input
+    if __py_ide_step_limit is not None:
+        sys.settrace(__py_ide_trace)
     try:
         __py_ide_globals = {"__name__": "__main__"} if ${isolated ? "True" : "False"} else globals()
         exec(compile(${JSON.stringify(code)}, "student_code.py", "exec"), __py_ide_globals, __py_ide_globals)
+        if ${assertion ? "True" : "False"}:
+            exec(compile(${JSON.stringify(assertion)}, "hidden_checks.py", "exec"), __py_ide_globals, __py_ide_globals)
     except __PyIdeNeedInput as exc:
         __py_ide_result["status"] = "waiting_for_input"
         __py_ide_result["prompt"] = str(exc)
@@ -262,6 +354,7 @@ try:
         __py_ide_result["error"] = traceback.format_exc()
         print(__py_ide_result["error"])
 finally:
+    sys.settrace(None)
     builtins.__import__ = __py_ide_original_import
     builtins.input = __py_ide_original_input
 

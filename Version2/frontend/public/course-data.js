@@ -1281,3 +1281,657 @@ print(counts)</code></pre>
       : entry
   );
 })();
+
+(() => {
+  const esc = (value) =>
+    String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#x27;");
+
+  const exact = (id, name, output, visible = false, input = []) => ({
+    id,
+    name,
+    input,
+    expectedOutput: output,
+    match: "exact",
+    visible
+  });
+  const contains = (id, name, output, visible = false, input = []) => ({
+    id,
+    name,
+    input,
+    expectedOutput: output,
+    match: "contains",
+    visible
+  });
+  const lineCount = (id, count) => ({ id, name: `Uses ${count} output line${count === 1 ? "" : "s"}`, expectedLineCount: count, match: "line-count" });
+  const requireSource = (id, name, ...patterns) => ({ id, name, sourceRegexes: patterns });
+  const forbidSource = (id, name, ...patterns) => ({ id, name, sourceNotRegexes: patterns });
+  const assertPython = (id, name, assertion, input = []) => ({ id, name, assertion, input });
+  const task = (id, title, prompt, input, output, tests, hints) => ({
+    id,
+    title,
+    prompt,
+    visibleExample: { input, output },
+    tests,
+    hints
+  });
+
+  const htmlFor = (tasks) =>
+    tasks
+      .map((item, index) => {
+        const inputBlock = item.visibleExample.input.length
+          ? `\n<p><strong>Sample input:</strong></p>\n<pre><code>${esc(item.visibleExample.input.join("\n"))}</code></pre>`
+          : "";
+        return `<h3>Challenge ${index + 1}</h3>\n<p>${esc(item.prompt)}</p>${inputBlock}\n<p><strong>Expected output:</strong></p>\n<pre><code>${esc(item.visibleExample.output || "No output")}</code></pre>`;
+      })
+      .join("\n");
+
+  const timesTable = (number) => Array.from({ length: 12 }, (_, index) => `${number} x ${index + 1} = ${number * (index + 1)}`).join("\n");
+  const multiplicationGrid = () =>
+    Array.from({ length: 10 }, (_, row) => Array.from({ length: 10 }, (_, col) => String((row + 1) * (col + 1))).join(" ")).join("\n");
+
+  const specs = {
+    1: [
+      task("print-name", "Print a name", "Print the name Paddy.", [], "Paddy", [
+        exact("print-name-output", "Prints the expected name", "Paddy", true),
+        lineCount("print-name-lines", 1)
+      ], [
+        "Use one print() statement with the name inside quotation marks.",
+        "Check the capital P and make sure you only print Paddy."
+      ]),
+      task("three-lines", "Print three lines", "Print Paddy, 16, and Computer Science on three separate lines.", [], "Paddy\n16\nComputer Science", [
+        exact("three-lines-output", "Prints the expected details", "Paddy\n16\nComputer Science", true),
+        lineCount("three-lines-count", 3)
+      ], [
+        "Use three separate print() statements.",
+        "Each value should appear on its own line in the same order as the task."
+      ]),
+      task("small-menu", "Print a menu", "Print the three-line menu exactly as shown.", [], "1. Play\n2. Settings\n3. Quit", [
+        exact("small-menu-output", "Prints the expected menu", "1. Play\n2. Settings\n3. Quit", true)
+      ], [
+        "Use one print() for each menu option.",
+        "Check the numbers, full stops, capital letters, and spaces."
+      ]),
+      task("star-drawing", "Print a drawing", "Print this three-line star drawing exactly as shown.", [], "***\n* *\n***", [
+        exact("star-drawing-output", "Prints the expected drawing", "***\n* *\n***", true)
+      ], [
+        "Use three print() statements for the three rows.",
+        "The middle row needs a space between the two stars."
+      ]),
+      task("fake-receipt", "Print a receipt", "Print this four-line fake receipt exactly as shown.", [], "PythonPages Shop\nPencil - 1.50\nNotebook - 2.00\nTotal - 3.50", [
+        exact("fake-receipt-output", "Prints the expected receipt", "PythonPages Shop\nPencil - 1.50\nNotebook - 2.00\nTotal - 3.50", true)
+      ], [
+        "Use four print() statements, one for each receipt line.",
+        "Check the item names, hyphens, prices, and total."
+      ])
+    ],
+    2: [
+      task("name-variable", "Use a name variable", "Create a variable called name, store Paddy in it, and print it.", [], "Paddy", [
+        exact("name-variable-output", "Prints the stored name", "Paddy", true),
+        requireSource("name-variable-source", "Creates the name variable", "\\bname\\s*=")
+      ], ["Assign the string to name before printing.", "The variable name must be exactly name."]),
+      task("three-variables", "Print three variables", "Create name, age, and favourite_food variables with Paddy, 16, and pizza. Print each one on its own line.", [], "Paddy\n16\npizza", [
+        exact("three-variables-output", "Prints all three values", "Paddy\n16\npizza", true),
+        lineCount("three-variables-lines", 3),
+        requireSource("three-variables-source", "Creates the required variables", "\\bname\\s*=", "\\bage\\s*=", "\\bfavourite_food\\s*=")
+      ], ["Use one variable per value.", "Print name, then age, then favourite_food."]),
+      task("number-total", "Add two variables", "Create number variables with 7 and 5, then print their total.", [], "12", [
+        exact("number-total-output", "Prints the total", "12", true),
+        requireSource("number-total-source", "Uses variables and addition", "\\w+\\s*=\\s*7", "\\w+\\s*=\\s*5", "\\+")
+      ], ["Store both numbers before adding them.", "The output should be the number 12 only."]),
+      task("score-update", "Update a score", "Create score = 10, print it, add 10 to score, then print it again.", [], "10\n20", [
+        exact("score-update-output", "Prints the score before and after", "10\n20", true),
+        requireSource("score-update-source", "Updates the score variable", "\\bscore\\s*=", "score\\s*(=\\s*score\\s*\\+\\s*10|\\+=\\s*10)")
+      ], ["Print score before changing it.", "Use score = score + 10 or score += 10."]),
+      task("character-profile", "Print a character profile", "Create name, health, level, and is_alive variables for Nova, 100, 3, and True. Print the profile exactly.", [], "Nova\nHealth: 100\nLevel: 3\nAlive: True", [
+        exact("character-profile-output", "Prints the profile", "Nova\nHealth: 100\nLevel: 3\nAlive: True", true),
+        requireSource("character-profile-source", "Creates all character variables", "\\bname\\s*=", "\\bhealth\\s*=", "\\blevel\\s*=", "\\bis_alive\\s*=")
+      ], ["Use a boolean True for is_alive.", "Print the labels exactly as shown."])
+    ],
+    3: [
+      task("input-name", "Echo a name", "Ask for a name and print it back.", ["Paddy"], "Paddy", [
+        exact("input-name-output", "Prints the entered name", "Paddy", true, ["Paddy"]),
+        requireSource("input-name-source", "Uses input()", "\\binput\\s*\\(")
+      ], ["Store the input in a variable.", "Print the variable after input()."]),
+      task("input-film", "Print a film sentence", "Ask for a favourite film and print: Your favourite film is Spider-Man", ["Spider-Man"], "Your favourite film is Spider-Man", [
+        exact("input-film-output", "Prints the film sentence", "Your favourite film is Spider-Man", true, ["Spider-Man"]),
+        requireSource("input-film-source", "Uses input()", "\\binput\\s*\\(")
+      ], ["Use the value returned by input().", "The sentence must include the film after is."]),
+      task("input-login-details", "Print username and password", "Ask for a username and password, then print both on separate lines.", ["pythonfan", "secret"], "pythonfan\nsecret", [
+        exact("input-login-details-output", "Prints both answers", "pythonfan\nsecret", true, ["pythonfan", "secret"]),
+        lineCount("input-login-details-lines", 2),
+        requireSource("input-login-details-source", "Uses input twice", "\\binput\\s*\\(")
+      ], ["Call input() once for each value.", "Print the username first, then the password."]),
+      task("short-profile", "Print a short profile", "Ask for name, age, and county. Print each answer on a separate line.", ["Paddy", "16", "Galway"], "Paddy\n16\nGalway", [
+        exact("short-profile-output", "Prints the profile", "Paddy\n16\nGalway", true, ["Paddy", "16", "Galway"]),
+        lineCount("short-profile-lines", 3)
+      ], ["Use three input() calls.", "Print the answers in the same order."]),
+      task("adventure-intro", "Print an adventure intro", "Ask for player, weapon, and destination. Print: Paddy takes the sword to the castle", ["Paddy", "sword", "castle"], "Paddy takes the sword to the castle", [
+        exact("adventure-intro-output", "Prints the adventure sentence", "Paddy takes the sword to the castle", true, ["Paddy", "sword", "castle"]),
+        requireSource("adventure-intro-source", "Uses input", "\\binput\\s*\\(")
+      ], ["Build the sentence from all three answers.", "Check the spaces between the words."])
+    ],
+    4: [
+      task("age-next-year", "Convert an age", "Ask for age, convert it to an integer, and print the age next year.", ["16"], "17", [
+        exact("age-next-year-output", "Prints age next year", "17", true, ["16"]),
+        requireSource("age-next-year-source", "Uses input and int", "\\binput\\s*\\(", "\\bint\\s*\\(")
+      ], ["input() gives text, so convert before adding.", "Add 1 after converting to int."]),
+      task("integer-total", "Add two integer inputs", "Ask for 7 and 5, convert both to integers, and print the total.", ["7", "5"], "12", [
+        exact("integer-total-output", "Prints the total", "12", true, ["7", "5"]),
+        requireSource("integer-total-source", "Uses int conversion", "\\bint\\s*\\(")
+      ], ["Convert both inputs before adding.", "Use + after the conversion."]),
+      task("price-plus-one", "Convert a price", "Ask for a price, convert it to a float, add 1, and print the result.", ["2.50"], "3.5", [
+        exact("price-plus-one-output", "Prints the changed price", "3.5", true, ["2.50"]),
+        requireSource("price-plus-one-source", "Uses float conversion", "\\bfloat\\s*\\(")
+      ], ["Use float(), not int(), for decimal prices.", "2.50 plus 1 should print as 3.5."]),
+      task("birth-year-age", "Calculate age", "Ask for birth year, convert it to an integer, and print the age in 2026.", ["2010"], "16", [
+        exact("birth-year-age-output", "Prints the calculated age", "16", true, ["2010"]),
+        requireSource("birth-year-age-source", "Uses int and subtraction", "\\bint\\s*\\(", "-")
+      ], ["Subtract the birth year from 2026.", "Convert the input before subtracting."]),
+      task("simple-calculator", "Print calculator results", "Ask for 8 and 2, convert to numbers, then print add, subtract, multiply, and divide results.", ["8", "2"], "10.0\n6.0\n16.0\n4.0", [
+        exact("simple-calculator-output", "Prints all calculator results", "10.0\n6.0\n16.0\n4.0", true, ["8", "2"]),
+        requireSource("simple-calculator-source", "Uses numeric conversion and operations", "\\b(float|int)\\s*\\(", "\\+", "-", "\\*", "/")
+      ], ["Use float() if you want the decimal results shown.", "Print the answers in add, subtract, multiply, divide order."])
+    ],
+    5: [
+      task("adult-check", "Check adult age", "Ask for an age. Print 18 or older when the age is at least 18, otherwise print Under 18.", ["20"], "18 or older", [
+        exact("adult-check-visible", "Handles an adult age", "18 or older", true, ["20"]),
+        exact("adult-check-hidden", "Handles an under-18 age", "Under 18", false, ["16"]),
+        requireSource("adult-check-source", "Uses if", "\\bif\\b")
+      ], ["Convert the age to an integer first.", "Use if and else for the two outcomes."]),
+      task("number-sign", "Classify a number", "Ask for a number. Print Positive, Negative, or Zero.", ["7"], "Positive", [
+        exact("number-sign-positive", "Handles a positive number", "Positive", true, ["7"]),
+        exact("number-sign-negative", "Handles a negative number", "Negative", false, ["-3"]),
+        exact("number-sign-zero", "Handles zero", "Zero", false, ["0"]),
+        requireSource("number-sign-source", "Uses if/elif/else", "\\bif\\b", "\\belif\\b")
+      ], ["Check greater than zero first.", "Use elif for the second condition."]),
+      task("score-grade", "Grade a score", "Ask for a score. Print Distinction for 80+, Pass for 40+, otherwise Fail.", ["85"], "Distinction", [
+        exact("score-grade-distinction", "Handles distinction", "Distinction", true, ["85"]),
+        exact("score-grade-pass", "Handles pass", "Pass", false, ["55"]),
+        exact("score-grade-fail", "Handles fail", "Fail", false, ["30"]),
+        requireSource("score-grade-source", "Uses if/elif/else", "\\bif\\b", "\\belif\\b")
+      ], ["Check the highest score range first.", "Use elif so only one message prints."]),
+      task("password-check", "Check a password", "Ask for a password. Print Correct for python123, otherwise print Incorrect.", ["python123"], "Correct", [
+        exact("password-check-correct", "Handles the correct password", "Correct", true, ["python123"]),
+        exact("password-check-wrong", "Handles a wrong password", "Incorrect", false, ["wrong"]),
+        requireSource("password-check-source", "Uses if", "\\bif\\b")
+      ], ["Compare the password string exactly.", "Use else for the incorrect case."]),
+      task("ticket-price", "Choose ticket price", "Ask for an age. Print Child 5, Teen 8, Adult 12, or Senior 6.", ["10"], "Child 5", [
+        exact("ticket-price-child", "Handles a child", "Child 5", true, ["10"]),
+        exact("ticket-price-teen", "Handles a teen", "Teen 8", false, ["15"]),
+        exact("ticket-price-adult", "Handles an adult", "Adult 12", false, ["30"]),
+        exact("ticket-price-senior", "Handles a senior", "Senior 6", false, ["70"]),
+        requireSource("ticket-price-source", "Uses if/elif/else", "\\bif\\b", "\\belif\\b")
+      ], ["Put the age ranges in a clear order.", "Only one ticket message should print."])
+    ],
+    6: [
+      task("uppercase-name", "Print uppercase", "Ask for a name and print it in uppercase.", ["paddy"], "PADDY", [
+        exact("uppercase-name-output", "Prints uppercase text", "PADDY", true, ["paddy"]),
+        requireSource("uppercase-name-source", "Uses upper()", "\\.upper\\s*\\(")
+      ], ["Call .upper() on the text.", "Print the uppercase result."]),
+      task("full-name", "Join names", "Ask for first name and second name. Print the full name with one space.", ["Paddy", "Murphy"], "Paddy Murphy", [
+        exact("full-name-output", "Prints the full name", "Paddy Murphy", true, ["Paddy", "Murphy"]),
+        requireSource("full-name-source", "Uses input twice", "\\binput\\s*\\(")
+      ], ["Store both names.", "Add a space between them when printing."]),
+      task("first-last-letter", "Print first and last letters", "Ask for a word and print the first and last letter on separate lines.", ["python"], "p\nn", [
+        exact("first-last-letter-output", "Prints first and last letters", "p\nn", true, ["python"]),
+        requireSource("first-last-letter-source", "Uses indexing", "\\[\\s*0\\s*\\]", "\\[\\s*-1\\s*\\]")
+      ], ["word[0] gives the first character.", "word[-1] gives the last character."]),
+      task("sentence-length", "Count characters", "Ask for a sentence and print how many characters it has.", ["hello world"], "11", [
+        exact("sentence-length-output", "Prints the character count", "11", true, ["hello world"]),
+        requireSource("sentence-length-source", "Uses len()", "\\blen\\s*\\(")
+      ], ["Use len(sentence).", "Spaces count as characters."]),
+      task("username-generator", "Generate a username", "Ask for first and second name. Print the first three letters of each name in lowercase.", ["Paddy", "Murphy"], "padmur", [
+        exact("username-generator-output", "Prints the username", "padmur", true, ["Paddy", "Murphy"]),
+        requireSource("username-generator-source", "Uses slicing", "\\[\\s*(0)?\\s*:\\s*3\\s*\\]", "\\.lower\\s*\\(")
+      ], ["Use slicing to get the first three letters.", "Convert the final username to lowercase."])
+    ],
+    7: [
+      task("food-list", "Create a list", "Create a list with pizza, pasta, and apples. Print the list.", [], "['pizza', 'pasta', 'apples']", [
+        exact("food-list-output", "Prints the list", "['pizza', 'pasta', 'apples']", true),
+        requireSource("food-list-source", "Uses a list", "\\[.*pizza.*pasta.*apples.*\\]")
+      ], ["Put the foods inside square brackets.", "Printing a list shows square brackets and quotes."]),
+      task("first-last-food", "Print list items", "Create foods = ['pizza', 'pasta', 'apples']. Print the first and last item.", [], "pizza\napples", [
+        exact("first-last-food-output", "Prints first and last items", "pizza\napples", true),
+        requireSource("first-last-food-source", "Uses indexing", "\\[\\s*0\\s*\\]", "\\[\\s*-1\\s*\\]")
+      ], ["Use index 0 for the first item.", "Use index -1 for the last item."]),
+      task("append-banana", "Append to a list", "Start with ['apple', 'orange'], append banana, and print the updated list.", [], "['apple', 'orange', 'banana']", [
+        exact("append-banana-output", "Prints the appended list", "['apple', 'orange', 'banana']", true),
+        requireSource("append-banana-source", "Uses append()", "\\.append\\s*\\(")
+      ], ["Use list_name.append('banana').", "Print after appending."]),
+      task("remove-and-change", "Remove and change items", "Start with ['apple', 'orange', 'banana'], remove orange, change apple to pear, and print the list.", [], "['pear', 'banana']", [
+        exact("remove-and-change-output", "Prints the changed list", "['pear', 'banana']", true),
+        requireSource("remove-and-change-source", "Removes and changes list items", "\\.remove\\s*\\(", "\\[\\s*0\\s*\\]\\s*=")
+      ], ["Remove orange first.", "Assign pear into index 0."]),
+      task("shopping-list", "Update a shopping list", "Start with bread, milk, and eggs. Add apples, remove milk, then print the final list.", [], "['bread', 'eggs', 'apples']", [
+        exact("shopping-list-output", "Prints the final shopping list", "['bread', 'eggs', 'apples']", true),
+        requireSource("shopping-list-source", "Uses append and remove", "\\.append\\s*\\(", "\\.remove\\s*\\(")
+      ], ["Use append() to add apples.", "Use remove() to take out milk."])
+    ],
+    8: [
+      task("for-name-five", "Loop a name five times", "Use a for loop to print Paddy five times.", [], "Paddy\nPaddy\nPaddy\nPaddy\nPaddy", [
+        exact("for-name-five-output", "Prints Paddy five times", "Paddy\nPaddy\nPaddy\nPaddy\nPaddy", true),
+        requireSource("for-name-five-source", "Uses a for loop", "\\bfor\\b")
+      ], ["Use range(5).", "Put print('Paddy') inside the loop."]),
+      task("for-one-to-ten", "Loop numbers", "Use a for loop to print the numbers from 1 to 10.", [], "1\n2\n3\n4\n5\n6\n7\n8\n9\n10", [
+        exact("for-one-to-ten-output", "Prints 1 to 10", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10", true),
+        requireSource("for-one-to-ten-source", "Uses for and range", "\\bfor\\b", "\\brange\\s*\\(")
+      ], ["range(1, 11) gives 1 to 10.", "Print the loop variable."]),
+      task("for-animals", "Loop through animals", "Create a list of dog, cat, rabbit, horse, and panda. Print each animal with a for loop.", [], "dog\ncat\nrabbit\nhorse\npanda", [
+        exact("for-animals-output", "Prints each animal", "dog\ncat\nrabbit\nhorse\npanda", true),
+        requireSource("for-animals-source", "Uses a list and for loop", "\\[.*dog.*cat.*rabbit.*horse.*panda.*\\]", "\\bfor\\b")
+      ], ["Loop over the list directly.", "Print one animal inside the loop."]),
+      task("for-word-letters", "Loop through letters", "Ask for a word and use a for loop to print each letter.", ["cat"], "c\na\nt", [
+        exact("for-word-letters-output", "Prints each letter", "c\na\nt", true, ["cat"]),
+        requireSource("for-word-letters-source", "Uses input and for", "\\binput\\s*\\(", "\\bfor\\b")
+      ], ["A string can be looped through one character at a time.", "Print the loop variable."]),
+      task("for-times-table", "Print a times table", "Ask for a number and use a for loop to print the first 12 multiples in the shown format.", ["3"], timesTable(3), [
+        exact("for-times-table-visible", "Prints the 3 times table", timesTable(3), true, ["3"]),
+        exact("for-times-table-hidden", "Prints another times table", timesTable(5), false, ["5"]),
+        requireSource("for-times-table-source", "Uses for and range", "\\bfor\\b", "\\brange\\s*\\(")
+      ], ["Loop from 1 to 12.", "Use the input number in the multiplication."])
+    ],
+    9: [
+      task("while-one-to-five", "While loop count up", "Use a while loop to print the numbers from 1 to 5.", [], "1\n2\n3\n4\n5", [
+        exact("while-one-to-five-output", "Prints 1 to 5", "1\n2\n3\n4\n5", true),
+        requireSource("while-one-to-five-source", "Uses while", "\\bwhile\\b")
+      ], ["Start a counter at 1.", "Increase the counter inside the loop."]),
+      task("while-countdown", "While loop countdown", "Use a while loop to count down from 10 to 1.", [], "10\n9\n8\n7\n6\n5\n4\n3\n2\n1", [
+        exact("while-countdown-output", "Prints 10 to 1", "10\n9\n8\n7\n6\n5\n4\n3\n2\n1", true),
+        requireSource("while-countdown-source", "Uses while", "\\bwhile\\b")
+      ], ["Start at 10.", "Subtract 1 each time through the loop."]),
+      task("password-loop", "Loop until password", "Keep asking for a password until the user types python, then print Access granted.", ["wrong", "python"], "Access granted", [
+        exact("password-loop-output", "Stops on the correct password", "Access granted", true, ["wrong", "python"]),
+        requireSource("password-loop-source", "Uses while and input", "\\bwhile\\b", "\\binput\\s*\\(")
+      ], ["Ask once before or inside the loop.", "The loop should stop when the password is python."]),
+      task("guessing-loop", "Loop until a guess", "Keep asking for a number until the user guesses 7, then print Correct.", ["3", "7"], "Correct", [
+        exact("guessing-loop-output", "Stops on the correct guess", "Correct", true, ["3", "7"]),
+        requireSource("guessing-loop-source", "Uses while", "\\bwhile\\b")
+      ], ["Convert guesses to integers if you compare with 7.", "Keep looping until the guess is correct."]),
+      task("menu-loop", "Loop until Quit", "Keep asking for a menu option until the user types Quit, then print Goodbye.", ["1", "2", "Quit"], "Goodbye", [
+        exact("menu-loop-output", "Stops on Quit", "Goodbye", true, ["1", "2", "Quit"]),
+        requireSource("menu-loop-source", "Uses while", "\\bwhile\\b")
+      ], ["The loop condition should depend on the chosen option.", "Quit must end the loop."])
+    ],
+    10: [
+      task("nested-drive", "Nested driving check", "Ask for age and licence. Print Can drive, Need a licence, or Too young.", ["18", "yes"], "Can drive", [
+        exact("nested-drive-can", "Allows a licensed adult", "Can drive", true, ["18", "yes"]),
+        exact("nested-drive-licence", "Rejects no licence", "Need a licence", false, ["20", "no"]),
+        exact("nested-drive-young", "Rejects too young", "Too young", false, ["17"]),
+        requireSource("nested-drive-source", "Uses nested if statements", "\\bif\\b[\\s\\S]*\\bif\\b")
+      ], ["Only ask for licence if the age is high enough.", "Put the licence check inside the age check."]),
+      task("nested-login", "Nested login check", "Ask for username, then password only when the username is admin. Print Login successful, Wrong password, or Unknown user.", ["admin", "secret"], "Login successful", [
+        exact("nested-login-success", "Handles correct details", "Login successful", true, ["admin", "secret"]),
+        exact("nested-login-password", "Handles wrong password", "Wrong password", false, ["admin", "bad"]),
+        exact("nested-login-user", "Handles unknown user", "Unknown user", false, ["guest"]),
+        requireSource("nested-login-source", "Uses nested if statements", "\\bif\\b[\\s\\S]*\\bif\\b")
+      ], ["Check the username first.", "Put the password check inside the username branch."]),
+      task("nested-ticket", "Nested ticket check", "Ask if the user has a ticket, then ask if they are over 18. Print Entry allowed, Adults only, or Need ticket.", ["yes", "yes"], "Entry allowed", [
+        exact("nested-ticket-allowed", "Allows valid entry", "Entry allowed", true, ["yes", "yes"]),
+        exact("nested-ticket-age", "Rejects under 18", "Adults only", false, ["yes", "no"]),
+        exact("nested-ticket-none", "Rejects no ticket", "Need ticket", false, ["no"]),
+        requireSource("nested-ticket-source", "Uses nested if statements", "\\bif\\b[\\s\\S]*\\bif\\b")
+      ], ["Ask the age question only if they have a ticket.", "Use nested if statements."]),
+      task("nested-door", "Nested game door", "Ask if the player has a key and their health. Print Enter, Too weak, or Need key.", ["yes", "50"], "Enter", [
+        exact("nested-door-enter", "Allows entry", "Enter", true, ["yes", "50"]),
+        exact("nested-door-weak", "Rejects low health", "Too weak", false, ["yes", "10"]),
+        exact("nested-door-key", "Rejects no key", "Need key", false, ["no", "50"]),
+        requireSource("nested-door-source", "Uses nested if statements", "\\bif\\b[\\s\\S]*\\bif\\b")
+      ], ["Check the key first.", "Only check health if the player has a key."]),
+      task("nested-trip", "Nested trip checker", "Check permission, payment, and age. Print Can go only when permission and payment are yes and age is at least 12.", ["yes", "yes", "14"], "Can go", [
+        exact("nested-trip-can", "Allows the trip", "Can go", true, ["yes", "yes", "14"]),
+        exact("nested-trip-permission", "Rejects missing permission", "Cannot go", false, ["no", "yes", "14"]),
+        exact("nested-trip-payment", "Rejects missing payment", "Cannot go", false, ["yes", "no", "14"]),
+        exact("nested-trip-age", "Rejects young age", "Cannot go", false, ["yes", "yes", "10"]),
+        requireSource("nested-trip-source", "Uses nested if statements", "\\bif\\b[\\s\\S]*\\bif\\b")
+      ], ["Each check should be inside the previous successful check.", "Print Cannot go for any failed check."])
+    ],
+    11: [
+      task("student-dictionary", "Create a dictionary", "Create a student dictionary with name Paddy, age 16, and year 5. Print the dictionary.", [], "{'name': 'Paddy', 'age': 16, 'year': 5}", [
+        exact("student-dictionary-output", "Prints the dictionary", "{'name': 'Paddy', 'age': 16, 'year': 5}", true),
+        requireSource("student-dictionary-source", "Uses a dictionary", "\\{[\\s\\S]*name[\\s\\S]*age[\\s\\S]*year[\\s\\S]*\\}")
+      ], ["Use curly brackets for the dictionary.", "Keep the keys in the order shown."]),
+      task("dictionary-value", "Print a dictionary value", "Create the same student dictionary and print the name value only.", [], "Paddy", [
+        exact("dictionary-value-output", "Prints one dictionary value", "Paddy", true),
+        requireSource("dictionary-value-source", "Uses dictionary key access", "\\[[\"']name[\"']\\]")
+      ], ["Use student['name'].", "Only print the name value."]),
+      task("dictionary-update", "Update a dictionary", "Create the student dictionary, change age to 17, and print the dictionary.", [], "{'name': 'Paddy', 'age': 17, 'year': 5}", [
+        exact("dictionary-update-output", "Prints the updated dictionary", "{'name': 'Paddy', 'age': 17, 'year': 5}", true),
+        requireSource("dictionary-update-source", "Assigns to a dictionary key", "\\[[\"']age[\"']\\]\\s*=")
+      ], ["Assign 17 into the age key.", "Print after changing the value."]),
+      task("dictionary-add-key", "Add a dictionary key", "Create the student dictionary, add favourite_subject as Computer Science, and print the dictionary.", [], "{'name': 'Paddy', 'age': 16, 'year': 5, 'favourite_subject': 'Computer Science'}", [
+        exact("dictionary-add-key-output", "Prints the dictionary with a new key", "{'name': 'Paddy', 'age': 16, 'year': 5, 'favourite_subject': 'Computer Science'}", true),
+        requireSource("dictionary-add-key-source", "Adds favourite_subject", "\\[[\"']favourite_subject[\"']\\]\\s*=")
+      ], ["Add the key after creating the dictionary.", "Use the exact key favourite_subject."]),
+      task("character-dictionary", "Update character stats", "Create a character dictionary for Aria with health 100 and score 0. Subtract 20 health, add 10 score, then print health and score.", [], "80\n10", [
+        exact("character-dictionary-output", "Prints updated health and score", "80\n10", true),
+        requireSource("character-dictionary-source", "Uses dictionary updates", "\\{[\\s\\S]*health[\\s\\S]*score[\\s\\S]*\\}", "\\[[\"']health[\"']\\]", "\\[[\"']score[\"']\\]")
+      ], ["Update the values in the dictionary.", "Print health first, then score."])
+    ],
+    12: [
+      task("try-number", "Catch a bad number", "Ask for a number in a try/except. Print the number, or Invalid number if conversion fails.", ["7"], "7", [
+        exact("try-number-valid", "Handles a valid number", "7", true, ["7"]),
+        exact("try-number-invalid", "Handles invalid input", "Invalid number", false, ["oops"]),
+        requireSource("try-number-source", "Uses try/except and int", "\\btry\\s*:", "\\bexcept\\b", "\\bint\\s*\\(")
+      ], ["Put int(input(...)) inside try.", "Print Invalid number inside except."]),
+      task("try-age", "Friendly age error", "Ask for age. Print the age as a number, or Please type a number if it is invalid.", ["sixteen"], "Please type a number", [
+        exact("try-age-invalid", "Handles invalid age", "Please type a number", true, ["sixteen"]),
+        exact("try-age-valid", "Handles valid age", "16", false, ["16"]),
+        requireSource("try-age-source", "Uses try/except", "\\btry\\s*:", "\\bexcept\\b")
+      ], ["The error message goes in except.", "A valid age should still print normally."]),
+      task("try-divide", "Safe division", "Ask for two numbers and divide them. Print Invalid number if conversion fails.", ["8", "2"], "4.0", [
+        exact("try-divide-valid", "Divides valid numbers", "4.0", true, ["8", "2"]),
+        exact("try-divide-invalid", "Handles invalid numbers", "Invalid number", false, ["eight", "2"]),
+        requireSource("try-divide-source", "Uses try/except", "\\btry\\s*:", "\\bexcept\\b")
+      ], ["Convert both inputs inside try.", "Use / for division."]),
+      task("try-zero-division", "Handle zero division", "Improve the division program so dividing by zero prints Cannot divide by zero.", ["8", "0"], "Cannot divide by zero", [
+        exact("try-zero-division-zero", "Handles zero division", "Cannot divide by zero", true, ["8", "0"]),
+        exact("try-zero-division-valid", "Still divides valid numbers", "4.0", false, ["8", "2"]),
+        requireSource("try-zero-division-source", "Handles ZeroDivisionError", "\\btry\\s*:", "\\bexcept\\b")
+      ], ["Add a special case for zero division.", "The valid division case should still work."]),
+      task("safe-calculator", "Safe calculator", "Ask for an operation and two numbers. Handle add, subtract, multiply, divide, invalid numbers, and divide by zero.", ["add", "4", "2"], "6.0", [
+        exact("safe-calculator-add", "Adds numbers", "6.0", true, ["add", "4", "2"]),
+        exact("safe-calculator-multiply", "Multiplies numbers", "8.0", false, ["multiply", "4", "2"]),
+        exact("safe-calculator-zero", "Handles divide by zero", "Cannot divide by zero", false, ["divide", "4", "0"]),
+        exact("safe-calculator-invalid", "Handles invalid numbers", "Invalid number", false, ["add", "four", "2"]),
+        requireSource("safe-calculator-source", "Uses try/except", "\\btry\\s*:", "\\bexcept\\b")
+      ], ["Convert the numbers inside try.", "Check divide by zero before dividing."])
+    ],
+    13: [
+      task("say-hello", "Define say_hello", "Create a function called say_hello that prints Hello. Call it once.", [], "Hello", [
+        exact("say-hello-output", "Prints Hello", "Hello", true),
+        requireSource("say-hello-source", "Defines say_hello", "\\bdef\\s+say_hello\\s*\\("),
+        assertPython("say-hello-assert", "say_hello works when called", `import io, contextlib
+_buf = io.StringIO()
+with contextlib.redirect_stdout(_buf):
+    say_hello()
+assert _buf.getvalue().strip() == "Hello", "say_hello() should print Hello"`)
+      ], ["Define the function before calling it.", "Remember the indented print inside the function."]),
+      task("greet-function", "Define greet", "Create greet(name) that prints Hello, name. Call greet('Paddy').", [], "Hello, Paddy", [
+        exact("greet-function-output", "Prints the greeting", "Hello, Paddy", true),
+        requireSource("greet-function-source", "Defines greet(name)", "\\bdef\\s+greet\\s*\\("),
+        assertPython("greet-function-assert", "greet works with another name", `import io, contextlib
+_buf = io.StringIO()
+with contextlib.redirect_stdout(_buf):
+    greet("Sam")
+assert _buf.getvalue().strip() == "Hello, Sam", "greet('Sam') should print Hello, Sam"`)
+      ], ["Use a parameter named name or similar.", "Use the parameter in the printed message."]),
+      task("add-function", "Return a total", "Create add(a, b) that returns the total. Print add(7, 5).", [], "12", [
+        exact("add-function-output", "Prints add(7, 5)", "12", true),
+        requireSource("add-function-source", "Defines add and returns", "\\bdef\\s+add\\s*\\(", "\\breturn\\b"),
+        assertPython("add-function-assert", "add returns totals", `assert add(2, 3) == 5, "add(2, 3) should return 5"
+assert add(-1, 6) == 5, "add(-1, 6) should return 5"`)
+      ], ["Use return, not only print, inside the function.", "Print the result of calling the function."]),
+      task("even-odd-function", "Return Even or Odd", "Create even_or_odd(number) that returns Even or Odd. Print even_or_odd(6).", [], "Even", [
+        exact("even-odd-function-output", "Prints Even for 6", "Even", true),
+        requireSource("even-odd-function-source", "Defines even_or_odd", "\\bdef\\s+even_or_odd\\s*\\(", "\\breturn\\b"),
+        assertPython("even-odd-function-assert", "Handles even and odd numbers", `assert even_or_odd(4) == "Even", "4 should be Even"
+assert even_or_odd(5) == "Odd", "5 should be Odd"`)
+      ], ["Use number % 2.", "Return the word instead of printing it inside the function."]),
+      task("calculator-functions", "Calculator functions", "Create add, subtract, multiply, and divide functions. Print their results for 8 and 2.", [], "10\n6\n16\n4.0", [
+        exact("calculator-functions-output", "Prints calculator function results", "10\n6\n16\n4.0", true),
+        requireSource("calculator-functions-source", "Defines calculator functions", "\\bdef\\s+add\\s*\\(", "\\bdef\\s+subtract\\s*\\(", "\\bdef\\s+multiply\\s*\\(", "\\bdef\\s+divide\\s*\\("),
+        assertPython("calculator-functions-assert", "Calculator functions return correct values", `assert add(3, 2) == 5
+assert subtract(3, 2) == 1
+assert multiply(3, 2) == 6
+assert divide(6, 2) == 3`)
+      ], ["Each operation should be its own function.", "Return the values, then print the function calls."])
+    ],
+    14: [
+      task("ternary-age", "Adult ternary", "Use a ternary expression with age = 20 to print Adult or Child.", [], "Adult", [
+        exact("ternary-age-output", "Prints Adult", "Adult", true),
+        requireSource("ternary-age-source", "Uses a ternary expression", "\\bif\\b.+\\belse\\b")
+      ], ["A ternary looks like value_if_true if condition else value_if_false.", "Store or print the ternary result."]),
+      task("ternary-score", "Pass ternary", "Use a ternary expression with score = 45 to print Pass or Fail. Pass is 50 or more.", [], "Fail", [
+        exact("ternary-score-output", "Prints Fail", "Fail", true),
+        requireSource("ternary-score-source", "Uses a ternary expression", "\\bif\\b.+\\belse\\b")
+      ], ["The condition is score >= 50.", "For 45, the answer should be Fail."]),
+      task("ternary-positive", "Positive ternary", "Ask for a number and use a ternary expression to print Positive or Not positive.", ["3"], "Positive", [
+        exact("ternary-positive-visible", "Handles a positive number", "Positive", true, ["3"]),
+        exact("ternary-positive-hidden", "Handles a non-positive number", "Not positive", false, ["-2"]),
+        requireSource("ternary-positive-source", "Uses a ternary expression", "\\bif\\b.+\\belse\\b")
+      ], ["Convert the input to an integer.", "Use the ternary expression to choose the message."]),
+      task("ternary-delivery", "Delivery ternary", "Use a ternary expression with order_total = 60 to print delivery cost 0 when over 50, otherwise 5.", [], "0", [
+        exact("ternary-delivery-output", "Prints free delivery cost", "0", true),
+        requireSource("ternary-delivery-source", "Uses a ternary expression", "\\bif\\b.+\\belse\\b")
+      ], ["The true value should be 0.", "The condition is order_total > 50."]),
+      task("three-ternaries", "Three ternary checks", "Use ternary expressions to print Child for age 16, Pass for score 80, and Member for is_member True.", [], "Child\nPass\nMember", [
+        exact("three-ternaries-output", "Prints three ternary results", "Child\nPass\nMember", true),
+        requireSource("three-ternaries-source", "Uses ternary expressions", "\\bif\\b.+\\belse\\b")
+      ], ["Make three separate message variables or print calls.", "Each choice should be made with a ternary expression."])
+    ],
+    15: [
+      task("nested-square-three", "3 by 3 square", "Use nested loops to print a 3 by 3 square of stars.", [], "***\n***\n***", [
+        exact("nested-square-three-output", "Prints a 3 by 3 square", "***\n***\n***", true),
+        requireSource("nested-square-three-source", "Uses nested loops", "\\bfor\\b[\\s\\S]*\\bfor\\b")
+      ], ["Use one loop for rows and one for columns.", "Build or print each row of three stars."]),
+      task("nested-square-five", "5 by 5 square", "Use nested loops to print a 5 by 5 square of stars.", [], "*****\n*****\n*****\n*****\n*****", [
+        exact("nested-square-five-output", "Prints a 5 by 5 square", "*****\n*****\n*****\n*****\n*****", true),
+        requireSource("nested-square-five-source", "Uses nested loops", "\\bfor\\b[\\s\\S]*\\bfor\\b")
+      ], ["Use range(5) for rows and columns.", "Print one row after the inner loop finishes."]),
+      task("number-pairs", "Print number pairs", "Use nested loops to print every pair from 1 to 4 in the format 1,1.", [], "1,1\n1,2\n1,3\n1,4\n2,1\n2,2\n2,3\n2,4\n3,1\n3,2\n3,3\n3,4\n4,1\n4,2\n4,3\n4,4", [
+        exact("number-pairs-output", "Prints all number pairs", "1,1\n1,2\n1,3\n1,4\n2,1\n2,2\n2,3\n2,4\n3,1\n3,2\n3,3\n3,4\n4,1\n4,2\n4,3\n4,4", true),
+        requireSource("number-pairs-source", "Uses nested loops", "\\bfor\\b[\\s\\S]*\\bfor\\b")
+      ], ["The outer loop controls the first number.", "The inner loop controls the second number."]),
+      task("star-triangle", "Star triangle", "Use nested loops to print a triangle that grows from 1 to 5 stars.", [], "*\n**\n***\n****\n*****", [
+        exact("star-triangle-output", "Prints the star triangle", "*\n**\n***\n****\n*****", true),
+        requireSource("star-triangle-source", "Uses nested loops", "\\bfor\\b[\\s\\S]*\\bfor\\b")
+      ], ["The row number controls how many stars appear.", "Print after the inner loop builds each row."]),
+      task("multiplication-grid", "Multiplication grid", "Use nested loops to print a 1 to 10 multiplication grid with spaces between numbers.", [], multiplicationGrid(), [
+        exact("multiplication-grid-output", "Prints the multiplication grid", multiplicationGrid(), true),
+        requireSource("multiplication-grid-source", "Uses nested loops", "\\bfor\\b[\\s\\S]*\\bfor\\b")
+      ], ["Use rows 1 to 10 and columns 1 to 10.", "Multiply the row number by the column number."])
+    ],
+    16: [
+      task("match-day", "Match a day", "Ask for a day. Use match case to print School day for Monday-Friday and Weekend for Saturday/Sunday.", ["Monday"], "School day", [
+        exact("match-day-school", "Handles a school day", "School day", true, ["Monday"]),
+        exact("match-day-weekend", "Handles a weekend", "Weekend", false, ["Saturday"]),
+        requireSource("match-day-source", "Uses match/case", "\\bmatch\\b", "\\bcase\\b")
+      ], ["Use match day: then case values.", "Group weekend days or handle them separately."]),
+      task("match-menu", "Match a menu option", "Ask for option 1, 2, or 3. Use match case to print Play, Settings, or Quit.", ["2"], "Settings", [
+        exact("match-menu-settings", "Handles option 2", "Settings", true, ["2"]),
+        exact("match-menu-play", "Handles option 1", "Play", false, ["1"]),
+        exact("match-menu-quit", "Handles option 3", "Quit", false, ["3"]),
+        requireSource("match-menu-source", "Uses match/case", "\\bmatch\\b", "\\bcase\\b")
+      ], ["Match the string typed by the user.", "Each option should have its own case."]),
+      task("match-grade", "Match a grade", "Ask for a grade letter. Use match case to print Excellent, Good, Pass, Almost, or Fail.", ["A"], "Excellent", [
+        exact("match-grade-a", "Handles A", "Excellent", true, ["A"]),
+        exact("match-grade-b", "Handles B", "Good", false, ["B"]),
+        exact("match-grade-c", "Handles C", "Pass", false, ["C"]),
+        exact("match-grade-d", "Handles D", "Almost", false, ["D"]),
+        exact("match-grade-f", "Handles F", "Fail", false, ["F"]),
+        requireSource("match-grade-source", "Uses match/case", "\\bmatch\\b", "\\bcase\\b")
+      ], ["Use one case for each grade.", "Check the capital letters."]),
+      task("match-calculator", "Match calculator", "Ask for add, subtract, multiply, or divide and two numbers. Use match case to print the result.", ["add", "5", "3"], "8.0", [
+        exact("match-calculator-add", "Adds numbers", "8.0", true, ["add", "5", "3"]),
+        exact("match-calculator-multiply", "Multiplies numbers", "15.0", false, ["multiply", "5", "3"]),
+        exact("match-calculator-subtract", "Subtracts numbers", "2.0", false, ["subtract", "5", "3"]),
+        exact("match-calculator-divide", "Divides numbers", "2.0", false, ["divide", "6", "3"]),
+        requireSource("match-calculator-source", "Uses match/case", "\\bmatch\\b", "\\bcase\\b")
+      ], ["Convert the number inputs to float.", "Put each operation in its own case."]),
+      task("match-adventure", "Match adventure choices", "Ask for north, south, east, west, or something else. Use match case with a default case.", ["north"], "You go north", [
+        exact("match-adventure-north", "Handles north", "You go north", true, ["north"]),
+        exact("match-adventure-west", "Handles west", "You go west", false, ["west"]),
+        exact("match-adventure-default", "Handles unknown choices", "You wait", false, ["dance"]),
+        requireSource("match-adventure-source", "Uses match/case/default", "\\bmatch\\b", "\\bcase\\b", "case\\s+_\\s*:")
+      ], ["Use case _ for the default.", "Print exactly one result for each choice."])
+    ],
+    17: [
+      task("typed-variables", "Typed variables", "Create typed variables name: str = 'Paddy', age: int = 16, height: float = 1.7. Print each one.", [], "Paddy\n16\n1.7", [
+        exact("typed-variables-output", "Prints typed variables", "Paddy\n16\n1.7", true),
+        requireSource("typed-variables-source", "Uses variable type hints", "\\bname\\s*:\\s*str", "\\bage\\s*:\\s*int", "\\bheight\\s*:\\s*float")
+      ], ["Put the type after a colon.", "The type hints go beside the variable names."]),
+      task("typed-add", "Typed add function", "Create add_numbers(a: int, b: int) -> int that returns the total. Print add_numbers(7, 5).", [], "12", [
+        exact("typed-add-output", "Prints typed add result", "12", true),
+        requireSource("typed-add-source", "Uses function type hints", "\\bdef\\s+add_numbers\\s*\\([^)]*:\\s*int[^)]*:\\s*int[^)]*\\)\\s*->\\s*int"),
+        assertPython("typed-add-assert", "Typed add returns correct values", `assert add_numbers(2, 3) == 5
+assert add_numbers.__annotations__.get("return") is int`)
+      ], ["Add : int after each parameter.", "Add -> int before the colon."]),
+      task("typed-greeting", "Typed greeting", "Create make_greeting(name: str) -> str that returns Hello, name. Print make_greeting('Paddy').", [], "Hello, Paddy", [
+        exact("typed-greeting-output", "Prints typed greeting", "Hello, Paddy", true),
+        requireSource("typed-greeting-source", "Uses string type hints", "\\bdef\\s+make_greeting\\s*\\([^)]*:\\s*str[^)]*\\)\\s*->\\s*str"),
+        assertPython("typed-greeting-assert", "Typed greeting returns a string", `assert make_greeting("Sam") == "Hello, Sam"
+assert make_greeting.__annotations__.get("return") is str`)
+      ], ["Return the greeting string.", "Use str for the parameter and return type."]),
+      task("typed-calculator", "Typed calculator functions", "Create typed add and subtract functions for floats. Print add(8, 2) and subtract(8, 2).", [], "10\n6", [
+        exact("typed-calculator-output", "Prints typed calculator results", "10\n6", true),
+        requireSource("typed-calculator-source", "Uses typed functions", "\\bdef\\s+add\\s*\\([^)]*:\\s*float[^)]*\\)\\s*->\\s*float", "\\bdef\\s+subtract\\s*\\([^)]*:\\s*float[^)]*\\)\\s*->\\s*float"),
+        assertPython("typed-calculator-assert", "Typed calculator returns values", `assert add(3, 2) == 5
+assert subtract(3, 2) == 1`)
+      ], ["Both parameters should have type hints.", "Return the calculation result from each function."]),
+      task("typed-game-functions", "Typed game functions", "Create typed functions damage_player, heal_player, and add_score that return updated numbers.", [], "80\n95\n10", [
+        exact("typed-game-functions-output", "Prints typed game results", "80\n95\n10", true),
+        requireSource("typed-game-functions-source", "Defines typed game functions", "\\bdef\\s+damage_player\\s*\\(", "\\bdef\\s+heal_player\\s*\\(", "\\bdef\\s+add_score\\s*\\("),
+        assertPython("typed-game-functions-assert", "Game functions return updated values", `assert damage_player(100, 20) == 80
+assert heal_player(80, 15) == 95
+assert add_score(0, 10) == 10`)
+      ], ["Each function should return a number.", "Print damage_player(100, 20), heal_player(80, 15), and add_score(0, 10)."])
+    ],
+    18: [
+      task("student-class-name", "Student class name", "Create a Student class with a name attribute. Create Student('Paddy') and print the name.", [], "Paddy", [
+        exact("student-class-name-output", "Prints student name", "Paddy", true),
+        requireSource("student-class-name-source", "Defines Student class", "\\bclass\\s+Student\\b", "\\bdef\\s+__init__\\s*\\("),
+        assertPython("student-class-name-assert", "Student stores name", `s = Student("Sam")
+assert s.name == "Sam"`)
+      ], ["Use __init__ to store self.name.", "Create an object before printing."]),
+      task("student-object", "Create a student object", "Create a Student object called student with the name Paddy and print student.name.", [], "Paddy", [
+        exact("student-object-output", "Prints student.name", "Paddy", true),
+        requireSource("student-object-source", "Creates a Student object", "\\bstudent\\s*=\\s*Student\\s*\\("),
+        assertPython("student-object-assert", "Student works with another name", `other = Student("Ava")
+assert other.name == "Ava"`)
+      ], ["The variable should be called student.", "Print student.name."]),
+      task("student-age-year", "Student attributes", "Add age and year attributes to Student. Create Student('Paddy', 16, 5) and print all three values.", [], "Paddy\n16\n5", [
+        exact("student-age-year-output", "Prints student attributes", "Paddy\n16\n5", true),
+        requireSource("student-age-year-source", "Stores age and year", "\\bself\\.age\\b", "\\bself\\.year\\b"),
+        assertPython("student-age-year-assert", "Student stores all attributes", `s = Student("Sam", 17, 6)
+assert (s.name, s.age, s.year) == ("Sam", 17, 6)`)
+      ], ["Add parameters for age and year.", "Store them on self."]),
+      task("student-introduce", "Student method", "Add an introduce method that prints Paddy is 16 in year 5. Call it.", [], "Paddy is 16 in year 5", [
+        exact("student-introduce-output", "Prints the introduction", "Paddy is 16 in year 5", true),
+        requireSource("student-introduce-source", "Defines introduce method", "\\bdef\\s+introduce\\s*\\("),
+        assertPython("student-introduce-assert", "introduce uses object data", `import io, contextlib
+s = Student("Sam", 17, 6)
+_buf = io.StringIO()
+with contextlib.redirect_stdout(_buf):
+    s.introduce()
+assert _buf.getvalue().strip() == "Sam is 17 in year 6"`)
+      ], ["Methods belong inside the class.", "Use self.name, self.age, and self.year."]),
+      task("car-class", "Car class methods", "Create a Car class with make, model, and speed. Add speed_up and slow_down methods. Print speed after speeding up by 40 and slowing down by 15.", [], "40\n25", [
+        exact("car-class-output", "Prints car speeds", "40\n25", true),
+        requireSource("car-class-source", "Defines Car methods", "\\bclass\\s+Car\\b", "\\bdef\\s+speed_up\\s*\\(", "\\bdef\\s+slow_down\\s*\\("),
+        assertPython("car-class-assert", "Car speed methods update speed", `car = Car("Ford", "Focus", 10)
+car.speed_up(5)
+assert car.speed == 15
+car.slow_down(3)
+assert car.speed == 12`)
+      ], ["Store speed as self.speed.", "The methods should change self.speed."])
+    ],
+    19: [
+      task("player-class", "Player class", "Create a Player class with name and health. Create Player('Riley', 100) and print both values.", [], "Riley\n100", [
+        exact("player-class-output", "Prints player values", "Riley\n100", true),
+        requireSource("player-class-source", "Defines Player class", "\\bclass\\s+Player\\b", "\\bdef\\s+__init__\\s*\\("),
+        assertPython("player-class-assert", "Player stores name and health", `p = Player("Sam", 80)
+assert (p.name, p.health) == ("Sam", 80)`)
+      ], ["Use self.name and self.health.", "Create the object before printing."]),
+      task("two-players", "Two Player objects", "Create two Player objects named Riley and Morgan, then print their names.", [], "Riley\nMorgan", [
+        exact("two-players-output", "Prints both player names", "Riley\nMorgan", true),
+        requireSource("two-players-source", "Creates Player objects", "\\bPlayer\\s*\\("),
+        assertPython("two-players-assert", "Player can create another object", `p = Player("Ava", 50)
+assert p.name == "Ava"`)
+      ], ["Make two different objects.", "Print the name from each object."]),
+      task("take-damage", "Damage method", "Add take_damage(amount) to Player so it lowers health. Print health after Riley takes 30 damage.", [], "70", [
+        exact("take-damage-output", "Prints damaged health", "70", true),
+        requireSource("take-damage-source", "Defines take_damage", "\\bdef\\s+take_damage\\s*\\("),
+        assertPython("take-damage-assert", "take_damage lowers health", `p = Player("Sam", 50)
+p.take_damage(15)
+assert p.health == 35`)
+      ], ["Subtract amount from self.health.", "Call take_damage before printing."]),
+      task("heal-method", "Heal method", "Add heal(amount). Create Riley and Morgan, heal only Riley by 20, then print both health values.", [], "120\n100", [
+        exact("heal-method-output", "Prints separate health values", "120\n100", true),
+        requireSource("heal-method-source", "Defines heal", "\\bdef\\s+heal\\s*\\("),
+        assertPython("heal-method-assert", "heal changes only one object", `a = Player("A", 10)
+b = Player("B", 10)
+a.heal(5)
+assert a.health == 15
+assert b.health == 10`)
+      ], ["Use self.health inside heal.", "Calling heal on Riley should not change Morgan."]),
+      task("battle-system", "Simple battle", "Create two players. Use a loop so Riley damages Morgan by 25 until Morgan reaches 0, then print Riley wins.", [], "Riley wins", [
+        exact("battle-system-output", "Prints the winner", "Riley wins", true),
+        requireSource("battle-system-source", "Uses class and loop", "\\bclass\\s+Player\\b", "\\bwhile\\b"),
+        assertPython("battle-system-assert", "Player still supports damage", `p = Player("Test", 40)
+p.take_damage(25)
+assert p.health == 15`)
+      ], ["Use while Morgan's health is above 0.", "Call take_damage inside the loop."])
+    ],
+    20: [
+      task("recursive-countdown-five", "Recursive countdown", "Create a recursive countdown(number) function. Call countdown(5) to print 5 to 1.", [], "5\n4\n3\n2\n1", [
+        exact("recursive-countdown-five-output", "Prints countdown from 5", "5\n4\n3\n2\n1", true),
+        requireSource("recursive-countdown-five-source", "Defines recursive countdown", "\\bdef\\s+countdown\\s*\\(", "countdown\\s*\\("),
+        assertPython("recursive-countdown-five-assert", "countdown works from 3", `import io, contextlib
+_buf = io.StringIO()
+with contextlib.redirect_stdout(_buf):
+    countdown(3)
+assert _buf.getvalue().strip() == "3\\n2\\n1"`)
+      ], ["Print the number, then call countdown(number - 1).", "Stop when the number is less than 1."]),
+      task("recursive-countdown-input", "Countdown from input", "Ask for a number and call a recursive countdown function with it.", ["3"], "3\n2\n1", [
+        exact("recursive-countdown-input-output", "Prints countdown from input", "3\n2\n1", true, ["3"]),
+        requireSource("recursive-countdown-input-source", "Uses recursion and input", "\\bdef\\s+countdown\\s*\\(", "\\binput\\s*\\(")
+      ], ["Convert the input to int.", "Pass the number into the recursive function."]),
+      task("recursive-sum", "Recursive sum", "Create sum_to(number) that returns the total from 1 to number. Print sum_to(5).", [], "15", [
+        exact("recursive-sum-output", "Prints sum_to(5)", "15", true),
+        requireSource("recursive-sum-source", "Defines recursive sum_to", "\\bdef\\s+sum_to\\s*\\(", "\\breturn\\b"),
+        assertPython("recursive-sum-assert", "sum_to returns totals", `assert sum_to(1) == 1
+assert sum_to(4) == 10`)
+      ], ["The base case can return 1.", "The recursive case returns number + sum_to(number - 1)."]),
+      task("recursive-factorial", "Recursive factorial", "Create factorial(number) recursively. Print factorial(5).", [], "120", [
+        exact("recursive-factorial-output", "Prints factorial(5)", "120", true),
+        requireSource("recursive-factorial-source", "Defines recursive factorial", "\\bdef\\s+factorial\\s*\\(", "\\breturn\\b"),
+        assertPython("recursive-factorial-assert", "factorial returns products", `assert factorial(1) == 1
+assert factorial(4) == 24`)
+      ], ["The base case should return 1.", "The recursive case multiplies by factorial(number - 1)."]),
+      task("recursive-letters", "Recursive letters", "Create print_letters(word) recursively. Call print_letters('cat') to print each letter.", [], "c\na\nt", [
+        exact("recursive-letters-output", "Prints each letter", "c\na\nt", true),
+        requireSource("recursive-letters-source", "Defines recursive print_letters", "\\bdef\\s+print_letters\\s*\\("),
+        assertPython("recursive-letters-assert", "print_letters handles another word", `import io, contextlib
+_buf = io.StringIO()
+with contextlib.redirect_stdout(_buf):
+    print_letters("hi")
+assert _buf.getvalue().strip() == "h\\ni"`)
+      ], ["Print the first letter.", "Call the function again with the rest of the word."])
+    ],
+    21: [
+      task("search-names", "Search names", "Search ['Harry', 'Sarah', 'John'] for a name entered by the user. Print Found or Not found.", ["Sarah"], "Found", [
+        exact("search-names-found", "Finds a present name", "Found", true, ["Sarah"]),
+        exact("search-names-missing", "Handles a missing name", "Not found", false, ["Bob"]),
+        requireSource("search-names-source", "Uses a loop to search", "\\bfor\\b", "\\[.*Harry.*Sarah.*John.*\\]")
+      ], ["Use a found variable that starts as False.", "Change it when the target matches a name."]),
+      task("largest-smallest", "Find largest and smallest", "Find the largest and smallest numbers in [4, 9, 2, 7] without using max() or min(). Print largest then smallest.", [], "9\n2", [
+        exact("largest-smallest-output", "Prints largest and smallest", "9\n2", true),
+        requireSource("largest-smallest-source", "Uses a loop", "\\bfor\\b"),
+        forbidSource("largest-smallest-forbidden", "Does not use max or min", "\\bmax\\s*\\(", "\\bmin\\s*\\(")
+      ], ["Start largest and smallest as the first list item.", "Update them inside the loop."]),
+      task("count-words", "Count words", "Count each word in ['red', 'blue', 'red', 'green', 'blue', 'red'] using a dictionary and print it.", [], "{'red': 3, 'blue': 2, 'green': 1}", [
+        exact("count-words-output", "Prints word counts", "{'red': 3, 'blue': 2, 'green': 1}", true),
+        requireSource("count-words-source", "Uses a dictionary and loop", "\\{\\}", "\\bfor\\b")
+      ], ["Start with an empty dictionary.", "If the word is already in counts, add 1."]),
+      task("average-five", "Average five numbers", "Ask for five numbers, store them in a list, and print the average.", ["2", "4", "6", "8", "10"], "6.0", [
+        exact("average-five-output", "Prints the average", "6.0", true, ["2", "4", "6", "8", "10"]),
+        requireSource("average-five-source", "Uses a list and loop", "\\[\\]", "\\bfor\\b")
+      ], ["Append each converted number to a list.", "The average is total divided by the list length."]),
+      task("high-score", "High score dictionary", "Create a dictionary of player scores for Ava 50, Sam 80, and Riley 65. Print the highest scorer as Sam 80.", [], "Sam 80", [
+        exact("high-score-output", "Prints the high scorer", "Sam 80", true),
+        requireSource("high-score-source", "Uses a dictionary and loop", "\\{[\\s\\S]*Ava[\\s\\S]*Sam[\\s\\S]*Riley[\\s\\S]*\\}", "\\bfor\\b")
+      ], ["Loop through the dictionary items.", "Track the best name and best score as you go."])
+    ]
+  };
+
+  window.COURSE_DATA = window.COURSE_DATA.map((entry) => {
+    if (entry.type !== "challenge" || !specs[entry.number]) return entry;
+    const tasks = specs[entry.number];
+    return { ...entry, html: htmlFor(tasks), tasks };
+  });
+})();

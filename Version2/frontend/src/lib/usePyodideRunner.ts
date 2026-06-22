@@ -4,6 +4,7 @@ import type { GradeResult, GradeTest } from "../types";
 type WorkerMessage =
   | { type: "ready" }
   | { type: "status"; message: string }
+  | { type: "grade-status"; message: string }
   | { type: "output"; output: string; status: "finished" | "waiting_for_input" | "error"; prompt?: string; error?: string }
   | { type: "grade-result"; result: GradeResult }
   | { type: "error"; error: string };
@@ -50,7 +51,18 @@ export function usePyodideRunner() {
         setState((current) => ({ ...current, ready: true, status: current.status === "loading" ? "idle" : current.status }));
       }
       if (message.type === "status") {
+        if (gradeResolverRef.current) {
+          setGraderState((current) =>
+            current.status === "loading" || current.status === "checking" ? { ...current, status: "checking" } : current
+          );
+          return;
+        }
         setState((current) => ({ ...current, status: "running", prompt: "", output: current.output || message.message }));
+      }
+      if (message.type === "grade-status") {
+        setGraderState((current) =>
+          current.status === "loading" || current.status === "checking" ? { ...current, status: "checking" } : current
+        );
       }
       if (message.type === "output") {
         setState((current) => ({

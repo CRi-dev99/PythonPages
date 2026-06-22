@@ -36,3 +36,24 @@ test("keeps imports working after a Python error", async ({ page }) => {
   await expect(terminal).toContainText("3.0", { timeout: 90_000 });
   await expect(terminal).not.toContainText("RecursionError");
 });
+
+test("grader enforces source checks and hidden assertions", async ({ page }) => {
+  test.setTimeout(120_000);
+
+  await page.goto("/?page=challenge2.html");
+  await setEditorCode(page, 'print("Paddy")\n');
+  await page.getByRole("button", { name: "Check answer" }).click();
+  await expect(page.getByText("Not quite yet")).toBeVisible({ timeout: 90_000 });
+  await expect(page.getByText("Hidden checks: 0 / 1 passed")).toBeVisible();
+
+  await setEditorCode(page, 'name = "Paddy"\nprint(name)\n');
+  await page.getByRole("button", { name: "Check answer" }).click();
+  await expect(page.getByRole("button", { name: "Passed" })).toBeDisabled({ timeout: 90_000 });
+
+  await page.goto("/?page=challenge13.html");
+  await page.getByRole("tab").nth(2).click();
+  await setEditorCode(page, "def add(a, b):\n    return 12\n\nprint(add(7, 5))\n");
+  await page.getByRole("button", { name: "Check answer" }).click();
+  await expect(page.getByText("Not quite yet")).toBeVisible({ timeout: 90_000 });
+  await expect(page.getByText("Hidden checks: 1 / 2 passed")).toBeVisible();
+});

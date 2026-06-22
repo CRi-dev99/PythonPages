@@ -7,6 +7,12 @@ export type GradeTest = {
   expectedOutput?: string;
   expectedLineCount?: number;
   match?: GradeMatch;
+  assertion?: string;
+  sourceIncludes?: string[];
+  sourceExcludes?: string[];
+  sourceRegexes?: string[];
+  sourceNotRegexes?: string[];
+  stepLimit?: number;
   visible?: boolean;
 };
 
