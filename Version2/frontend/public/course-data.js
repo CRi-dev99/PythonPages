@@ -437,11 +437,11 @@ window.COURSE_DATA = [
 <h3>Example</h3>
 <pre><code>print("Hello, World!")
 print(42)
-print("Answer =", 6 + 4)</code></pre>
+print("Ready")</code></pre>
 <p>will display:</p>
 <pre class="terminal-output"><code>&gt;&gt;&gt; Hello, World!
 &gt;&gt;&gt; 42
-&gt;&gt;&gt; Answer = 10</code></pre>
+&gt;&gt;&gt; Ready</code></pre>
 <h3>Important notes</h3>
 <ul>
   <li>Python is case-sensitive, so <code>print</code> works but <code>Print</code> does not.</li>
@@ -506,10 +506,10 @@ print(type(score))</code></pre>
 <p>The text inside the brackets is the prompt. The value the user types is stored in the variable.</p>
 <h3>Example</h3>
 <pre><code>name = input("Enter your name: ")
-print("Hello", name)</code></pre>
+print(name)</code></pre>
 <p>If the user types Harry, it will display:</p>
 <pre class="terminal-output"><code>&gt;&gt;&gt; Enter your name: Harry
-&gt;&gt;&gt; Hello Harry</code></pre>
+&gt;&gt;&gt; Harry</code></pre>
 <h3>Input is always a string</h3>
 <p><code>input()</code> always gives back a string, even if the user types digits.</p>
 <pre><code>age = input("Enter your age: ")
@@ -519,19 +519,19 @@ print(type(age))</code></pre>
 <h3>Important notes</h3>
 <ul>
   <li>Use a clear prompt so the user knows what to type.</li>
-  <li>Convert the input if you want to do maths with it.</li>
+  <li>The next lesson shows how to convert input when you need numbers.</li>
   <li>Store the input in a variable if you need to use it later.</li>
 </ul>
 <h3>Try it yourself</h3>
 <ul>
-  <li>Ask for the user's name and greet them.</li>
-  <li>Ask for a favourite colour and print a sentence using it.</li>
-  <li>Ask for two pieces of information and print them together.</li>
-  <li>Ask for an age and print the type before converting it.</li>
+  <li>Ask for the user's name and print it.</li>
+  <li>Ask for a favourite colour and print it.</li>
+  <li>Ask for two pieces of information and print each one on its own line.</li>
+  <li>Ask for an age and print its type.</li>
 </ul>`,
     4: `<h2>Type conversion</h2>
 <p><strong>Definition:</strong> Type conversion, or casting, changes a value from one data type into another.</p>
-<p>Casting is useful when a value arrives as text but your program needs a number, or when you want to combine numbers with strings in output.</p>
+<p>Casting is useful when a value arrives as text but your program needs a number.</p>
 <h3>Common conversion functions</h3>
 <ul>
   <li><code>int()</code> converts to an integer.</li>
@@ -545,12 +545,12 @@ age = int(age_text)
 print(age + 1)</code></pre>
 <p>If the user types 16, it will display:</p>
 <pre class="terminal-output"><code>&gt;&gt;&gt; 17</code></pre>
-<h3>Strings and numbers behave differently</h3>
-<pre><code>print("2" + "2")
-print(2 + 2)</code></pre>
+<h3>Strings and numbers are different types</h3>
+<pre><code>print(type("2"))
+print(type(2))</code></pre>
 <p>will display:</p>
-<pre class="terminal-output"><code>&gt;&gt;&gt; 22
-&gt;&gt;&gt; 4</code></pre>
+<pre class="terminal-output"><code>&gt;&gt;&gt; &lt;class 'str'&gt;
+&gt;&gt;&gt; &lt;class 'int'&gt;</code></pre>
 <h3>Arithmetic operators</h3>
 <ul>
   <li><code>+</code> addition</li>
@@ -688,14 +688,11 @@ numbers[0] = 10
 print(numbers)</code></pre>
 <p>will display:</p>
 <pre class="terminal-output"><code>&gt;&gt;&gt; [10, 3, 4]</code></pre>
-<h3>Checking and looping</h3>
+<h3>Checking a list</h3>
 <pre><code>subjects = ["English", "Maths", "Computer Science"]
 
 if "Maths" in subjects:
-    print("Maths is in the list")
-
-for subject in subjects:
-    print(subject)</code></pre>
+    print("Maths is in the list")</code></pre>
 <h3>Important notes</h3>
 <ul>
   <li><code>append()</code> adds an item to the end of a list.</li>
@@ -707,7 +704,7 @@ for subject in subjects:
   <li>Create a list of five favourite foods.</li>
   <li>Print the first item, last item, and length of the list.</li>
   <li>Add, remove, and change one item.</li>
-  <li>Loop through the list and print each item in a sentence.</li>
+  <li>Check whether one item is in the list before removing it.</li>
 </ul>`,
     8: `<h2>For loops</h2>
 <p><strong>Definition:</strong> A <code>for</code> loop repeats code once for each item in a sequence.</p>
@@ -1397,10 +1394,10 @@ print(counts)</code></pre>
         exact("input-name-output", "Prints the entered name", "Paddy", true, ["Paddy"]),
         requireSource("input-name-source", "Uses input()", "\\binput\\s*\\(")
       ], ["Store the input in a variable.", "Print the variable after input()."]),
-      task("input-film", "Print a film sentence", "Ask for a favourite film and print: Your favourite film is Spider-Man", ["Spider-Man"], "Your favourite film is Spider-Man", [
-        exact("input-film-output", "Prints the film sentence", "Your favourite film is Spider-Man", true, ["Spider-Man"]),
+      task("input-film", "Print a film", "Ask for a favourite film and print it.", ["Spider-Man"], "Spider-Man", [
+        exact("input-film-output", "Prints the entered film", "Spider-Man", true, ["Spider-Man"]),
         requireSource("input-film-source", "Uses input()", "\\binput\\s*\\(")
-      ], ["Use the value returned by input().", "The sentence must include the film after is."]),
+      ], ["Store the input in a variable.", "Print the variable after input()."]),
       task("input-login-details", "Print username and password", "Ask for a username and password, then print both on separate lines.", ["pythonfan", "secret"], "pythonfan\nsecret", [
         exact("input-login-details-output", "Prints both answers", "pythonfan\nsecret", true, ["pythonfan", "secret"]),
         lineCount("input-login-details-lines", 2),
@@ -1410,10 +1407,11 @@ print(counts)</code></pre>
         exact("short-profile-output", "Prints the profile", "Paddy\n16\nGalway", true, ["Paddy", "16", "Galway"]),
         lineCount("short-profile-lines", 3)
       ], ["Use three input() calls.", "Print the answers in the same order."]),
-      task("adventure-intro", "Print an adventure intro", "Ask for player, weapon, and destination. Print: Paddy takes the sword to the castle", ["Paddy", "sword", "castle"], "Paddy takes the sword to the castle", [
-        exact("adventure-intro-output", "Prints the adventure sentence", "Paddy takes the sword to the castle", true, ["Paddy", "sword", "castle"]),
+      task("adventure-intro", "Print adventure inputs", "Ask for player, weapon, and destination. Print each answer on its own line.", ["Paddy", "sword", "castle"], "Paddy\nsword\ncastle", [
+        exact("adventure-intro-output", "Prints the adventure answers", "Paddy\nsword\ncastle", true, ["Paddy", "sword", "castle"]),
+        lineCount("adventure-intro-lines", 3),
         requireSource("adventure-intro-source", "Uses input", "\\binput\\s*\\(")
-      ], ["Build the sentence from all three answers.", "Check the spaces between the words."])
+      ], ["Use three input() calls.", "Print the answers in the same order."])
     ],
     4: [
       task("age-next-year", "Convert an age", "Ask for age, convert it to an integer, and print the age next year.", ["16"], "17", [
