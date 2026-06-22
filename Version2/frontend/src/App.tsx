@@ -474,6 +474,7 @@ function App() {
         <CourseDirectory
           title="Tutorials"
           entries={courseData.filter((entry) => entry.type === "tutorial")}
+          allEntries={courseData}
           completedCourseUrls={completedCourseUrls}
           onOpen={openCourseEntry}
         />
@@ -482,6 +483,7 @@ function App() {
         <CourseDirectory
           title="Challenges"
           entries={courseData.filter((entry) => entry.type === "challenge")}
+          allEntries={courseData}
           completedCourseUrls={completedCourseUrls}
           onOpen={openCourseEntry}
         />
@@ -588,22 +590,47 @@ function HomeView({
 }
 
 function CourseDirectory({
+  allEntries,
   completedCourseUrls,
   entries,
   onOpen,
   title
 }: {
+  allEntries: CourseEntry[];
   completedCourseUrls: Set<string>;
   entries: CourseEntry[];
   onOpen: (entry: CourseEntry) => void;
   title: string;
 }) {
+  const completedCount = entries.filter((entry) => completedCourseUrls.has(entry.url)).length;
+  const overallCompletedCount = allEntries.filter((entry) => completedCourseUrls.has(entry.url)).length;
+  const progressPercent = entries.length ? Math.round((completedCount / entries.length) * 100) : 0;
+  const progressStyle = { "--progress-percent": `${progressPercent}%` } as CSSProperties;
+
   return (
     <main className="directory-view" aria-labelledby={`${title.toLowerCase()}-title`}>
       <div className="section-heading">
         <span className="eyebrow">Choose a lesson</span>
         <h1 id={`${title.toLowerCase()}-title`}>{title}</h1>
       </div>
+      <section className="progress-summary" aria-label={`${title} progress`}>
+        <div>
+          <span className="progress-label">{title} progress</span>
+          <strong>{completedCount} / {entries.length} done</strong>
+        </div>
+        <div
+          aria-label={`${title} completion`}
+          aria-valuemax={entries.length}
+          aria-valuemin={0}
+          aria-valuenow={completedCount}
+          className="progress-track"
+          role="progressbar"
+          style={progressStyle}
+        >
+          <span />
+        </div>
+        <p>Overall: {overallCompletedCount} / {allEntries.length} done</p>
+      </section>
       <div className="course-grid">
         {entries.map((entry) => {
           const isDone = completedCourseUrls.has(entry.url);

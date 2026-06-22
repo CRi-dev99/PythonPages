@@ -51,6 +51,8 @@ test("opens tutorials and selects a tutorial in the IDE", async ({ page }) => {
   await page.goto("/");
   await mainNav(page).getByRole("button", { name: "Tutorials" }).click();
   await expect(page.getByRole("heading", { name: "Tutorials" })).toBeVisible();
+  await expect(page.getByLabel("Tutorials progress")).toContainText("0 / 21 done");
+  await expect(page.getByLabel("Tutorials progress")).toContainText("Overall: 0 / 42 done");
   await page.getByRole("button", { name: /Lesson 1\s+Lesson 1: print\(\)/ }).click();
   await expect(page.getByRole("heading", { name: "Lesson 1: print()", level: 1 })).toBeVisible();
   await expect(page.getByLabel("Python IDE workspace")).toBeVisible();
@@ -60,6 +62,8 @@ test("opens challenges and selects a challenge in the IDE", async ({ page }) => 
   await page.goto("/");
   await mainNav(page).getByRole("button", { name: "Challenges" }).click();
   await expect(page.getByRole("heading", { name: "Challenges" })).toBeVisible();
+  await expect(page.getByLabel("Challenges progress")).toContainText("0 / 21 done");
+  await expect(page.getByLabel("Challenges progress")).toContainText("Overall: 0 / 42 done");
   await page.getByRole("button", { name: /Challenge 1\s+Challenge 1/ }).click();
   await expect(page.getByRole("heading", { name: "Challenge 1", level: 1 })).toBeVisible();
   await expect(page.getByLabel("Python IDE workspace")).toBeVisible();
@@ -76,8 +80,12 @@ test("lesson pane next button moves from lesson 1 to challenge 1 to lesson 2", a
   await expect.poll(() => page.url()).toContain("page=");
 
   await mainNav(page).getByRole("button", { name: "Tutorials" }).click();
+  await expect(page.getByLabel("Tutorials progress")).toContainText("1 / 21 done");
+  await expect(page.getByLabel("Tutorials progress")).toContainText("Overall: 2 / 42 done");
   await expect(doneBadgeFor(page, /Lesson 1\s+Lesson 1: print\(\)/)).toHaveText("Done");
   await mainNav(page).getByRole("button", { name: "Challenges" }).click();
+  await expect(page.getByLabel("Challenges progress")).toContainText("1 / 21 done");
+  await expect(page.getByLabel("Challenges progress")).toContainText("Overall: 2 / 42 done");
   await expect(doneBadgeFor(page, /Challenge 1\s+Challenge 1/)).toHaveText("Done");
 });
 
@@ -90,6 +98,7 @@ test("local course completion persists after reload", async ({ page }) => {
   await page.reload();
   await expect(page.getByRole("heading", { name: "Challenge 1", level: 1 })).toBeVisible();
   await mainNav(page).getByRole("button", { name: "Tutorials" }).click();
+  await expect(page.getByLabel("Tutorials progress")).toContainText("1 / 21 done");
   await expect(doneBadgeFor(page, /Lesson 1\s+Lesson 1: print\(\)/)).toHaveText("Done");
 });
 
@@ -104,6 +113,8 @@ test("final course item can be marked done", async ({ page }) => {
   await expect(page.locator(".lesson-progress.done")).toContainText("Done");
 
   await mainNav(page).getByRole("button", { name: "Challenges" }).click();
+  await expect(page.getByLabel("Challenges progress")).toContainText("1 / 21 done");
+  await expect(page.getByLabel("Challenges progress")).toContainText("Overall: 1 / 42 done");
   await expect(doneBadgeFor(page, /Challenge 21\s+Challenge 21/)).toHaveText("Done");
 });
 
