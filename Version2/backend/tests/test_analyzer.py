@@ -27,10 +27,28 @@ def test_blocks_browser_bridge_imports() -> None:
     assert "pyodide.ffi" in result.blocked_imports
 
 
+def test_blocks_operator_attr_helpers() -> None:
+    result = analyze_code("from operator import attrgetter")
+    assert result.safety == "block"
+    assert "operator.attrgetter" in result.blocked_imports
+
+
 def test_blocks_dynamic_execution_calls() -> None:
     result = analyze_code("eval('1 + 1')\ncompile('x=1', 'x.py', 'exec')")
     assert result.safety == "block"
     assert {item.category for item in result.safety_findings} == {"blocked-call"}
+
+
+def test_blocks_reflection_calls() -> None:
+    result = analyze_code('getattr(input, "__globals__")\nvars(input)')
+    assert result.safety == "block"
+    assert {item.category for item in result.safety_findings} == {"blocked-reflection"}
+
+
+def test_blocks_format_string_introspection_bypass() -> None:
+    result = analyze_code('print("{0.__globals__[os].environ[RENDER_SERVICE_ID]}".format(input))')
+    assert result.safety == "block"
+    assert result.safety_findings[0].category == "blocked-format-string"
 
 
 def test_warns_for_virtual_file_access() -> None:
@@ -42,4 +60,3 @@ def test_warns_for_virtual_file_access() -> None:
 def test_reports_beginner_diagnostics() -> None:
     result = analyze_code("items = [1, 2, 3]\nfor i in range(len(items) + 1):\n    print(items[i])")
     assert "loop-boundary" in {item.category for item in result.diagnostics}
-

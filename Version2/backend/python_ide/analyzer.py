@@ -17,6 +17,7 @@ BLOCKED_IMPORTS = {
     "http.client",
     "js",
     "micropip",
+    "operator",
     "pyodide",
     "requests",
     "socket",
@@ -24,6 +25,8 @@ BLOCKED_IMPORTS = {
     "urllib",
 }
 BLOCKED_CALLS = {"eval", "exec", "compile", "__import__"}
+BLOCKED_REFLECTION_CALLS = {"getattr", "setattr", "delattr", "globals", "locals", "vars", "dir"}
+BLOCKED_FORMAT_METHODS = {"format", "format_map", "vformat", "get_field"}
 VIRTUAL_FILE_CALLS = {"open"}
 DESTRUCTIVE_FILE_METHODS = {"remove", "removedirs", "rmdir", "unlink", "write_bytes", "write_text"}
 STDLIB_MODULES = set(getattr(sys, "stdlib_module_names", set()))
@@ -171,6 +174,15 @@ class _Visitor(ast.NodeVisitor):
                         message=f"`{name}` is blocked in the IDE runner.",
                     )
                 )
+            if name in BLOCKED_REFLECTION_CALLS:
+                self.safety_findings.append(
+                    SafetyFinding(
+                        category="blocked-reflection",
+                        line=node.lineno,
+                        severity="error",
+                        message=f"`{name}` is blocked because it can bypass the IDE safety checks.",
+                    )
+                )
             if name in VIRTUAL_FILE_CALLS:
                 self.safety_findings.append(
                     SafetyFinding(
@@ -180,6 +192,18 @@ class _Visitor(ast.NodeVisitor):
                         message="File access uses the browser's virtual project filesystem, not your real computer.",
                     )
                 )
+        if isinstance(node.func, ast.Attribute) and node.func.attr in BLOCKED_FORMAT_METHODS:
+            self.safety_findings.append(
+                SafetyFinding(
+                    category="blocked-format-string",
+                    line=node.lineno,
+                    severity="error",
+                    message=(
+                        f"`.{node.func.attr}()` is blocked because format strings can hide unsafe attribute access. "
+                        "Use f-strings or string concatenation instead."
+                    ),
+                )
+            )
         if isinstance(node.func, ast.Attribute) and node.func.attr in DESTRUCTIVE_FILE_METHODS:
             self.safety_findings.append(
                 SafetyFinding(
@@ -339,4 +363,3 @@ def _is_allowed_import(name: str) -> bool:
         return False
     root = name.split(".")[0]
     return root in STDLIB_MODULES or root in ALLOWED_PACKAGES
-

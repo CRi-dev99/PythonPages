@@ -289,9 +289,9 @@ function buildScript(
 ): string {
   const assertion = options.assertion ?? "";
   const echoInput = options.echoInput ?? true;
-  const isolated = options.isolated ?? false;
   const stepLimit = options.stepLimit ?? null;
   return `
+import ast
 import builtins
 import json
 import sys
@@ -303,13 +303,51 @@ __py_ide_step_limit = ${stepLimit === null ? "None" : JSON.stringify(stepLimit)}
 __py_ide_steps = 0
 __py_ide_blocked_imports = {
     "cffi", "ctypes", "http.client", "js", "micropip", "pyodide",
-    "requests", "socket", "subprocess", "urllib"
+    "operator", "requests", "socket", "subprocess", "urllib"
 }
+__py_ide_blocked_calls = {"eval", "exec", "compile", "__import__"}
+__py_ide_blocked_reflection_calls = {"getattr", "setattr", "delattr", "globals", "locals", "vars", "dir"}
+__py_ide_blocked_format_methods = {"format", "format_map", "vformat", "get_field"}
 __py_ide_original_import = builtins.__import__
 __py_ide_original_input = builtins.input
 
 class __PyIdeNeedInput(BaseException):
     pass
+
+def __py_ide_validate_source(source):
+    try:
+        tree = ast.parse(source or "\\n")
+    except SyntaxError:
+        return
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            names = []
+            if isinstance(node, ast.Import):
+                names = [alias.name for alias in node.names]
+            else:
+                module = "." * node.level + (node.module or "")
+                names = [
+                    module if alias.name == "*" else f"{module}.{alias.name}" if module else alias.name
+                    for alias in node.names
+                ]
+            for name in names:
+                root = str(name).lstrip(".").split(".")[0]
+                if name in __py_ide_blocked_imports or root in __py_ide_blocked_imports:
+                    raise PermissionError(f"{name} is blocked in the PythonPages browser runner")
+                for blocked in __py_ide_blocked_imports:
+                    if str(name).startswith(blocked + "."):
+                        raise PermissionError(f"{name} is blocked in the PythonPages browser runner")
+        if isinstance(node, ast.Call):
+            if isinstance(node.func, ast.Name):
+                name = node.func.id
+                if name in __py_ide_blocked_calls or name in __py_ide_blocked_reflection_calls:
+                    raise PermissionError(f"{name} is blocked in the PythonPages browser runner")
+            if isinstance(node.func, ast.Attribute) and node.func.attr in __py_ide_blocked_format_methods:
+                raise PermissionError(f".{node.func.attr}() is blocked in the PythonPages browser runner")
+        if isinstance(node, ast.Attribute) and node.attr.startswith("__"):
+            raise PermissionError("Dunder attribute access is blocked in the PythonPages browser runner")
+        if isinstance(node, ast.Name) and node.id.startswith("__"):
+            raise PermissionError("Dunder names are blocked in the PythonPages browser runner")
 
 def __py_ide_import(name, globals=None, locals=None, fromlist=(), level=0):
     root = str(name).split(".")[0]
@@ -320,13 +358,21 @@ def __py_ide_import(name, globals=None, locals=None, fromlist=(), level=0):
             raise ImportError(f"{name} is blocked in the PythonPages browser runner")
     return __py_ide_original_import(name, globals, locals, fromlist, level)
 
-def __py_ide_input(prompt=""):
-    if not __py_ide_inputs:
-        raise __PyIdeNeedInput(str(prompt))
-    value = __py_ide_inputs.pop(0)
-    if ${echoInput ? "True" : "False"}:
-        print(str(prompt) + value)
-    return value
+class __PyIdeInput:
+    __slots__ = ()
+
+    def __call__(self, prompt=""):
+        if not __py_ide_inputs:
+            raise __PyIdeNeedInput(str(prompt))
+        value = __py_ide_inputs.pop(0)
+        if ${echoInput ? "True" : "False"}:
+            print(str(prompt) + value)
+        return value
+
+    def __getattribute__(self, name):
+        if str(name).startswith("_"):
+            raise AttributeError(name)
+        return object.__getattribute__(self, name)
 
 def __py_ide_trace(frame, event, arg):
     global __py_ide_steps
@@ -337,12 +383,13 @@ def __py_ide_trace(frame, event, arg):
     return __py_ide_trace
 
 try:
+    __py_ide_validate_source(${JSON.stringify(code)})
     builtins.__import__ = __py_ide_import
-    builtins.input = __py_ide_input
+    builtins.input = __PyIdeInput()
     if __py_ide_step_limit is not None:
         sys.settrace(__py_ide_trace)
     try:
-        __py_ide_globals = {"__name__": "__main__"} if ${isolated ? "True" : "False"} else globals()
+        __py_ide_globals = {"__name__": "__main__"}
         exec(compile(${JSON.stringify(code)}, "student_code.py", "exec"), __py_ide_globals, __py_ide_globals)
         if ${assertion ? "True" : "False"}:
             exec(compile(${JSON.stringify(assertion)}, "hidden_checks.py", "exec"), __py_ide_globals, __py_ide_globals)

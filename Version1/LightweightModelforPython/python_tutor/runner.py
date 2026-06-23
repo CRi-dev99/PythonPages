@@ -53,7 +53,6 @@ def start_run(code: str) -> dict[str, object]:
 
     session_id = uuid.uuid4().hex
     encoded = base64.b64encode(code.encode("utf-8")).decode("ascii")
-    env = {**os.environ, "PY_TUTOR_RUNNER_CODE": encoded}
     process = subprocess.Popen(
         [sys.executable, "-I", "-u", "-c", _WRAPPER],
         stdin=subprocess.PIPE,
@@ -62,8 +61,16 @@ def start_run(code: str) -> dict[str, object]:
         text=True,
         encoding="utf-8",
         errors="replace",
-        env=env,
+        env=_runner_environment(),
     )
+    if process.stdin is None:
+        raise RunnerError("Python runner could not start.")
+    try:
+        process.stdin.write(encoded + "\n")
+        process.stdin.flush()
+    except BrokenPipeError as exc:
+        raise RunnerError("Python runner could not start.") from exc
+
     now = time.monotonic()
     session = RunnerSession(id=session_id, process=process, started_at=now, run_started_at=now)
     SESSIONS[session_id] = session
@@ -118,16 +125,44 @@ def validate_code(code: str) -> None:
     except SyntaxError:
         return
 
-    blocked_calls = {"open", "exec", "eval", "compile", "__import__", "globals", "locals", "vars"}
+    blocked_calls = {
+        "open",
+        "exec",
+        "eval",
+        "compile",
+        "__import__",
+        "globals",
+        "locals",
+        "vars",
+        "getattr",
+        "setattr",
+        "delattr",
+        "dir",
+    }
+    blocked_methods = {"format", "format_map", "vformat", "get_field"}
     for node in ast.walk(tree):
         if isinstance(node, (ast.Import, ast.ImportFrom)):
             raise RunnerError("Imports are disabled in this beginner runner.")
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in blocked_calls:
             raise RunnerError(f"`{node.func.id}` is disabled in this beginner runner.")
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr in blocked_methods:
+            raise RunnerError(
+                f"`.{node.func.attr}()` is disabled because format strings can bypass the runner safety checks. "
+                "Use f-strings or string concatenation instead."
+            )
         if isinstance(node, ast.Attribute) and node.attr.startswith("__"):
             raise RunnerError("Dunder attribute access is disabled in this beginner runner.")
         if isinstance(node, ast.Name) and node.id.startswith("__"):
             raise RunnerError("Dunder names are disabled in this beginner runner.")
+
+
+def _runner_environment() -> dict[str, str]:
+    env: dict[str, str] = {}
+    for key in ("SystemDrive", "SystemRoot", "SYSTEMROOT", "WINDIR", "ProgramData", "TEMP", "TMP"):
+        value = os.environ.get(key)
+        if value:
+            env[key] = value
+    return env
 
 
 def _get_session(session_id: str) -> RunnerSession:
@@ -237,18 +272,28 @@ def _close_process(session: RunnerSession) -> None:
 _WRAPPER = r"""
 import base64
 import builtins
-import os
 import sys
 
 INPUT_MARKER = "__PY_TUTOR_INPUT__"
-code = base64.b64decode(os.environ["PY_TUTOR_RUNNER_CODE"]).decode("utf-8")
+encoded_code = sys.stdin.readline()
+if encoded_code == "":
+    raise RuntimeError("No code was provided.")
+code = base64.b64decode(encoded_code.strip().encode("ascii")).decode("utf-8")
 
-def safe_input(prompt=""):
-    print(INPUT_MARKER + str(prompt), flush=True)
-    line = sys.stdin.readline()
-    if line == "":
-        raise EOFError("No input was provided.")
-    return line.rstrip("\n")
+class SafeInput:
+    __slots__ = ()
+
+    def __call__(self, prompt=""):
+        print(INPUT_MARKER + str(prompt), flush=True)
+        line = sys.stdin.readline()
+        if line == "":
+            raise EOFError("No input was provided.")
+        return line.rstrip("\n")
+
+    def __getattribute__(self, name):
+        if str(name).startswith("_"):
+            raise AttributeError(name)
+        return object.__getattribute__(self, name)
 
 safe_builtins = {
     "abs": builtins.abs,
@@ -256,7 +301,7 @@ safe_builtins = {
     "dict": builtins.dict,
     "enumerate": builtins.enumerate,
     "float": builtins.float,
-    "input": safe_input,
+    "input": SafeInput(),
     "int": builtins.int,
     "len": builtins.len,
     "list": builtins.list,

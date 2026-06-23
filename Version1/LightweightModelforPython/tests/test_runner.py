@@ -45,6 +45,15 @@ class RunnerTests(unittest.TestCase):
             validate_code("open('x.txt')")
         with self.assertRaises(RunnerError):
             validate_code("eval('1 + 1')")
+        with self.assertRaises(RunnerError):
+            validate_code('getattr(input, "__globals__")')
+
+    def test_blocks_format_string_introspection_bypass(self) -> None:
+        payload = 'print("{0.__globals__[os].environ[RENDER_SERVICE_ID]}".format(input))'
+        with self.assertRaises(RunnerError):
+            validate_code(payload)
+        with self.assertRaises(RunnerError):
+            start_run(payload)
 
     def test_stop_run_stops_session(self) -> None:
         started = start_run('name = input("Name: ")\nprint(name)')
