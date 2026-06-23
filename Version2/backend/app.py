@@ -83,7 +83,7 @@ def chat(request: ChatRequest, user: AuthUser = Depends(require_user)) -> dict[s
 
 
 @app.post("/api/review")
-def review(request: ReviewRequest) -> dict[str, object]:
+def review(request: ReviewRequest, user: AuthUser = Depends(require_user)) -> dict[str, object]:
     analysis = analyze_code(request.code)
     result = request_debug_help(
         message=request.question or "Review this learner code.",
