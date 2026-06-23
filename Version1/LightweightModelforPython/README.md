@@ -30,6 +30,13 @@ Then open:
 http://127.0.0.1:8000
 ```
 
+The server-side Python runner is disabled by default. Enable it only for a trusted/local deployment:
+
+```powershell
+$env:PY_TUTOR_ENABLE_RUNNER = "1"
+python app.py
+```
+
 ## Deploy on Render for GitHub Pages
 
 Create a Render web service for this folder and use:
@@ -45,6 +52,8 @@ PY_TUTOR_HOST=0.0.0.0
 PY_TUTOR_BACKEND=rule
 PY_TUTOR_ALLOWED_ORIGINS=https://YOUR_GITHUB_USERNAME.github.io
 ```
+
+Do not set `PY_TUTOR_ENABLE_RUNNER=1` on a public service unless you intentionally want the legacy server-side code runner exposed. Without that variable, `/api/run/*` returns 403 and `/api/review` continues to work.
 
 Render provides the `PORT` variable automatically. The app also exposes:
 

@@ -16,6 +16,7 @@ from python_tutor.storage import ReviewExample, append_review_example
 ROOT = Path(__file__).parent
 STATIC = ROOT / "static"
 DEFAULT_ALLOWED_ORIGINS = "*"
+TRUE_VALUES = {"1", "true", "yes", "on"}
 
 
 class TutorHandler(BaseHTTPRequestHandler):
@@ -24,7 +25,9 @@ class TutorHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
         if parsed.path == "/api/health":
-            return self._send_json({"ok": True, "service": "python-tutor-reviewer"})
+            return self._send_json(
+                {"ok": True, "service": "python-tutor-reviewer", "runner_enabled": runner_enabled()}
+            )
         if parsed.path == "/":
             return self._send_file(STATIC / "index.html")
         if parsed.path.startswith("/static/"):
@@ -44,10 +47,16 @@ class TutorHandler(BaseHTTPRequestHandler):
         if parsed.path == "/api/review":
             return self._handle_review()
         if parsed.path == "/api/run/start":
+            if not runner_enabled():
+                return self._send_runner_disabled()
             return self._handle_run_start()
         if parsed.path == "/api/run/input":
+            if not runner_enabled():
+                return self._send_runner_disabled()
             return self._handle_run_input()
         if parsed.path == "/api/run/stop":
+            if not runner_enabled():
+                return self._send_runner_disabled()
             return self._handle_run_stop()
         if parsed.path == "/api/examples":
             return self._handle_example()
@@ -109,6 +118,16 @@ class TutorHandler(BaseHTTPRequestHandler):
         append_review_example(example)
         self._send_json({"ok": True})
 
+    def _send_runner_disabled(self) -> None:
+        self._send_json(
+            {
+                "status": "error",
+                "output": "",
+                "error": "The server-side Python runner is disabled for this public service.",
+            },
+            status=403,
+        )
+
     def _read_json(self) -> dict[str, object]:
         length = int(self.headers.get("Content-Length", "0"))
         body = self.rfile.read(length) if length else b"{}"
@@ -157,6 +176,10 @@ class TutorHandler(BaseHTTPRequestHandler):
         elif request_origin and request_origin in origins:
             self.send_header("Access-Control-Allow-Origin", request_origin)
             self.send_header("Vary", "Origin")
+
+
+def runner_enabled() -> bool:
+    return os.getenv("PY_TUTOR_ENABLE_RUNNER", "").strip().lower() in TRUE_VALUES
 
 
 def main() -> None:

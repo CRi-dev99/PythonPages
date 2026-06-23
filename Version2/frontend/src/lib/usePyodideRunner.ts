@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { GradeResult, GradeTest } from "../types";
+import PyodideWorker from "../pyodideWorker?worker&inline";
 
 type WorkerMessage =
   | { type: "ready" }
@@ -23,7 +24,7 @@ export type GraderState = {
 };
 
 function makeWorker(): Worker {
-  return new Worker(new URL("../pyodideWorker.ts", import.meta.url), { type: "module" });
+  return new PyodideWorker();
 }
 
 export function usePyodideRunner() {
